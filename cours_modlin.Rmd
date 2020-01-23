@@ -555,6 +555,27 @@ plot(
 )
 ```
 
+```{r eval=FALSE}
+m1 = lm(CO2[CO2$Type=="Quebec", ]$uptake~CO2[CO2$Type=="Quebec", ]$conc)
+m2 = lm(CO2[CO2$Type=="Quebec", ]$uptake~log(CO2[CO2$Type=="Quebec", ]$conc))
+layout(matrix(1:2, 1), respect=TRUE)
+plot(
+  CO2[CO2$Type=="Quebec", ]$conc, 
+  CO2[CO2$Type=="Quebec", ]$uptake, 
+  xlab="food", ylab="growth", main=paste0("growth~food ")
+)
+abline(m1, col=2)
+plot(
+  log(CO2[CO2$Type=="Quebec", ]$conc), 
+  CO2[CO2$Type=="Quebec", ]$uptake, 
+  xlab="log(food)", ylab="growth", main=paste0("growth~log(food) ")
+)
+abline(m2, col=2)
+summary(m1)
+summary(m2)
+
+```
+
 On s’intéresse uniquement aux plantes dont le `Type` est `Quebec`.
  
 - Calculer les modèles de regression linéaire `m1: growth~food` et `m2: growth~log(food)`
@@ -605,8 +626,15 @@ Pour tester la normalité des résidus :
 
 - Test de Shapiro-Wilk
 - Test de Anderson-Darling
+- Test de Jarque-Bera (package `tseries`, grands échantillons)
 - Test de Kolmogorov-Smirnov (comparaison de distributions)
 - QQ plot 
+
+Pour tester l’homoscedasticité : 
+
+- Test de Goldfeld-Quandt 
+- Test de Hartley (??)
+- Test de Bartlett (ANOVA)
 
 
 ```{r echo=TRUE, results="verbatim"}
@@ -642,7 +670,7 @@ abline(0, 1, col=2)
 
 Le risque de première espèce ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
 
-Généralement on fixe $\alpha=5%$.
+Généralement on fixe $\alpha=0.05$.
 
 Note : Le risque de seconde espèce ou risque $\beta$ est le risque de conserver $\mathcal{H}_0$ alors que celle-ci est fausse. Attention, le calcul du risque $\beta$ est plus compliqué. Souvent en minimisant $\alpha$ on augmente $\beta$. Pour s’assurer que $\beta$ reste faible il faut généralement augmenter $n$.
 
@@ -737,16 +765,23 @@ pval
 - Construire le modèle de régréssion linéaire sur la totalité des données `cats`.
 - Tracer la droite de régression correspondante.
 - Tester l’hypothèse $\mathcal{H}_0 : {\beta_1 = 0}$ contre $\mathcal{H}_1 : {\beta_1 \neq 0}$ sur ce modèle.
-- Comparer la p-valeur obtenue avec ce modèle avec celle obtebue sur le modèle du cours (30 observations).
+- Comparer la p-valeur obtenue avec ce modèle avec celle obtenue sur le modèle du cours (30 observations).
   
 ```{r echo=TRUE, results="verbatim"}
-set.seed(1)
 layout(1, respect=TRUE)
 plot(
   MASS::cats$Bwt, MASS::cats$Hwt, 
   xlab="Body weight", ylab="Heart weight", 
   main="Heart weight ~ Body weight"
 )
+```
+
+```{r eval=FALSE}
+m2 = lm(MASS::cats$Hwt~MASS::cats$Bwt)
+abline(m, col="grey")
+abline(m2, col=2)
+shapiro.test(m2$residuals)
+summary(m2)
 ``` 
 
 ---
@@ -783,16 +818,27 @@ abline(m, col=2)
 x = seq(min(m$model$Bwt), max(m$model$Bwt), length.out=100)
 x = seq(2.5, 3, length.out=100)
 pred =  predict(m, interval="predict")
+
+head(pred)
 points(m$model$Bwt, pred[,2], col=2, pch=3)
 points(m$model$Bwt, pred[,3], col=2, pch=3)
 ```
+```{r}
+m2 = lm(MASS::cats$Hwt~MASS::cats$Bwt)
+pred =  predict(m2, interval="predict")
+abline(m2, col=2)
+head(pred)
+points(m2$model[,2], pred[,2], col=4, pch=3)
+points(m2$model[,2], pred[,3], col=4, pch=3)
+pred =  predict(m2, interval="predict")
 
+```
 
 **Travaux pratiques**
 
 
-- Tracer l’intervalle de prédiction du modèle obetnu sur la totalité des données `cats`.
-- Comparer la l’intervalle de prédiction obtenu avec ce modèle avec celui obtebu sur le modèle du cours (30 observations).
+- Tracer l’intervalle de prédiction du modèle obtenu sur la totalité des données `cats`.
+- Comparer la l’intervalle de prédiction obtenu avec ce modèle avec celui obtenu sur le modèle du cours (30 observations).
 
 
 ---
@@ -1121,9 +1167,53 @@ Ainsi :
 - Calculer chacun des modèles de regression linéaire univariés permettant d’expliquer la variable *Life.Exp*
 - Pour chacun des modèles, calculer le $R^2$, Comparer les $R^2$ obtenus
 - Calculer le modèle de regression linéaire multiple *Life.Exp ~ Murder + HS.Grad + Frost*
-- Comparer le $R^2$ obetbu à celui des modèles univariés.
+- Comparer le $R^2$ obtenu à celui des modèles univariés.
 
+```{r eval=FALSE}
+m_Population = lm(Life.Exp ~ Population, state_us)
+m_Income     = lm(Life.Exp ~ Income    , state_us)
+m_Illiteracy = lm(Life.Exp ~ Illiteracy, state_us)
+m_Murder     = lm(Life.Exp ~ Murder    , state_us)
+m_HS.Grad    = lm(Life.Exp ~ HS.Grad   , state_us)
+m_Frost      = lm(Life.Exp ~ Frost     , state_us)
+m_Area       = lm(Life.Exp ~ Area      , state_us)
 
+shapiro.test(m_Population$residuals)$p.value
+shapiro.test(m_Income    $residuals)$p.value
+shapiro.test(m_Illiteracy$residuals)$p.value
+shapiro.test(m_Murder    $residuals)$p.value
+shapiro.test(m_HS.Grad   $residuals)$p.value
+shapiro.test(m_Frost     $residuals)$p.value
+shapiro.test(m_Area      $residuals)$p.value
+
+plot(state_us$Life.Exp, state_us$Illiteracy)
+
+summary(m_Population)$r.squared
+summary(m_Income    )$r.squared
+summary(m_Illiteracy)$r.squared
+summary(m_Murder    )$r.squared
+summary(m_HS.Grad   )$r.squared
+summary(m_Frost     )$r.squared
+summary(m_Area      )$r.squared
+
+m_mult       = lm(Life.Exp ~ Murder + HS.Grad + Frost, state_us)
+
+summary(m_mult)$r.squared
+
+anova(m_Population)[1,5]
+anova(m_Income    )[1,5]
+anova(m_Illiteracy)[1,5]
+anova(m_Murder    )[1,5]
+anova(m_HS.Grad   )[1,5]
+anova(m_Frost     )[1,5]
+anova(m_Area      )[1,5]
+anova(m_mult      )
+
+m_mult       = lm(Life.Exp ~ Murder + HS.Grad + Frost, state_us)
+anova(m_mult )
+m_mult       = lm(Life.Exp ~ HS.Grad + Murder + Frost, state_us)
+anova(m_mult )
+```
 
 
 
@@ -1185,7 +1275,7 @@ $\mathcal{H}_1 : \exists$ au moins un $j$ tel que ${\beta_j \neq 0}$ où $j$ var
 **Conditions d’applications du test**
 
 - Les observations sont indépendantes
-- La variance des erreurs est constante $\sigma^2$
+- La variance des erreurs est homogène $\sigma^2$
 - La loi des erreurs est une loi normale $\mathcal{N}(0, \sigma^2)$
 
 
@@ -1194,7 +1284,7 @@ $\mathcal{H}_1 : \exists$ au moins un $j$ tel que ${\beta_j \neq 0}$ où $j$ var
 
 Le risque de première espèce ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
 
-Généralement on fixe $\alpha=5%$.
+Généralement on fixe $\alpha=.05$.
 
 
 
