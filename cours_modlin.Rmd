@@ -42,7 +42,7 @@ d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
 
 ## Cours 
 
-- https://github.com/fchuffar
+- https://github.com/fchuffar/linear_models
 
 
 ## Organisation prévisionnelle
@@ -1021,9 +1021,33 @@ $$
 
 ### Maximum de vraisemblance
 
-La vraisemblance vaut
-$$ \mathcal{L}(Y,\beta,\sigma^2) = \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}\sum^n_{i=1}(y_i-x’_i\beta)^2\Big] $$
-$$ \mathcal{L}(Y,\beta,\sigma^2) = \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}||Y-X\beta||^2\Big] $$
+La vraisemblance n’a de sens que pour :
+
+- un modèle statistique 
+- des données observées
+  
+En effet, 
+
+\begin{eqnarray}
+
+\mathcal{L}_{\mathcal{M}, Y,X} &=& \mathbb{P}_\mathcal{M}(Y|X) \\
+                               &=& \prod^n_{i=1} \mathbb{P}_\mathcal{M}(Y_i|X_i)
+
+\end{eqnarray}
+
+
+
+...  DEMO ...
+
+Dans le cadre de la régression  linéaire multiple, la vraisemblance vaut : 
+
+\begin{eqnarray}
+
+ \mathcal{L}(Y,\beta,\sigma^2) &=& \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}\sum^n_{i=1}(y_i-x’_i\beta)^2\Big] \\
+                               &=& \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}||Y-X\beta||^2\Big] 
+
+\end{eqnarray}
+
 
 D’où l’on déduit la log-vraisemblance
 
@@ -1096,7 +1120,7 @@ Ainsi :
 
 - Calculer chacun des modèles de regression linéaire univariés permettant d’expliquer la variable *Life.Exp*
 - Pour chacun des modèles, calculer le $R^2$, Comparer les $R^2$ obtenus
-- Calculer le modèle de regression linéaire multivarié agrégeant les variables des modèles univariés possédant les meilleurs $R^2$
+- Calculer le modèle de regression linéaire multiple *Life.Exp ~ Murder + HS.Grad + Frost*
 - Comparer le $R^2$ obetbu à celui des modèles univariés.
 
 
@@ -1223,6 +1247,10 @@ On souhaitre réaliser le test de Fisher sur le modèle *Life.Exp ~ Murder + HS.
 - Définir le risque de première espèce $\alpha$ 
 - Calculer la statistique de test
 - Conclure 
+- A l’aide de la function `anova` calculer le tableau de l’analyse de la variance pour les modèles : 
+  - *Life.Exp ~ Murder + HS.Grad + Frost*
+  - *Life.Exp ~ Frost + Murder + HS.Grad*
+  - *Life.Exp ~ HS.Grad + Murder + Frost*
 
 
 ```{r eval=FALSE}
