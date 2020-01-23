@@ -1,0 +1,1815 @@
+---
+title: "Modèles linéaires"
+subtitle: "M1 SSD"
+author: "Florent Chuffart & Magali Richard"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    number_sections: true
+---
+
+
+```{r, echo=FALSE, eval=TRUE}
+knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, eval=TRUE, echo=FALSE, results="hide")
+d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+# README RStudio config, uncheck: # preferences > R Markdown > show output inline for... 
+```
+
+# Avant Propos
+
+## Evaluations
+
+ - individuelle via un questionnaire à la fin de chaque séance 
+
+   - Evaluation 1 https://forms.gle/Ja8NFsaGjdVfyUZ57
+   - Evaluation 2 https://forms.gle/Bf5naTXRq3dD2R7v5
+   - Evaluation 3 
+   - Evaluation 4 
+   - Evaluation 5 
+   - Evaluation 6 
+   - Evaluation 7 
+   - Evaluation 8 
+ 
+ - en équipe lors d‘un *data challenge* à la fin des 8 séances
+
+## Pré-requis
+ 
+ - R https://cran.r-project.org 
+ - RStudio https://www.rstudio.com
+
+## Cours 
+
+- https://github.com/fchuffar
+
+
+## Organisation prévisionnelle
+
+Séance 1 - 3h (10/01) Régression linéaire simple
+
+Séance 2 - 3h (24/01) Régression linéaire multiple
+
+Séance 3 - 3h (31/01) Anova 1 facteur / partie A
+
+Séance 4 - 3h (14/02) Anova 1 facteur / partie B
+
+Séance 5 - 3h (21/02) Anova 2 facteurs
+
+Séance 6 - 3h (07/03) Anova multiple
+
+Séance 7 - 3h (11/03) Anova facteurs emboités
+
+Séance 8 - 3h (14/03) Ancova
+
+---
+
+# Régression linéaire simple
+
+On cherche une relation entre la variable observée $Y$ et la variable explicative $x$. 
+
+$$ Y \sim x $$
+
+Les objectifs peuvent être multiples:
+
+  * approche exploratoire
+
+  * recherche de corrélation significative
+
+  * modèles de prédiction
+
+Domaines d’application : chimie, astronomie, sismologie, économie, démographie, épidémiologie, géographie, écologie, géologie, physique, médecine...
+
+Historiquement, le modèle linéaire a été développé par Fisher, avec applications en génétique et en agronomie.
+
+---
+
+## Présentation du modèle
+
+Considérons $x$ et $Y$ deux variables. Y est expliquée (modélisée) par  la variable explicative $x$. 
+
+**IMPORTANT**, dans le cadre des modèles linéaire Y est quantitatives (Ex : taille, poids, age...).
+
+Dans le cas de la regression linéaire simple, $x$ est également quantitatives et la relation entre $Y$ et $x$ est une fonction **affine** (ou **linéaire**) de x (Cf. cours de maths de 3ème au collège).
+
+\begin{eqnarray}
+              \text{f: } \mathbb{R} & \rightarrow & \mathbb{R} \\
+                                 x & \rightarrow & f(x)  =  ax + b \\ 
+\end{eqnarray}
+
+**ATTENTION**, dans R la fonction *abline* utilise la formule $bx+a$ ! Dans ce cours nous utliserons la notation $f(x)  = \beta_0 + \beta_1 x$
+
+
+
+```{r  echo=FALSE, results="hide"}
+layout(matrix(1:2, 1), respect=TRUE)
+
+plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille")
+m = lm(poids~taille, d)
+m$coefficients
+abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille", xlim=c(0,max(d$taille)), ylim=c(m$coefficients[[1]]-20, max(d$poids)))
+abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+# points(0,m$coefficients[[1]], pch=16)
+abline(h=m$coefficients[[1]], v=0, lty=2)
+axis(2, at=m$coefficients[[1]], "beta_0", las=2)
+
+segments(50, predict(m, data.frame(taille=50)), 100, predict(m, data.frame(taille=50)), lty=2)
+segments(100, predict(m, data.frame(taille=50)), 100, predict(m, data.frame(taille=100)), lty=2)
+text(75, predict(m, data.frame(taille=50)), "50", pos=1)
+text(100, predict(m, data.frame(taille=75)), "50*beta_1", pos=4)
+
+```
+
+
+
+Les $n$ observations vont permettre de vérifier si la droite candidate est adéquate.
+
+$Y$ et $x$ ne jouent pas un rôle identique : 
+
+  - $Y$ est expliqué par $x$
+  - $x$ est une variable *indépendante* (ou *explicative*) et $Y$ est une variable *dépendante* (ou *expliquée*)
+
+
+Remarques : 
+
+  - On utilise un modèle linéaire Gaussien pour des observations pouvant être modélisées par une loi normales. Pour d’autres distributions (Poisson, Bernoulli...), on utilisera un modèle linéaire généralisé.
+  - La régression linéaire se caractérise par des variables explicatives **continues** ou quantitatives (Ex : poids~taille). L’ANOVA se caractérise par des variables explicatives **discrètes**, catégorielle, ou qualitatives (Ex : poids~sexe).
+
+---
+
+### Exemple d’une relation déterministe
+
+La température $x$ en degrés Celsius explique entièrement la température  $y$ en degrés Farenheit par la relation : $y=32 + 9/5 x$.
+
+\begin{eqnarray}
+              \text{f: } \mathbb{R} & \rightarrow & \mathbb{R} \\
+                                 x & \rightarrow & f(x)  = \beta_0 + \beta_1 x = 32 + 9/5 x \\ 
+                                 0 & \rightarrow & f(0)  = 32 \\ 
+                                 10 & \rightarrow & f(10)  = 50 \\ 
+\end{eqnarray}
+
+
+
+```{r  echo=FALSE, results="hide"}
+layout(matrix(1:2, 1), respect=TRUE)
+beta_0 = 32
+beta_1 = 9/5
+d_f = -10:20
+plot(d_f, beta_0 + beta_1 * d_f, main="Température", xlab="deg. C", ylab="deg. F", col=0)
+abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
+abline(v=c(0,10), h=c(32,50), lty=2)
+
+```
+
+
+
+---
+
+### Exemple d’une relation stochastique
+
+
+Si ce cas déterministe n’est pas vérifié, il faut chercher la droite qui ajuste le mieux l’échantillon : **modèle linéaire non déterministe**.
+
+$$Y   = \beta_0 + \beta_1x + \epsilon $$
+
+où $\beta_0$ et $\beta_1$ sont des réels fixes, mais inconnus, et $\epsilon$ une variable représentant le comportement individuel (résidus).
+
+Modèle : $$E(Y) = \widehat Y = f(x) = \beta_0 + \beta_1 x$$
+
+Par exemple $x$ est la taille, $Y$ le poids, à une même taille, plusieurs poids peuvent correspondrent. Les données ne sont plus alignées.
+
+```{r}
+layout(matrix(1:2, 1), respect=TRUE)
+
+plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille")
+m = lm(poids~taille, d)
+m$coefficients
+abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("E(Y)", "epsilon"), col=c(2,4), lty=1, cex=.8)
+```
+
+
+
+---
+
+## Estimation des paramètres (méthode des moindres carrés)
+
+
+
+**Exemple** : représentation des données *poids~tailles* dans le jeu de données `data_nutri`.
+
+**Question** : comment définir la droite de regression ?
+
+
+---
+
+### Droite de regression, estimation et résidus
+
+En analyse de régression linéaire, pour un individu $i$ :
+
+- $x_i$ est la valeur de la varible explicative
+- $Y_i$ est la valeur observée de la variable aléatoire
+- la composante aléatoire de $Y_i$ est le $\epsilon_i$ correspondant
+- la valeur de $Y_i$ estimée par le modèle est $\widehat Y_i$.
+
+Ainsi : 
+
+$$Y_i = \widehat Y_i + \epsilon_i$$
+
+
+```{r echo=FALSE}
+layout(matrix(1:2, 1), respect=TRUE)
+plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille", col=adjustcolor(1, alpha.f=0.5))
+m = lm(poids~taille, d)
+# abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+pred = predict(m, data.frame(taille=d$taille))
+i = which(d$poids - pred == max(d$poids - pred))
+points(d$taille[i], d$poids[i], pch=16, col=2)
+abline(v=d$taille[i], h=c(d$poids[i], d$poids[i]-m$residuals[i]), lty=2, col=2)
+axis(1, at=d$taille[i], "xi", las=2, col=2)
+axis(4, at=c(d$poids[i], d$poids[i]-m$residuals[i]), c("Yi", expression(bar("Yi"))), las=2, col=2)
+abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=1) # /!\ y = b.x + a
+suppressWarnings(arrows(d$taille[i], d$poids[i]-m$residuals[i], d$taille[i], d$poids[i], col=4, length=0.1, lwd=2))
+text(d$taille[i], d$poids[i]-m$residuals[i]/2, "eps_i", col=4, las=2, pos=2, cex=2)
+
+```
+
+Lorsque $x = x_i$, alors $\widehat Y(x_i) = \widehat Y_i$ , c’est-à-dire :
+
+$$ \widehat Y_i=\widehat{\beta}_0+ \widehat{\beta}_1x_i $$
+$\widehat Y_i$ est appelée la valeur estimée par le modèle.
+
+Les quantités inobservables :
+$$\epsilon_i = Y_i - \beta_0 - \beta_1x_i$$ 
+sont estimées par les quantités observables :
+$$ e_i= Y_i-\widehat Y_i$$ 
+
+- Les quantités $e_i$ sont appelées les **résidus du modèle**.
+- La plupart des méthodes d’estimation : estimer la droite de régression par une droite qui minimise une fonction de résidus.
+- La plus connue : **la méthode des moindres carrés ordinaires (MCO)**.
+
+---
+
+### Intutition des moindres carrés 
+
+
+Pour l’instant, la droite de régression est inconnue.
+Tout le problème est d’estimer $\beta_0$ et $\beta_1$ à partir d’un échantillon de données.
+
+On essaie de déterminer la **droite de regression** qui approche le mieux les données: $$\widehat Y(x) = \widehat{\beta}_0 + \widehat{\beta}_1x$$
+
+Avec $\widehat Y(x)$ un estimateur de la moyenne théorique $\mu_Y(x)$ ($\widehat Y(x)$ correspond à la moyenne de $Y$ mésurée sur tous les individus pour lesquels $x$ prend une valeur donnée). 
+
+$\mu_Y(x)$ n’est ni observable, ni calculable (il faudrait alors recenser **tous** les individus de la population).
+
+*Remarque* : la moyenne empirique de $Y$, définie par $\overline{Y}_n(x) = \frac{1}{n}\sum^n_{i=1}Y_i(x)$ est un autre estimateur de $\mu_Y(x)$ . Si le modèle est bon, $\widehat Y(x)$ est plus précis que $\overline{Y}_n(x)$
+
+
+
+```{r results="verbatim", results="verbatim", echo=TRUE}
+d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+head(d)
+dim(d)
+layout(matrix(1:2, 1), respect=TRUE)
+plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille")
+```
+
+```{r echo=TRUE}
+layout(matrix(1:2, 1), respect=TRUE)
+beta_0 = mean(d$poids)
+beta_1 = 0
+res =  d$poids - (beta_0 + beta_1*d$taille)
+eqm = sum(res^2)
+plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
+abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+
+layout(matrix(1:2, 1), respect=TRUE)
+beta_0 = -100
+beta_1 = 1
+res =  d$poids - (beta_0 + beta_1*d$taille)
+eqm = sum(res^2)
+plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
+abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+
+beta_0 = -260
+beta_1 = 2
+res =  d$poids - (beta_0 + beta_1*d$taille)
+eqm = sum(res^2)
+plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
+abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+
+```
+
+
+
+
+```{r echo=TRUE}
+layout(matrix(1:2, 1), respect=TRUE)
+results = list()
+for(beta_0 in 0:-260) {
+  for(beta_1 in seq(0,2, length.out=70)) {
+    res =  d$poids - (beta_0 + beta_1*d$taille)
+    eqm = sum(res^2)
+    results[[length(results)+1]] = c(beta_0=beta_0, beta_1=beta_1, eqm=eqm)
+  }
+}
+results = as.data.frame(do.call(rbind, results))
+head(results)
+min(results$eqm)
+r = results[results$eqm==min(results$eqm),]
+beta_0 = r[["beta_0"]]
+beta_1 = r[["beta_1"]]
+res =  d$poids - (beta_0 + beta_1*d$taille)
+eqm = sum(res^2)
+plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
+abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+
+```
+
+
+
+---
+
+### Méthode  et démonstration
+
+**Objectif** : Définir des estimateurs qui minimisent la somme des carrés des résidus (ou **erreur quadratique moyenne** EQM).
+
+Les estimateurs sont donc les coordonnées du minimum de la fonction à deux variables :
+
+$$EQM(\beta_0, \beta_1) = \sum^{n}_{i=1} e^2_i = \sum^{n}_{i=1} (Y_i - \widehat Y_i)^2 = \sum^{n}_{i=1} (Y_i - \widehat\beta_0 -  \widehat\beta_1x_i)^2$$
+
+Cette fonction est appelée la **fonction objectif**.
+
+
+Les estimateurs correspondent aux valeurs annulant les dérivées partielles de cette fonction :
+
+$$\frac{\delta EQM(\beta_0, \beta_1)}{\delta \beta_0} = -2 \sum (Y_i - \beta_0 - \beta_1x_i)$$
+$$\frac{\delta EQM(\beta_0, \beta_1)}{\delta \beta_1} = -2 \sum x_i (Y_i - \beta_0 - \beta_1x_i)$$
+
+Les estimateurs $(\widehat\beta_0^{MCO},\widehat\beta_1^{MCO})$ sont les solutions du système d’équation:
+$$ \Bigg\{
+\begin{align}
+-2 \sum (Y_i - \beta_0 - \beta_1x_i) = 0  \\ 
+-2 \sum x_i (Y_i - \beta_0 - \beta_1x_i) = 0
+\end{align}
+$$
+
+
+Soient les equations suivantes: 
+
+$$(1) \sum{Y}_i = n\widehat\beta_0 + \widehat\beta_1 \sum{x_i} $$
+
+$$(2) \sum{x_iY_i} = \widehat\beta_0 \sum{x_i} + \widehat\beta_1 \sum{x^2_i}$$
+On utilise les notations usuelles des moyennes empiriques $$\overline{x}_n = \frac{1}{n}\sum{x_i} ,\ \ \ \ \ \ \overline{Y}_n = \frac{1}{n}\sum{Y_i}$$
+
+D’après (1): $$\widehat\beta_0 = \overline{Y}_n - \widehat\beta_1 \overline{x}_n$$
+
+D’après (2):
+
+\begin{eqnarray}
+\widehat\beta_1 \sum{x^2_i} & = & \sum{x_iY_i} - \widehat\beta_0 \overline{x}_n \\
+                            & = & \sum{x_iY_i} - n\overline{x}_n\overline{Y}_n + \widehat\beta_1 (\overline{x}_n)^2
+\end{eqnarray}
+
+Ainsi $$\widehat\beta_1 = \frac{\sum{x_iY_i} -  n\overline{x}_n\overline{Y}_n}{\sum{x_i^2} -  n(\overline{x}_n)^2}$$
+
+Et comme nous avons :
+
+\begin{eqnarray}
+\sum{(x_i-\overline{x}_n)(Y_i-\overline{Y}_n)} & = & \sum{x_iY_i} -  n\overline{x}_n\overline{Y}_n \\
+                   \sum{(x_i-\overline{x}_n)}   & = & \sum{x_i^2} -  n(\overline{x}_n)^2
+\end{eqnarray}
+
+Nous obtenons: $$\widehat\beta_1 = \frac{\sum{(x_i-\overline{x}_n)(Y_i-\overline{Y}_n)}}{\sum{(x_i-\overline{x}_n)}}$$
+
+Dans la pratique, nous calculons $\widehat\beta_1$ puis $\widehat\beta_0$.
+
+Nous obtenons ainsi une estimation de la droite de régression, appelée la droite des moindres carrés ordinaires:
+
+$$\widehat Y(x) = \widehat\beta_0 + \widehat\beta_1x$$
+
+---
+
+### Exemple
+
+$\widehat\beta_0$ correspond à l’ordonnée à l’origine. Ce paramètre n’est pas toujours interprétable (il dépend de la signifaction de $X$ et du fait que $X$ soit centré ou non).
+
+$\widehat\beta_1$ correspond à la pente.
+
+Attention, la technique des MCO crée des estimateurs sensibles aux valeurs atypiques.
+
+```{r echo=TRUE, results="verbatim"}
+layout(1, respect=TRUE)
+plot(d$taille, d$poids, main="poids~taille")
+## Model
+# Y~X
+# E(Y) = b.X
+# E(Y) = b_0 + b_1.X
+# Y_i = b_0 + b_1.X_i + e_i
+m = lm(d$poids~d$taille)
+m$coefficients
+abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+# residuals
+m$residuals
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+```
+
+---
+
+## Décomposition de la variance
+
+### Variation expliquée et inexpliquée
+
+La variation de $Y$ vient du fait de sa dépendance à la variable explicative $X$. C’est la **variation expliquée par le modèle**.
+
+Dans l’exemple « taille-poids », nous avons remarqué que lorsque nous mesurons $Y$ avec une même valeur de $X$, nous observons une certaine variation sur $Y$. C’est la **variation inexpliquée par le modèle**.
+
+Variation totale de Y = Variation expliquée par le modèle + Variation inexpliquée par le modèle
+
+Soit $$(Y_i - \overline{Y}_n) = (\widehat Y_i - \overline{Y}_n) + (Y_i - \widehat Y_i)$$ avec $(\widehat Y_i - \overline{Y}_n)$ la différence expliquée par le modèle et $(Y_i - \widehat Y_i)$ la différence inexpliquée (ou résidu).
+
+---
+
+### Interêt des moindres carrés
+
+La méthode des moindres carrés conserve la décomposition (en variance expliquée et résiduelle) en considérenat la somme des carrés de ces différences: 
+
+$$ \sum(Y_i - \overline{Y}_n)^2 = \sum(\widehat Y_i - \overline{Y}_n)^2 + \sum(Y_i - \widehat Y_i)^2 $$
+Soit $$ SC_{tot} = SC_{reg} + SC_{res}$$ 
+
+Avec $SC_{tot}$ la somme des carrés totale,  $SC_{reg}$ la somme des carrés due à la régression et  $SC_{res}$ la somme des carrés des résidus.
+
+
+---
+
+### Coefficient de determination $R^2$
+
+
+
+La mesure du pourcentage de la variation totale expliquée par le modèle se fait par le **coefficient de détermination**.
+
+$$ R^2 = \frac{SC_{reg}}{SC_{tot}}$$
+
+- $R^2$ est compris entre 0 et 1.
+- $R^2 = 1$ : cas où les données sont parfaitement alignées
+(comme c’est le cas pour un modèle déterministe).
+- $R^2 = 0$ :cas où la variation de $Y$ n’est pas due à la variation de $X$. Les données ne sont pas du tout alignées.
+- Plus $R^2$  est proche de 1, plus les données sont alignées sur la droite de régression.
+
+
+
+```{r}
+layout(matrix(1:2, 1), respect=TRUE)
+m = lm(d$poids~d$taille)
+plot(d$taille, d$poids, main=paste0("poids~taille R^2=", signif(summary(m)$r.squared, 2)*100, "%"))
+abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+
+m = lm(d$poids~d$age)
+plot(d$age, d$poids, main=paste0("poids~age R^2=", signif(summary(m)$r.squared, 2)*100, "%"))
+abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+suppressWarnings(arrows(d$age, d$poids, d$age, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+```
+
+
+
+---
+
+
+
+
+### Travaux pratiques
+
+#### Jeu de données `anscombe`
+
+```{r echo=TRUE, results="verbatim"}
+data(anscombe)
+print(anscombe)
+
+layout(matrix(1:4,2), respect=TRUE)
+plot(anscombe$x1, anscombe$y1)
+plot(anscombe$x2, anscombe$y2)
+plot(anscombe$x3, anscombe$y3)
+plot(anscombe$x4, anscombe$y4)
+```
+
+- Calculer les modèles de regression linéaire `m1: y1~x1`, `m2: y2~x2`, `m3: y3~x3`, `m4: y4~x4`.
+- Tracer les nuages de points et les droites de regression correspondantes.
+- Calculer, comparer et commenter les coéficiants de chacun des modéles.
+- Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
+
+```{r eval=FALSE, echo=FALSE, results="hide"}
+# create models
+m1 = lm(anscombe$y1~anscombe$x1)
+m2 = lm(anscombe$y2~anscombe$x2)
+m3 = lm(anscombe$y3~anscombe$x3)
+m4 = lm(anscombe$y4~anscombe$x4)
+
+# model details
+summary(m1)
+summary(m2)
+summary(m3)
+summary(m4)
+
+# plot
+layout(matrix(1:4,2), respect=TRUE)
+plot(anscombe$x1,anscombe$y1, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m1 R^2=", signif(summary(m1)$r.squared, 2)*100, "%")) ; abline(m1)
+plot(anscombe$x2,anscombe$y2, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m2 R^2=", signif(summary(m2)$r.squared, 2)*100, "%")) ; abline(m2)
+plot(anscombe$x3,anscombe$y3, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m3 R^2=", signif(summary(m3)$r.squared, 2)*100, "%")) ; abline(m3)
+plot(anscombe$x4,anscombe$y4, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m4 R^2=", signif(summary(m4)$r.squared, 2)*100, "%")) ; abline(m4)
+
+# abline(a=m1$coefficients[[1]],b=m1$coefficients[[2]], lty=2, lwd=3, col=2)
+```
+
+
+
+---
+
+
+
+#### Jeu de données `CO2`
+
+```{r echo=TRUE, results="verbatim"}
+data(CO2)
+head(CO2)
+layout(matrix(1:2, 1), respect=TRUE)
+plot(
+  CO2[CO2$Type=="Quebec", ]$conc, 
+  CO2[CO2$Type=="Quebec", ]$uptake, 
+  xlab="food", ylab="growth", main="growth~food"
+)
+plot(
+  log(CO2[CO2$Type=="Quebec", ]$conc), 
+  CO2[CO2$Type=="Quebec", ]$uptake, 
+  xlab="log(food)", ylab="growth", main="growth~log(food)"
+)
+```
+
+On s’intéresse uniquement aux plantes dont le `Type` est `Quebec`.
+ 
+- Calculer les modèles de regression linéaire `m1: growth~food` et `m2: growth~log(food)`
+- Tracer les nuages de points et les droites de regression correspondantes.
+- Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
+- Comparer les coéficiants de chacun des modéles.
+
+```{r eval=FALSE, echo=FALSE, results="hide"}
+```
+
+---
+
+
+
+
+
+
+
+---
+
+## Test statistique et IC/IP
+
+Il est important de noter que la **construction du modèle de régression** et l’estimation des paramètres par MCO **ne fait pas appel aux hypothèses de distribution**.
+
+Les hypothèses de distribution sont essentielles lorsqu’il s’agit de construire des tests et des intervalles de confiance et de prédiction.
+
+
+---
+
+### Test de Student
+
+
+**Hypothèse nulle et hypothèse alternative**
+
+On se pose la question de l’effet de la variable $x$ :
+
+$\mathcal{H}_0 : {\beta_1 = 0}$ contre $\mathcal{H}_1 : {\beta_1 \neq 0}$
+
+
+**Conditions d’applications du test**
+
+- Les observations sont indépendantes
+- La variance des erreurs est constante $\sigma^2$
+- La loi des erreurs est une loi normale $\mathcal{N}(0, \sigma^2)$
+
+
+Pour tester la normalité des résidus : 
+
+- Test de Shapiro-Wilk
+- Test de Anderson-Darling
+- Test de Kolmogorov-Smirnov (comparaison de distributions)
+- QQ plot 
+
+
+```{r echo=TRUE, results="verbatim"}
+set.seed(1)
+idx = sample(1:nrow(MASS::cats),30)
+m = lm(Hwt~Bwt, MASS::cats[idx,])
+layout(1, respect=TRUE)
+plot(
+  MASS::cats[idx,]$Bwt, MASS::cats[idx,]$Hwt, 
+  xlab="Body weight", ylab="Heart weight", 
+  main="Heart weight ~ Body weight"
+)
+abline(m, col=2)
+
+shapiro.test(rnorm(100))
+shapiro.test(runif(100))
+shapiro.test(m$residuals)
+
+ks.test(rnorm(100), rnorm(100))
+ks.test(rnorm(100), runif(100))
+ks.test(rnorm(100), m$residuals)
+
+layout(matrix(1:3,1), respect=TRUE)
+qqnorm(scale(rnorm(100)))
+abline(0, 1, col=2)
+qqnorm(scale(runif(100)))
+abline(0, 1, col=2)
+qqnorm(scale(m$residuals))
+abline(0, 1, col=2)
+```
+
+**Risque de première espèce $\alpha$**
+
+Le risque de première espèce ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
+
+Généralement on fixe $\alpha=5%$.
+
+Note : Le risque de seconde espèce ou risque $\beta$ est le risque de conserver $\mathcal{H}_0$ alors que celle-ci est fausse. Attention, le calcul du risque $\beta$ est plus compliqué. Souvent en minimisant $\alpha$ on augmente $\beta$. Pour s’assurer que $\beta$ reste faible il faut généralement augmenter $n$.
+
+**Statistique du test** 
+
+Si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, alors la variable aléatoire $\mathcal{T}_{\widehat\beta_1,n-2} = \frac{\widehat\beta_1}{s_{\widehat\beta_1}}$ suit la loi de Student $\mathcal{T}(n-2)$
+
+**Décision et conclusion du test**: La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Student.
+
+- Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $\mathcal{T}_{\widehat\beta_1,n-2}(obs)$ est supérieure ou égale à $c_\alpha$, alors le test est significatif. Vous rejetez  $\mathcal{H}_0$ et vous décidez que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
+
+- Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $\mathcal{T}_{\widehat\beta_1,n-2}(obs)$ est strictement inférieure à $c_\alpha$, alors le test n’est pas significatif. Vous conservez $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
+
+
+Calcul de la statistique de test :
+
+
+La variance des résidus est estimée par :
+
+$$ \widehat\sigma^2_n = \frac{1}{n-2}\sum^n_{i=1}  (Y_i - \widehat\beta_0 - \widehat\beta_1x_i)^2 = \frac{1}{n-2}\sum^n_{i=1} \widehat\epsilon_i^2 $$
+
+L’erreur standard sur $\beta_1$ est estimée par :
+
+$$ s^2_{\widehat\beta_1} = \frac{\widehat\sigma^2_n}{ns^2_x} = \frac{\widehat\sigma^2_n}{\sum^n_{i=1} (x_i - \overline x)^2} $$
+
+
+
+```{r echo=TRUE, results="verbatim"}
+# Student test
+summary(m)
+n = length(m$residuals)
+xi = m$model$Bwt
+s_beta1 = sqrt( sum(m$residuals^2)/(n-2) / sum((xi-mean(xi))^2))
+s_beta1
+stat_t =  m$coefficient[2]/s_beta1
+stat_t
+pval = pt(-stat_t, n-2) + 1-pt(stat_t, n-2)
+pval
+```
+
+
+
+
+```{r eval=FALSE}
+# Note (vérifier les notations):
+#
+#
+# - $\widehat\sigma^2_n$ : la variance résiduelle
+# - $s^2_Y$ : la variance de l’échantillon des $Y_i$
+# - $s^2_x$ : la variance de l’échantillon des $x_i$
+# - $s^2_{\widehat\beta_1}$ : La variance de l’estimateur $\widehat\beta_1$
+# - $s^2_{\widehat\beta_0}$ : La variance de l’estimateur $\widehat\beta_0$
+#
+#
+# $$\widehat\sigma^2_n = \frac{n}{n-2}s^2_Y(1-R^2)$$
+#
+# Avec $s^2_Y = \frac{1}{n}(\sum^n_{i=1}Y_i^2)-(\overline{Y}_n)^2$ la variance de l’échantillon des $Y_i$ et $\overline{Y}_n$ la moyenne des $Y_i$.
+#
+# $$ s^2_{\widehat\beta_0} = \widehat\sigma^2_n\Big(\frac{1}{n}+\frac{\overline{x}_n}{ns^2_x}\Big)$$
+
+s_beta0 = sqrt( sum(m$residuals^2)/(n-2) * ( 1/n +  mean(xi) / sum((xi-mean(xi))^2) ))
+s_beta0
+
+sum(m$residuals^2)/(n-2) * ( 1/n +  mean(xi) / sum((xi-mean(xi))^2) )
+
+stat_t =  m$coefficient[1]/s_beta0
+stat_t
+
+s_beta1 = sqrt( 1/(n-2) * sum(m$residuals^2) / (sum((xi-mean(xi))^2)))
+stat_t =  m$coefficient[2]/s_beta1
+stat_t
+
+
+# Fisher test
+anova(m)
+n = length(m$residuals)
+p = m$rank
+res_sum_sq = sum(m$residuals^2)
+tot_sum_sq = sum((MASS::cats[idx,]$Hwt - mean(MASS::cats[idx,]$Hwt))^2)
+fac_sum_sq = tot_sum_sq - res_sum_sq
+res_mean_sq = res_sum_sq / (n-p)
+fac_mean_sq = fac_sum_sq
+stat_f = fac_mean_sq / res_mean_sq
+stat_f
+pval = 1-pf(stat_f, p-1, n-p)
+pval
+```
+
+
+**Travaux pratiques**
+
+- Construire le modèle de régréssion linéaire sur la totalité des données `cats`.
+- Tracer la droite de régression correspondante.
+- Tester l’hypothèse $\mathcal{H}_0 : {\beta_1 = 0}$ contre $\mathcal{H}_1 : {\beta_1 \neq 0}$ sur ce modèle.
+- Comparer la p-valeur obtenue avec ce modèle avec celle obtebue sur le modèle du cours (30 observations).
+  
+```{r echo=TRUE, results="verbatim"}
+set.seed(1)
+layout(1, respect=TRUE)
+plot(
+  MASS::cats$Bwt, MASS::cats$Hwt, 
+  xlab="Body weight", ylab="Heart weight", 
+  main="Heart weight ~ Body weight"
+)
+``` 
+
+---
+
+### Intervalle de confiance
+
+On peut construire les intervalles de confiance suivants
+
+$$IC_{1-\alpha}(\widehat\beta_1) = \Big]\widehat\beta_1 - t_{n-2;1-\alpha/2}*s_{\beta_1}; \widehat\beta_1 + t_{n-2;1-\alpha/2}*s_{\beta_1}\Big[$$
+
+$$IC_{1-\alpha}(\widehat\beta_0) = \Big]\widehat\beta_0 - t_{n-2;1-\alpha/2}*s_{\beta_0}; \widehat\beta_0 + t_{n-2;1-\alpha/2}*s_{\beta_0}\Big[$$
+
+
+```{r echo=TRUE, results="verbatim"}
+confint(m)
+```
+
+Ainsi que l’intervalle de prédiction d’une valeur moyenne de $Y$, sachant que $x = x_0$. 
+
+L’estimation ponctuelle pour cette valeur de $x_0$ est alors égale a $\widehat Y_0 = \widehat\beta_0 + \widehat\beta_1x_0$
+
+$$IP_{1-\alpha}(Y) = \Big]\widehat Y_0 - t_{n-2;1-\alpha/2}\sqrt{\widehat\sigma^2_n\Big(\frac{1}{n}+\frac{(x_0-\overline{x}_n)^2}{(n-1)s^2_x}\Big)}; \widehat Y_0 + t_{n-2;1-\alpha/2}*\sqrt{\widehat\sigma^2_n\Big(\frac{1}{n}+\frac{(x_0-\overline{x}_n)^2}{(n-1)s^2_x}\Big)}\Big[$$
+
+
+```{r echo=TRUE, results="verbatim"}
+layout(1, respect=TRUE)
+plot(
+  MASS::cats[idx,]$Bwt, MASS::cats[idx,]$Hwt, 
+  xlab="Body weight", ylab="Heart weight", 
+  main="Heart weight ~ Body weight"
+)
+abline(m, col=2)
+
+x = seq(min(m$model$Bwt), max(m$model$Bwt), length.out=100)
+x = seq(2.5, 3, length.out=100)
+pred =  predict(m, interval="predict")
+points(m$model$Bwt, pred[,2], col=2, pch=3)
+points(m$model$Bwt, pred[,3], col=2, pch=3)
+```
+
+
+**Travaux pratiques**
+
+
+- Tracer l’intervalle de prédiction du modèle obetnu sur la totalité des données `cats`.
+- Comparer la l’intervalle de prédiction obtenu avec ce modèle avec celui obtebu sur le modèle du cours (30 observations).
+
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Régression linéaire multiple
+
+
+**Objectif de la regression linéaire multiple**: chercher une relation entre la variable observée $Y$ et plusieurs variables explicative $X_1, ..., X_p$. 
+
+
+---
+
+## Présentation du modèle
+
+Y est expliquée (modélisée) par  les variables explicatives $X_1, ..., X_p$. 
+
+On applique alors le modèle linéaire suivant:
+
+$$Y  = \beta_0 + \beta_1X_1 + ... + \beta_pX_p + \epsilon  $$
+
+En pratique: 
+
+Dans un échantillon de $n$ individus, nous mesurons $y_i, x_{i,1},...,x_{i,p}$ pour $i=1,...,n$.
+
+Les variables $x_{i,j}$ sont fixes, tandis que les variables $y_i$ sont aléatoires.
+
+
+
+---
+
+## Estimation des paramètres du modèle
+
+### Méthode des moindres carrés
+
+
+Pour l’instant, la droite de régression est inconnue.
+Tout le problème est d’estimer les paramètres $\beta_0, ..., \beta_p$ du modèle de regression, à partir d’un échantillon de données.
+
+Utiliser les **moindres carrés** revient à minimiser la quantité suivante: $$min_{\beta_0, ...,\beta_p}\sum^n_{i=1}\Big(y_i -(\beta_0+ \beta_1X_1 + ... + \beta_pX_p)\Big)^2$$
+
+---
+
+**Version matricielle du problème**
+
+Le système peut se réecrire :
+
+$$\left(\begin{array}
+{rrr}
+y_1\\
+\vdots\\
+y_n
+\end{array}\right) = \left(\begin{array}
+{rrr}
+1 & x_{1,1} & ... & x_{1,p}\\
+\vdots & \vdots & \vdots & \vdots \\
+1 & x_{n,1} & ... & x_{n,p}
+\end{array}\right)  \left(\begin{array}
+{rrr}
+\beta_0\\
+\vdots\\
+\beta_n
+\end{array}\right) + \left(\begin{array}
+{rrr}
+\epsilon_1\\
+\vdots\\
+\epsilon_n
+\end{array}\right)
+$$
+
+Avec $y = X\beta + \epsilon$ 
+
+Et le vecteur des résidus $\widehat{e} = y - \widehat{y} = y - X\widehat\beta$
+
+
+Les variables $y$ et $X$ sont mesurées tandis que l’estimateur $\beta$  est à déterminer.
+La **méthode des moindres carrés ordinaires** consiste à trouver le vecteur $\beta$  qui minimise $||\epsilon||^2 =  {}^t{\epsilon}\epsilon$.  
+
+
+
+\begin{eqnarray}
+         ||\epsilon||^2    & = & {}^t(y-X\widehat\beta) (y-X\widehat\beta)            \\
+                           & = & {}^tyy - {}^t\widehat\beta{}^tXy - {}^tyX\widehat\beta + {}^t\widehat\beta{}^tXX\widehat\beta           \\
+                           & = & {}^tyy - 2{}^t\widehat\beta^t(X)y - {}^t\widehat\beta{}^tXX\widehat\beta     
+\end{eqnarray}
+
+car ${}^t\widehat\beta{}^tXy$ est un scalaire. Donc il est égal à sa transposée.
+
+La dérivée par rapport à $\beta$ est alors égale à : $−2{}^tXy+2{}^tXX\widehat\beta$.
+
+
+
+**Objectif** :  Nous cherchons $\beta$  qui annule cette dérivée. Donc nous devons résoudre l’équation suivante :
+
+$$^tXX\widehat\beta = {}^tXy$$
+Nous trouvons après avoir inversé la matrice ${}^tXX$ (il faut naturellement vérifier que ${}^tXX$ est carrée et inversible c’est-à-dire qu’aucune des colonnes qui compose cette matrice ne soit proportionnelle aux autres colonnes)
+$$\widehat\beta  = ({}^t XX)^{-1}{}^{t} Xy.$$
+
+---
+
+**Application à la régression linéaire simple avec p=2 (pour info)**
+
+$$\left(\begin{array}
+{rrr}
+{}^tXX
+\end{array}\right) = \left(\begin{array}
+{rrr}
+n & \sum{x_i}\\
+\sum{x_i} & \sum{x_i}^2 
+\end{array}\right) ;  \left(\begin{array}
+{rrr}
+{}^tXy
+\end{array}\right) = \left(\begin{array}
+{rrr}
+\sum{y_i}\\
+\sum{x_iy_i}
+\end{array}\right)
+$$
+
+Donc
+
+$$\left(\begin{array}
+{rrr}
+({}^tXX)^{-1}
+\end{array}\right) = \frac{1}{n\sum{x_i^2 - (\sum{x_i^2})^2}}
+\left(\begin{array}
+{rrr}
+\sum{x_i}^2 & -\sum{x_i}\\
+-\sum{x_i} & n 
+\end{array}\right) 
+=  \frac{1}{\sum{x_i - \overline{x}_n}}
+\left(\begin{array}
+{rrr}
+\sum{x_i}^2/n & -\overline{x}_n\\
+-\overline{x}_n & 1 
+\end{array}\right) 
+$$
+
+---
+
+### Maximum de vraisemblance
+
+La vraisemblance vaut
+$$ \mathcal{L}(Y,\beta,\sigma^2) = \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}\sum^n_{i=1}(y_i-x’_i\beta)^2\Big] $$
+$$ \mathcal{L}(Y,\beta,\sigma^2) = \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}||Y-X\beta||^2\Big] $$
+
+D’où l’on déduit la log-vraisemblance
+
+$$ log\mathcal{L}(Y,\beta,\sigma^2) = \frac{n}{2}log(2\pi) -\frac{n}{2}log(\sigma^2) - \frac{1}{2\sigma^2}||Y-X\beta||^2 $$
+Pour maximiser la log-vraisemblance, il faut d’abord minimiser la quantité $||Y-X\beta||^2$, ce qui est justement le principe des moindres carrés ordinaires.
+
+---
+
+## Analyse de la variance
+
+### Décomposition de la variance
+
+La variation de $Y$ vient du fait de sa dépendance aux variables explicatives $X$. C’est la **variation expliquée par le modèle**.
+
+
+Variation totale de Y = Variation expliquée par le modèle + Variation inexpliquée par le modèle
+
+
+La méthode des moindres carrés conserve la décomposition (en variance expliquée et résiduelle) en considérenat la somme des carrés de ces différences: 
+
+$$ \sum(y_i - \overline{y})^2 = \sum(y_i - \widehat{y}_i)^2  \sum(\widehat{y}_i - \overline{y})^2 $$
+Soit $$ SC_{tot} = SC_{reg} + SC_{res}$$ 
+
+Avec $SC_{tot}$ la somme des carrés totale,  $SC_{reg}$ la somme des carrés due à la régression et  $SC_{res}$ la somme des carrés des résidus.
+
+
+---
+
+### Coefficient de determination $R^2$
+
+La mesure du pourcentage de la variation totale expliquée par le modèle se fait par le **coefficient de détermination**.
+
+$$ R^2 = \frac{SC_{reg}}{SC_{tot}}$$
+
+- $R^2$ est compris entre 0 et 1.
+- $R^2 = 1$ : cas où les données sont parfaitement alignées
+(comme c’est le cas pour un modèle déterministe).
+- $R^2 = 0$ :cas où la variation de $Y$ n’est pas due à la variation de $X$. Les données ne sont pas du tout alignées.
+- Plus $R^2$  est proche de 1, plus les données sont alignées sur la droite de régression.
+
+
+---
+
+**Travaux pratiques**
+
+
+```{r echo=TRUE, results="verbatim"}
+data(state)
+state_us =  data.frame(state.x77, row.names=state.abb)
+layout(matrix(1:4, 2, byrow=TRUE), respect=TRUE)
+plot(state_us$Life.Exp, state_us$Murder    , main="Life.Exp~Murder"    )
+plot(state_us$Life.Exp, state_us$HS.Grad   , main="Life.Exp~HS.Grad"   )
+plot(state_us$Life.Exp, state_us$Frost     , main="Life.Exp~Frost"     )
+plot(state_us$Life.Exp, state_us$Population, main="Life.Exp~Population")
+```
+
+Cette base de données comprend les mesures sur 50 pays des Etats-Unis de :
+
+- Population : population estimée au 1er juillet 1975
+- Income : revenu par individu (1974)
+- Illiteracy : illettrisme (1970, pourcentage de la population)
+- Life.Exp : espérance de vie moyenne (1969-1971)
+- Murder :  taux d’homicide pour 100 000 individus (1976)
+- HS Grad :  pourcentage de diplômés niveau baccalauréat --high-school graduates-- (1970)
+- Frost : nombre de jours moyens avec des températures inférieures à 0$^o$C dans les grandes villes (1931-1960)
+- Area : surface du pays en miles carrés.
+
+
+Ainsi : 
+
+- Calculer chacun des modèles de regression linéaire univariés permettant d’expliquer la variable *Life.Exp*
+- Pour chacun des modèles, calculer le $R^2$, Comparer les $R^2$ obtenus
+- Calculer le modèle de regression linéaire multivarié agrégeant les variables des modèles univariés possédant les meilleurs $R^2$
+- Comparer le $R^2$ obetbu à celui des modèles univariés.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Test de Fisher
+
+Le test de Fisher repose sur cette décomposition de la variance.
+
+Il pose la question de l’effet des variables $X$.
+
+
+
+**Hypothèses nulle et hypothèse alternative**
+
+$\mathcal{H}_0 : {\beta_1 = ... = \beta_p = 0}$
+
+contre 
+
+$\mathcal{H}_1 : \exists$ au moins un $j$ tel que ${\beta_j \neq 0}$ où $j$ varie de $1$ à $p$.
+
+*Remarque*: Si l’hypothèse nulle est vérifiée, alors $y_i = \beta_0 + \epsilon_i$
+
+
+
+
+**Conditions d’applications du test**
+
+- Les observations sont indépendantes
+- La variance des erreurs est constante $\sigma^2$
+- La loi des erreurs est une loi normale $\mathcal{N}(0, \sigma^2)$
+
+
+
+**Risque de première espèce $\alpha$**
+
+Le risque de première espèce ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
+
+Généralement on fixe $\alpha=5%$.
+
+
+
+
+**Statistique du test** 
+
+
+La statistique de test *F* est obtenue à partri de tableau de l’analyse de la variance : 
+
+| Source de variation   | sc        | ddl  |  cm  | $F_{obs}$
+| :-------------------- | :-------: | :--: | :--: | ---:
+| Régression            | $sc_{reg} = \sum^n_{i=1}(\widehat{y}_i - \overline{y})^2$    | p-1  | $\frac{sc_{reg}}{p-1}$ | $\frac{cm_{reg}}{cm_{res}}$
+| Résiduelle            | $sc_{res} = \sum^n_{i=1}(y_i - \widehat{y})^2$    | n-p  | $\frac{sc_{reg}}{n-p}$ 
+| Totale            | $sc_{tot} = \sum^n_{i=1}(y_i - \overline{y})^2$    | n-1  
+
+
+1) Calculer la statistique
+$$F_{obs} = \frac{CM_{reg}} {CM_{res}}$$
+
+2) Lire la valeur critique $F_{1−\alpha,p−1,n−p}$ où $F_{1−\alpha,p−1,n−p}$ est le $(1 − \alpha)$-quantile d’une loi de Fisher avec $(p − 1)$ et $(n − p)$ degrés de liberté, car si l’hypothèse nulle $\mathcal{H}_0$ est vraie, alors $F_{obs}$ suit une loi de Fisher avec $(p − 1)$ et $(n − p)$ degrés de liberté.
+
+3) Comparer la statistique c’est-à-dire la valeur observée à la valeur critique.
+
+
+
+
+
+**Décision et conclusion du test**: 
+
+La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Fisher.
+
+Nous décidons de rejeter l’hypothèse nulle  $\mathcal{H}_0$ et d’accepter l’hypothèse alternative  $\mathcal{H}_1$, au seuil $\alpha = 5\%$, si
+$$|F_{obs}| \geq F_{1−\alpha,p−1,n−p}$$
+
+Nous décidons de ne pas rejeter l’hypothèse nulle $\mathcal{H}_0$ et
+donc de l’accepter si
+$$|F_{obs}| < F_{1−\alpha,p−1,n−p}$$
+
+
+
+
+
+
+**Travaux pratiques**
+
+On souhaitre réaliser le test de Fisher sur le modèle *Life.Exp ~ Murder + HS.Grad + Frost*.
+
+- Poser les hypothèses nulle et hypothèse.
+- Vérifier les conditions d’applications du test de Fisher au modéle 
+- Définir le risque de première espèce $\alpha$ 
+- Calculer la statistique de test
+- Conclure 
+
+
+```{r eval=FALSE}
+life.lm = lm(Life.Exp ~ Murder + HS.Grad + Frost, data = state_us)
+summary(life.lm)
+```
+
+
+**Travaux pratiques**
+
+- Réaliser le test de Fisher pour le modéle *Life.Exp~Murder*
+- Réaliser le test de Student pour le modéle *Life.Exp~Murder*
+- Comparer les résultats obtenues
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r eval=FALSE}
+# ### Analyse de la variance: Test de Student
+#
+# On se pose la question de l’effet de la variable $x$ :
+#
+# $\mathcal{H}_0 : {\beta_j = 0}$ contre $\mathcal{H}_1 : {\beta_j \neq 0}$ pour $j = 0, ..., p$
+#
+# **Conditions d’applications du test** : Les variables aléatoire $\epsilon_i$ sont indépendantes et suivent la loi normale centrée et de variance $\sigma^2$.
+#
+# *Test d’ajustement des résidus à une gaussienne* : Test de shapiro, Kolmogoroff-Smirnoff, QQ plot
+#
+# **Statistique du test** : Si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, alors la variable aléatoire $\mathcal{T}_{\widehat\beta_j,n-2} = \frac{\widehat\beta_j-0}{s_{\widehat\beta_j}}$ suit la loi de Student $\mathcal{T}(n-2)$
+#
+# **Décision et conclusion du test**: La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Student.
+#
+# - Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $\mathcal{T}_{\widehat\beta_j,n-2}(obs)$ est supérieure ou égale à $c_\alpha$, alors le test est significatif. Vous rejetez  $\mathcal{H}_0$ et vous décidez que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
+#
+# - Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $\mathcal{T}_{\widehat\beta_j,n-2}(obs)$ est strictement inférieure à $c_\alpha$, alors le test n’est pas significatif. Vous conservez $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer.
+#
+# ---
+#
+# ### Test de Student: exemple avec R
+#
+#
+# ```{r}
+# summary(life.lm)
+# ```
+#
+# La p-valeur (p-value = 8.04e-10) du test de Student, associée à
+# « Murder » étant inférieure ou égale à  $\alpha = 5\%$, le test est significatif. Nous rejetons H0 et nous décidons que H1 est vraie avec un risque de première espèce  $\alpha = 5\%$.
+#
+# La p-valeur (p-value = 0.00195  ) du test de Student, associée à
+# « HS.Grad » étant inférieure ou égale à  $\alpha = 5\%$, le test est significatif. Nous rejetons H0 et nous décidons que H1 est vraie avec un risque de première espèce  $\alpha = 5\%$.
+#
+# La p-valeur (p-value = 0.00699  ) du test de Student, associée à
+# « Frost » étant inférieure ou égale à  $\alpha = 5\%$, le test est significatif. Nous rejetons H0 et nous décidons que H1 est vraie avec un risque de première espèce  $\alpha = 5\%$.
+#
+# ---
+#
+# ### Intervalle de confiance
+#
+# On peut construire les intervalles de confiance suivants
+#
+# $$IC_{1-\alpha}(\widehat\beta_j) = \Big]\widehat\beta_j - t_{n-2;1-\alpha/2}*s_{\beta_j}; \widehat\beta_j + t_{n-2;1-\alpha/2}*s_{\beta_j}\Big[$$
+#
+# Cet intervalle de confiance est construit de telle sorte qu’il contienne le paramètre inconnu $\beta_j$ avec une probabilité de $(1−\alpha)$.
+#
+# ---
+#
+# ### IC/IP exemples sous R
+#
+# 1) Intervalle de confiance
+# ```{r}
+# confint(life.lm)
+# ci=  c(life.lm$coefficients - 1.96*summary(life.lm)$coefficients[,2], life.lm$coefficients+ 1.96*summary(life.lm)$coefficients[,2])
+# ci
+# ```
+#
+# 2) Intervalle de prédiction
+#
+# Supposons que nous disposions des données pour un nouveau pays, par exemple européen. Nous souhaitons comparer l’espérance de vie estimée avec ce modèle avec l’espérance de vie observée. L’intervalle de con ance sur la valeur prédite est donné par l’instruction suivante :
+#
+# ```{r}
+# life.pred = predict(life.lm,data.frame(Murder=8,  HS.Grad=75, Frost=80, Population=4250), interval="confidence",se.fit = TRUE)
+# ci=  c(life.pred$fit[1] - 1.96*life.pred$se.fit, life.pred$fit[1]+ 1.96*life.pred$se.fit)
+# life.pred
+# ci
+# ```
+#
+# ---
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+# ## Test statistique et IC
+#
+# ### Hypothèses fondamentales
+#
+# Il est important de noter que la construction du modèle de régression et l’estimation des paramètres par MCO ne fait pas appel aux hypothèses de distribution
+#
+# Les hypothèses de distribution sont essentielles lorsqu’il s’agit de construire des tests et des intervalles de confiance et de prédiction.
+#
+# Hypothèses fondamentales:
+#
+# - Les observations sont indépendantes
+# - La variance des erreurs est constante $\sigma^2$
+# - La loi des erreurs est une loi normale $\mathcal{N}(0, \sigma^2)$
+#
+# ---
+#
+#
+#
+# $y = X\beta + \epsilon$ où le vecteur aléatoire $\epsilon$ suit une loi multinormale qui vérifie les hypothèses suivantes:
+# $$ \mathbb{E}[\epsilon] = 0 $$
+#
+# $$ Var[\epsilon] = \sigma^2I_n $$
+# où $\sigma^2$ est la variance de la population et $I_n$ est la matrice identité de taille $n$.
+#
+# Les hypothèses précédentes impliquent $\mathbb{E}[y] = X\beta$ et $Var[y] = \sigma^2I_n$.
+#
+# ---
+#
+#
+# Sous ces hypothèses, on peut alors démontrer les propriétés des estimateurs:
+#
+# $\mathbb{E}[\widehat\beta] = \beta$ : estimateur sans biais
+#
+# $Var[\widehat\beta] = \sigma^2({}^tXX)^{-1}$
+#
+# La variance $\sigma^2$ est inconnue. Il faut l’estimer:
+#
+# $$CM_{res} = \frac{\sum(y_i -\widehat{y}_i)^2}{n-p} = \frac{SC_{res}}{n-p} = \frac{SC_{tot}-SC_{reg}}{n-p}$$
+#
+# où $n$ est le nombre d’individus/observations, $p$ est le nombre de variables explicatives, et $(n-p)$ le nombre de degrés de liberté associé à $SC_{res}$.
+#
+# ---
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Qualité du modèle (étude des résidus)
+
+
+Pour évaluer la qualité d’un modèle on peut aussi étudier la contribution de chacune des observations.
+
+```{r}
+layout(matrix(1:4, 2), respect=TRUE)
+plot(m)
+```
+
+**Effet levier, distance de Cook**
+
+
+On introduit $h_i$ tel que:
+
+$$h_i = \frac{1}{n} + \frac{(x_i -\overline{x})^2}{\sum^n_{k=1}(x_k -\overline{x})^2}$$
+
+
+Le terme $h_i$ représente le poids de l’observation $i$ sur sa propre estimation.
+
+On peut montrer que : 
+
+$$ \widehat{Y_i} = h_iY_i + \sum_{j\neq i}h_jY_j$$
+
+
+
+De même $h_{ij}$ représente le poids de l’observation $i$ sur l’estimation de $\widehat Y_j$.
+
+$$ h_{ij} = \frac{1}{n} + \frac{(x_i - \overline{x})(x_j - \overline{x}) }{\sum^n_{k=1}(x_k - \overline{x})^2}$$
+
+Si $h_{ij}$ est grand ($\geq \frac{1}{2}$), alors le point $i$ est un point levier (point atypique).
+
+La distance de Cook est utilisée pour mesurer l’influence de l’observation  $i$ sur l’estimation :
+
+
+**ATTENTION**, problème d’indice et de notation ! 
+
+$$ D_i= \frac{\sum^n_{j=1}(\widehat Y_{(i)j}-\widehat Y_j)^2}{2\widehat\sigma^2} = \frac{h_{ij}}{2(1-h_{ij})}r^2_i$$
+
+avec $\widehat Y_{(i)j}$  la prédiction pour l’observation j à partir d’un modèle de régression ajustée dans lequel l’observation i a été omise.
+
+
+
+
+
+
+
+
+
+**Représentation graphique**
+
+On représente les principaux graphiques sur les résidus.
+
+```{r}
+life.lm = lm(Life.Exp ~ Murder + HS.Grad + Frost, data = state_us)
+layout(matrix(1:4, 2, byrow=TRUE), respect=TRUE)
+plot(life.lm, which=1:4)
+```
+
+Toutes les hypothèses semblent vérifiées : 
+
+1) pas de structure dans le premier graphique ni dans le troisième (résidus standardisé). Les résidus étant centrés, la droite horizontale d’ordonnée 0 est ajoutée, pour pouvoir juger plus facilement de la répartition aléatoire des points. Si le graphique présente une quelconque structure, il convient de réfléchir à une nouvelle modélisation.
+2) pas d’homoscédasticité au vu du premier graphique, 
+3) hypothèse gaussienne non remise en cause par le QQ-plot (comparaison quantiles observés avec quantiles théoriques)
+4) aucun point aberrant d’après la distance de Cook.
+
+
+```{r}
+state_us[c("HI", "NV", "WA", "ME", "SC"),]
+```
+
+On vérifie plus précisément l’hypothèse d’indépendance des résidus. On peut représenter l’autocorrélation des résidus
+
+```{r}
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+acf(residuals(life.lm),ci=0.99)
+acf(residuals(life.lm),ci=0.95)
+```
+La fonction ACF indique si la valeur actuelle dépend toujours des valeurs précédentes (les décalages = lag).
+
+L’hypothèse d’indépendance est cohérente graphiquement, au seuil 0.99. Nous avons choisi ici d’être peu restrictifs sur l’autocorrélation en prenant un intervalle de confiance de niveau 0.99, mais elle ne serait pas valide avec une confiance de 0.95.
+
+**Avec des tests statistiques**
+
+-> *Shapiro test* : test de la normalité des résidus.
+
+```{r}
+shapiro.test(resid(life.lm))
+```
+On obtient une p-valeur de 10.4%. On ne rejette pas l’hypothèse de normalité avec un seuil de 5%.
+
+-> *Rainbow test* : test de la linéarité du modèle.
+
+```{r}
+lmtest::raintest(life.lm)
+```
+On obtient une p-valeur de 32.98%. On ne rejette pas le modèle linéaire. On teste ensuite l’hypothèse d’homogénéité des variances :
+
+-> *Goldfeld-Quandt test* : test de l’homoscedasticité.
+
+```{r}
+lmtest::gqtest(life.lm)
+```
+On obtient une p-valeur de 75.62%. L’homogénéité de la variance des résidus n’est pas rejetée.
+
+-> *Durbin-Watson test* : test de l’indépendance des résidus.
+
+
+```{r}
+lmtest::dwtest(life.lm)
+```
+
+On obtient une p-valeur de 23.23%. L’indépendance des résidus n’est pas rejetée (Attention, le test de Durbin Wastson teste l’autocorrélation d’ordre 1 et d’autres tests peuvent être plus adaptés,le test de Box-Pierce par exemple).
+Nous vérifions enfin qu’il n’y a pas de colinéarité forte dans le modèle, c’est-à-dire que les variables explicatives ne sont pas linéairement dépendantes.
+
+```{r}
+car::vif(life.lm)
+```
+
+Les valeurs des VIF (Variance Inflation Factors) étant inférieures à 10, les variables ne présentent pas de forte colinéarité.
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Sélection de variables
+
+- Critères de choix
+
+  -- Critère du $R^2$ 
+  
+  -- Critère d’information d’Akaike (AIC)
+  
+  -- Critère d’information bayesien (BIC)
+
+- Procédure de sélection de variable
+
+-- Forward (ou pas à pas ascendante)
+
+-- Backward (ou pas à pas descendante)
+
+-- Stepwise
+
+---
+
+### Les critères
+
+#### Pseudo-$R^2$ (Cox-Snell, Nagelkerke)
+
+Augmente de façon monotone avec l’introduction de nouvelles variables 
+
+
+#### Critètre d’information d’Akaike (AIC)
+
+Le critère AIC est défini par : 
+
+$$AIC = n*log(\frac{SC_{res}}{n}) + 2(p+1)$$
+
+#### Critètre d’information bayesien (BIC)
+
+Le critère BIC est défini par : 
+
+$$BIC =  n*log(\frac{SC_{res}}{n}) + log(n)(p+1)$$
+
+Pour l’AIC et le BIC : 
+
+- le critère s’applique aux modèles estimés par une méthode du **maximum de vraisemblance**
+- le meilleur modèle est celui qui minimise le critère
+
+
+Le BIC est plus parcimonieux que l’AIC puisqu’il pénalise plus le nombre de variables présentent de le modèle.
+
+---
+
+### Les méthodes
+
+Méthodes les plus classiques:
+
+- Forward (ou pas à pas ascendante)
+
+- Backward (ou pas à pas descendante)
+
+- Stepwise
+
+Ces méthodes s’appuient sur les **données recueillies**
+
+Elles sont **itératives**
+
+Elle dépendent de **paramètres** (à valeur prédéfinie)
+
+Bien que l’efficacité de ces méthodes ne puisse être démentie par la pratique, il ne serait pas raisonnable de se fier uniquement aux résultats statistiques fournis par un
+algorithme. En effet, pour décider d’ajouter ou de supprimer une variable dans un modèle, il faut conserver :
+
+- une part d’intuition
+
+- une part de déduction
+
+- une part de synthèse
+
+---
+
+### Exemple détaillé sous R
+
+
+On souhaite expliquer l’espérance de vie Life.Exp en fonction des autres variables. On va utiliser pour cela une méthode descendante.
+
+Si nous souhaitons minimiser le critère AIC, nous pouvons l’obtenir de la façon suivante :
+
+```{r}
+life.lm <- lm(Life.Exp ~ ., data=state_us) 
+summary(life.lm)
+extractAIC(life.lm)
+```
+
+(On préférera extractAIC à la fonction AIC qui donne un critère légèrement différent.) On commence par enlever les variables dont la p-valeur est supérieure à 0.3.
+
+```{r}
+life.lm <-  update(life.lm,.~.-Area-Illiteracy-Income)
+summary(life.lm)
+extractAIC(life.lm)
+```
+On constate que l’AIC a bien diminué.
+On enlève ensuite la variable dont le coefficient est le moins significatif, ici Population.
+
+```{r}
+life.lm <-  update(life.lm,.~.-Population)
+summary(life.lm)
+extractAIC(life.lm)
+```
+
+On constate que l’AIC a augmenté (et que l’écart-type estimé des résidus a augmenté : il vaut 0.7427 contre 0.7197 auparavant). On préfère donc le modèle conservant la variable Population.
+
+```{r}
+life.lm <- lm(Life.Exp ~ Murder + HS.Grad + Frost + Population, data=state_us)
+```
+R peut faire ce raisonnement de manière automatisée. Il suffit d’appliquer 
+
+```{r}
+life.lm <- step(lm(Life.Exp ~ ., data=state_us), method="bakward")
+```
+
+Le critère choisi par défaut est alors l’AIC. Il est également possible de choisir les méthodes "forward" et "both". Ensuite on peut résumer les différentes étapes de la façon suivante :
+
+```{r}
+life.lm$anova
+```
+On peut également utiliser les fonctions add1 et drop1, non détaillées ici.
+
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+# Notes
+
+Ce cours s’inspire des références suivantes :
+
+- Frédéric Bertrand & Myriam Maumy-Bertrand
+- Franck Picard
+
+---
+
+# Informations de session
+
+```{r, results="verbatim"}
+sessionInfo()
+```
+
+
+
