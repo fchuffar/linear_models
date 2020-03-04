@@ -1,0 +1,100 @@
+---
+title: "Modèles linéaires"
+subtitle: "M1 SSD"
+author: "Florent Chuffart & Magali Richard"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    number_sections: true
+---
+
+
+```{r, echo=FALSE, eval=TRUE}
+knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, eval=TRUE, echo=FALSE, results="hide")
+d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+# README RStudio config, uncheck: # preferences > R Markdown > show output inline for... 
+```
+
+# Avant Propos
+
+## Evaluations
+
+ - individuelle via un questionnaire à la fin de chaque séance 
+
+   - Evaluation 1 https://forms.gle/Ja8NFsaGjdVfyUZ57
+   - Evaluation 2 https://forms.gle/Bf5naTXRq3dD2R7v5
+   - Evaluation 3 https://forms.gle/oVm1oFdknAz38Dbg6
+   - Evaluation 4 https://competitions.codalab.org/competitions/23123
+   - Evaluation 5 
+   - Evaluation 6 
+   - Evaluation 7 
+   - Evaluation 8 
+ 
+ - en équipe lors d‘un *data challenge* à la fin des 8 séances
+
+## Pré-requis
+ 
+ - R https://cran.r-project.org 
+ - RStudio https://www.rstudio.com
+
+## Cours 
+
+- https://github.com/fchuffar/linear_models
+
+
+## Organisation prévisionnelle
+
+Séance 1 - 3h (10/01) Régression linéaire simple
+
+Séance 2 - 3h (24/01) Régression linéaire multiple
+
+Séance 3 - 3h (31/01) Anova 1 facteur / partie A
+
+Séance 4 - 3h (14/02) Anova 1 facteur / partie B
+
+Séance 5 - 3h (21/02) Anova 2 facteurs
+
+Séance 6 - 3h (07/03) Anova multiple
+
+Séance 7 - 3h (11/03) Anova facteurs emboités
+
+Séance 8 - 3h (14/03) Ancova
+
+---
+
+
+
+
+
+```{r child = '01_cours_modlin.Rmd', eval=FALSE}
+```
+
+```{r child = '02_cours_modlin.Rmd', eval=FALSE}
+```
+
+```{r child = '03_cours_modlin.Rmd'}
+```
+
+
+---
+
+# Notes
+
+Ce cours s’inspire des références suivantes :
+
+- Frédéric Bertrand & Myriam Maumy-Bertrand
+- Franck Picard
+
+---
+
+# Informations de session
+
+```{r, results="verbatim"}
+sessionInfo()
+```
+
+
+
