@@ -10,7 +10,7 @@ Comme pour la regression linéaire, l’ANOVA est à la fois:
   * un **modèle** (linéaire) fondé sur la décomposition de la variance 
   * un **test** statistique permettant de comparer les moyennes d’une variable aléatoire *indépendante*, *gaussienne* et *homogène en variance*.
 
-Ex : le poids moyen de différent groupe d’individus.
+Ex : le poids moyen de différents groupes d’individus.
 
 L’analyse de la variance est une procédure largement utilisée dans les métiers qui font appel aux statistiques et à ’analyse de données.
   
@@ -29,8 +29,8 @@ avec :
   - $Y$ un vecteur de taille $n$ (le nombre d’obeservations) correspondant aux valeurs de la variable aléatoire 
   - $\mu$ la moyenne des observations.  
   - $\epsilon$ un vecteur de taille $n$ correspondant aux valeurs des résidus. 
-  - $\beta$ un vesteur de  $p$ (le nombre de niveaux du facteur X) correspondant à la moyenne des observation pour chaque niveau du facteur.
-  - $I_X$ la *matrice d’incidence* de taille $n$ x $p$, ne comportant que des 0 et des 1 et permettant d’associer chaque observation à son niveau de facteur $X$.   
+  - $\beta$ un vesteur de  $p$ (le nombre de niveaux du facteur X) correspondant à la moyenne des observation pour chaque niveau du facteur moins la moyenne générale.
+  - $I_X$ la *matrice d’incidence* (tableua disjonctif ?) de taille $n$ x $p$, ne comportant que des 0 et des 1 et permettant d’associer chaque observation à son niveau de facteur $X$.   
 
 **Exemple *InsectSprays* **
 
@@ -39,10 +39,9 @@ On pourra tenter d’expliquer le nombre d’insectes (Y) en fonction du type de
 
 ```{r results="verbatim", echo=TRUE}
 data("InsectSprays")
-d = InsectSprays
-head(d)
-dim(d)
-table(d$spray)
+head(InsectSprays)
+dim(InsectSprays)
+table(InsectSprays$spray)
 ```
 
 
@@ -50,24 +49,22 @@ table(d$spray)
 
 ```{r}
 layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-p = plot(d$spray, d$count, main="count~spray", xlab="spray", ylab="count", border="grey")
-points(jitter(as.numeric(d$spray)), d$count)
+p = plot(InsectSprays$spray, InsectSprays$count, main="count~spray", xlab="spray", ylab="count", border="grey")
+points(jitter(as.numeric(InsectSprays$spray)), InsectSprays$count)
 
 
-y_i = sapply(levels(d$spray), function(s) {
- mean(d[d$spray==s,]$count)
+y_i = sapply(levels(InsectSprays$spray), function(s) {
+ mean(InsectSprays[InsectSprays$spray==s,]$count)
 })
-sp = jitter(as.numeric(d$spray))
-plot(sp, d$count, main="count~spray", las=2, type="p", xaxt="n", xlab="spray", ylab="count")
-suppressWarnings(arrows(sp, d$count, sp, rep(y_i,each=12), col=adjustcolor(4, alpha.f=0.5), length=0.05))
+sp = jitter(as.numeric(InsectSprays$spray))
+plot(sp, InsectSprays$count, main="count~spray", las=2, type="p", xaxt="n", xlab="spray", ylab="count")
+suppressWarnings(arrows(sp, InsectSprays$count, sp, rep(y_i,each=12), col=adjustcolor(4, alpha.f=0.5), length=0.05))
 points(y_i, pch=5, col=2)
 suppressWarnings(arrows(1:6, mean(y_i), 1:6, y_i, col=adjustcolor(2, alpha.f=0.9), length=0.05))
 abline(h=mean(y_i), lty=2)
 
-axis(1, 1:length(levels(d$spray)), labels=levels(d$spray))
+axis(1, 1:length(levels(InsectSprays$spray)), labels=levels(InsectSprays$spray))
 legend("top", c("Y_i", "beta_i", "epsilon_i", "mu"), pch=c(1,5,5,NA), col=c(1,2,4,1), lty=c(0,0,0,2), border=0)
-
-
 ```
 
 Le modèle $Y = \mu + I_X \beta + \epsilon$ devient pour chaque observation i, $i \in \{1, ..., n\}$ :
@@ -135,7 +132,7 @@ $$s_j^2(Y) = \frac{1}{|K|}\sum_{k \in K}(Y_{jk} -\overline Y_j)^2$$
 
 La décomposition est fondée sur deux propriétés des moyennes et des variances.
 
-(1) La moyenne de toutes les observations est la moyenne des moyennes de chaque échantillon. Ceci s’écrit :
+(1) La moyenne de toutes les observations est la moyenne des moyennes de chaque échantillon : 
 
 $$\overline{Y} 
   = \frac{1}{n} \sum_{j \in J} \sum_{k\in K} Y_{jk}
@@ -144,7 +141,7 @@ $$\overline{Y}
   = \frac{1}{|J|} \sum_{j \in J} \overline{Y_j} $$
 
 
-(2) La variance de toutes les observations est la somme de la variance des moyennes et de la moyenne des variances. Ceci s’écrit :
+(2) La variance de toutes les observations est la somme de la variance des moyennes de chaque groupe et des variances de chaque observation autour de la moyenne de son groupe :
 
 $$s^2(Y) 
   = \frac{1}{n} \sum_{j \in J} \sum_{k \in K} (Y_{jk} - \overline{Y})^2 
@@ -163,13 +160,78 @@ Le coefficient de determination $R^2$ mesure du pourcentage de la variance expli
 $$ R^2 = \frac{SC_{F}}{SC_{tot}}$$
 
 
-**Travaux pratiques pratique**
+```{r}
+y_i = sapply(levels(InsectSprays$spray), function(s) {
+ mean(InsectSprays[InsectSprays$spray==s,]$count)
+})
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+sp = jitter(as.numeric(InsectSprays$spray))
+plot(sp, InsectSprays$count, main="count~spray", las=2, type="p", xaxt="n", xlab="spray", ylab="count")
+suppressWarnings(arrows(sp, InsectSprays$count, sp, rep(y_i,each=12), col=adjustcolor(4, alpha.f=0.5), length=0.05))
+points(y_i, pch=5, col=2)
+suppressWarnings(arrows(1:6, mean(y_i), 1:6, y_i, col=adjustcolor(2, alpha.f=0.9), length=0.05))
+abline(h=mean(y_i), lty=2)
 
-  - Réaliser plusieurs modélisations du jeu de données CO2.
-  - Evaluer la puissance des modèles que vous proposez.
+axis(1, 1:length(levels(InsectSprays$spray)), labels=levels(InsectSprays$spray))
+legend("top", c("Y_ij", "SC_F", "SC_res"), pch=c(1,5,5), col=c(1,2,4))
+```
 
-https://github.com/fchuffar/tp_data_co2
 
+
+
+
+
+**Travaux pratiques**
+
+  - Reprendre le travaille effectué sur le jeu de données *CO2*.
+  - Considérer la concentration en CO2 comme un facteur
+  - Evaluer la part de variance expliquée par ce nouveau modèle (R^2)
+  - Commenter
+
+
+```{r echo=TRUE, results="verbatim"}
+data(CO2)
+head(CO2)
+CO2_quebec = CO2[CO2$Type=="Quebec" & CO2$Treatment=="chilled", ]
+CO2_quebec$conc_fact = as.factor(CO2_quebec$conc)
+m1 = lm(uptake~conc, CO2_quebec)
+layout(matrix(1:2, 1), respect=TRUE)
+plot(
+  CO2_quebec$conc, 
+  CO2_quebec$uptake, 
+  xlab="cooc", ylab="uptake", main=paste0("uptake~cooc R^2=", signif(summary(m1)$r.squared,3))
+)
+abline(m1, col=2)
+plot(
+  CO2_quebec$conc_fact, 
+  CO2_quebec$uptake, 
+  xlab="log(cooc)", ylab="uptake", main=paste0("uptake~cooc")
+)
+```
+
+
+```{r eval=FALSE}
+# README RStudio config, uncheck: # preferences > R Markdown > show output inline for... 
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+plot(
+  CO2_quebec$conc, 
+  CO2_quebec$uptake, 
+  xlab="cooc", ylab="uptake", main=paste0("uptake~cooc R^2=", signif(summary(m1)$r.squared,3))
+)
+m = lm(uptake ~ conc, CO2_quebec)
+abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+arrows(CO2_quebec$conc, CO2_quebec$uptake, CO2_quebec$conc, CO2_quebec$uptake-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
+legend("bottomright",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+
+m2 = lm(uptake ~ conc_fact, CO2_quebec)
+summary(m2)$r.squared
+p = plot(CO2_quebec$conc_fact, CO2_quebec$uptake, las=2, main=paste0("uptake~conc_fact R^2=", signif(summary(m2)$r.squared,3)))
+conc_fact = jitter(as.numeric(CO2_quebec$conc_fact))
+arrows(conc_fact, CO2_quebec$uptake, conc_fact, CO2_quebec$uptake-m2$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
+legend("bottomright","residuals", col=4, lty=1, cex=.8)
+
+```
+  
 ---
 
 
@@ -203,183 +265,81 @@ https://github.com/fchuffar/tp_data_co2
 
 
 
+## Test de l'ANOVA à 1 facteur (*one way ANOVA*)
 
+Sous certaines conditions d’aplications : 
 
+- Indépendance des observations
+- Homoscedasticité entre les groupes
+- Normalité des résidus,
 
+l’ANOVA est un test de comparaison des moyennes des facteurs : 
 
+- hypothèse nulle $H_0, \mu_1 =\mu_2 =···=\mu_I$
+- hypothèse alternative $H_1, \text{les moyennes } \mu_i \text{ ne sont pas toutes égales.}$
 
-
-
-
-
-
-
-
-
-
-
-
-
-### L'ANOVA à un facteur, un test de comparaison des moyennes
-
-Sous certaines hypothèses, l’ANOVA devient un test de comparaison des moyennes des facteurs.
-
-Nous nous proposons de tester l’hypothèse nulle : $$H_0, \mu_1 =\mu_2 =···=\mu_I$$
-
-contre l’hypothèse alternative : $$H_1, \text{les moyennes } \mu_i \text{ ne sont pas toutes égales.}$$
-
-La méthode statistique qui permet d’effectuer ce test est appelée l’analyse de la variance à un facteur (*one way analysis of variance*).
-
-
-*Intuition 1* - Sous l’hypothèse nulle, et sous les hypothèses du test, l’interval de confiance (au risque $\alpha$) de la moyenne de chaque groupe doit contenir la moyenne de toutes les observations. Si ce n’est pas le cas on rejette $H_0$ et on accepte $H_1$ au risque $\alpha$. Si c’est le cas on conserve $H_0$ au risque $\beta$ à calculer. 
-
-*Intuition 2* - Si la variable observée pour chaque groupe est normalement distribuée, l’intervalle de confiance à $95\%$ de la moyenne de chaque groupe est très proche de la moyenne de chaque groupe +/- 2 fois l’écart type de chaque groupe. 
-
-Ici, ce n’est  pas le cas. Après vérification des hypothèse du test on pourrait tenter de rejetter $H_0$ et accepter $H_1$ au risque $\alpha$ de $5\%$.
-
-
-```{r results="verbatim",}
-y_i = sapply(levels(d$spray), function(s) {
- mean(d[d$spray==s,]$count)
-})
-s2_i = sapply(levels(d$spray), function(s) {
- var(d[d$spray==s,]$count)
-})
-s_i = sqrt(s2_i)
-layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-sp = jitter(as.numeric(d$spray))
-plot(sp, d$count, main="count~spray", las=2, type="p", xaxt="n", xlab="spray", ylab="count")
-abline(h=mean(y_i), lty=2)
-sp = 1:length(levels(d$spray))
-suppressWarnings(arrows(sp, y_i, sp, y_i + 2 * sqrt(s2_i), col=4, length=0.05, angle=135))
-suppressWarnings(arrows(sp, y_i, sp, y_i - 2 * sqrt(s2_i), col=4, length=0.05, angle=135))
-points(y_i, pch=3, col=2)
-axis(1, 1:length(levels(d$spray)), labels=levels(d$spray))
-legend("top", c("observations", "means per group", "means +/- 2sd", "global mean"), pch=c(1,3,4,NA), col=c(1,2,4,1), lty=c(0,0,0,2))
-```
-
-
-### Hypothèses du test
-
-Les résidus $\widehat{e_{ij}}$ sont associés, sans en être des réalisations, aux variables erreurs $\epsilon_{ij}$ qui sont inobservables et satisfont aux 3 conditions suivantes :
-
-1. Elles sont indépendantes
-3. Elles sont de loi gaussienne (normalité)
-2. Elles ont même variance $\sigma^2$ inconnue (homogénéité des variances ou homoscédasticité)
-
-
-```{r}
-y_i = sapply(levels(d$spray), function(s) {
- mean(d[d$spray==s,]$count)
-})
-layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-sp = jitter(as.numeric(d$spray))
-plot(sp, d$count, main="count~spray", las=2, type="p", xaxt="n", xlab="spray", ylab="count")
-suppressWarnings(arrows(sp, d$count, sp, rep(y_i,each=12), col=adjustcolor(4, alpha.f=0.5), length=0.05))
-points(y_i, pch=3, col=2)
-# suppressWarnings(arrows(1:6, mean(y_i), 1:6, y_i, col=adjustcolor(2, alpha.f=0.9), length=0.05))
-# abline(h=mean(y_i), lty=2)
-
-axis(1, 1:length(levels(d$spray)), labels=levels(d$spray))
-legend("top", c("observations", "means per group", "residuals"), pch=c(1,3,5), col=c(1,2,4))
-```
-
-
-
-
-
-
-
-
-Ce test se fonde sur la décomposition de la variance.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Test de l'ANOVA
-
-
-
-*Intuition* - Si l’hypothèse nulle $H_0$ est vraie alors la quantité $SC_F$ doit être petite par rapport à la quantité $SC_{res}$.
+**Intuition du test** Si l’hypothèse nulle $H_0$ est vraie alors la quantité $SC_F$ (rouge) doit être petite par rapport à la quantité $SC_{res}$ (bleu).
 Par contre, si l’hypothèse alternative $H_1$ est vraie alors la quantité $SC_F$ doit être grande par rapport à la quantité $SC_{res}$.
 
+
 ```{r}
-y_i = sapply(levels(d$spray), function(s) {
- mean(d[d$spray==s,]$count)
+y_i = sapply(levels(InsectSprays$spray), function(s) {
+ mean(InsectSprays[InsectSprays$spray==s,]$count)
 })
 layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-sp = jitter(as.numeric(d$spray))
-plot(sp, d$count, main="count~spray", las=2, type="p", xaxt="n", xlab="spray", ylab="count")
-suppressWarnings(arrows(sp, d$count, sp, rep(y_i,each=12), col=adjustcolor(4, alpha.f=0.5), length=0.05))
+sp = jitter(as.numeric(InsectSprays$spray))
+plot(sp, InsectSprays$count, main="count~spray", las=2, type="p", xaxt="n", xlab="spray", ylab="count")
+suppressWarnings(arrows(sp, InsectSprays$count, sp, rep(y_i,each=12), col=adjustcolor(4, alpha.f=0.5), length=0.05))
 points(y_i, pch=5, col=2)
 suppressWarnings(arrows(1:6, mean(y_i), 1:6, y_i, col=adjustcolor(2, alpha.f=0.9), length=0.05))
 abline(h=mean(y_i), lty=2)
 
-axis(1, 1:length(levels(d$spray)), labels=levels(d$spray))
+axis(1, 1:length(levels(InsectSprays$spray)), labels=levels(InsectSprays$spray))
 legend("top", c("Y_ij", "SC_F", "SC_res"), pch=c(1,5,5), col=c(1,2,4))
 ```
+
 
 Pour comparer ces quantités, R. A. Fisher, après les avoir
 "corrigées" par leurs degrés de liberté (ddl), a considéré leur rapport.
 
 Nous appelons *carré moyen associé au facteur* le terme 
 
-$$CM_F = \frac{SC_F}{I-1}$$
+$$CM_F = \frac{SC_F}{|J|-1}$$
 
 et *carré moyen résiduel* le terme :
 
-$$CM_{res} = \frac{SC_{res}}{n-I}$$
+$$CM_{res} = \frac{SC_{res}}{n-|J|}$$
 
 Le carré moyen résiduel est un estimateur sans biais de la variance des erreurs  $\sigma^2$.
 C’est pourquoi il est souvent également appelé variance résiduelle et presque systématiquement noté $S_{res}^2$ lorsqu’il sert à estimer la variance des erreurs.
 Sa valeur observée sur l’échantillon est ainsi notée $cm_{res}$ ou $s_{res}^2$ .
 
-
-Si les trois conditions sont satisfaites et si l’hypothèse nulle
-$H_0$ est vraie alors
+Définissons la statidtioque de test :
 
 $$ F_{obs} = \frac{cm_F}{cm_{res}}$$
 
-est une réalisation d’une variable aléatoire F qui suit une loi de Fisher à $I-1$ degrés de liberté au numérateur et $n-I$ degrés de liberté au dénominateur. Cette loi est notée  $\mathcal{F}_{I-1,n-I}$.
+Si les conditions d’aplications sont satisfaites et sous $H_0$ alors $F_{obs}$ est une réalisation d’une variable aléatoire $F$ qui suit une loi de Fisher à $|J|-1$ degrés de liberté au numérateur et $n-|J|$ degrés de liberté au dénominateur. Cette loi est notée  $\mathcal{F}_{|J|-1,n-|J|}$.
 
-### Tableau de l’analyse de la variance 
-
-
-```{r echo=TRUE, results="verbatim"}
-m = lm(d$count~d$spray)
-anova(m)
-```
+Ces informations sont résumées dans ce que le tableau de l’analyse de la variance : 
 
 | Source de variation   | sc        | ddl  |  cm  | $F_{obs}$
 | :-------------------- | :-------: | :--: | :--: | ---:
-| Due au facteur        | $sc_{F}$  | $I-1$  | $cm_{F}=\frac{sc_{F}}{I-1}$ | $\frac{cm_{F}}{cm_{res}}$
-| Résiduelle            | $sc_{res}$| $n-I$  | $cm_{res}=\frac{sc_{res}}{n-I}$ 
+| Due au facteur        | $sc_{F}$  | $|J|-1$  | $cm_{F}=\frac{sc_{F}}{|J|-1}$ | $\frac{cm_{F}}{cm_{res}}$
+| Résiduelle            | $sc_{res}$| $n-|J|$  | $cm_{res}=\frac{sc_{res}}{n-|J|}$ 
 | Totale                | $sc_{tot}$| $n-1$ 
 
 
+```{r echo=TRUE, results="verbatim"}
+m = lm(InsectSprays$count~InsectSprays$spray)
+anova(m)
+```
+
+```{r}
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+i = seq(0,40, length.out=1000)
+plot(i,df(i, 5, 66), type="l", main="F_5_66")
+abline(v=34.702, col=2)
+```
 
 
 
@@ -388,70 +348,62 @@ anova(m)
 
 
 
-### Hypothèses du test
-
-#### Indépendance
-
-
-Il n’existe pas, dans un contexte général, de test statistique simple permettant d’étudier l’indépendance.
-Ce sont les conditions de l’expérience qui nous permettront d’affirmer que nous sommes dans le cas de l’indépendance.
-
-
-#### Normalité
-
-Nous ne pouvons pas, en général, la tester pour chaque échantillon. En effet le nombre d’observations est souvent très limité pour chaque échantillon.
-Nous allons donc la tester sur l’ensemble des données.
-
-Remarquons que si les conditions sont satisfaites et si nous notons :
-$$\epsilon_{ij} = Y_{ij} - \mu_i$$
- 
-alors c’est la même loi pour l’ensemble des unités.
-$$ L(\epsilon_{ij}) = N(0 ; \sigma_2) $$
-
-Les moyennes $\mu_i$ étant inconnues, nous les estimons par les
-estimateurs de la moyenne : les $Y_i$.
-
-Nous pouvons alors tester la normalité, avec le test de Shapiro-Wilk ou avec le test de Shapiro-Francia sur l’ensemble des résidus.
 
 
 
-#### Homoscedasticité
-
-Plusieurs tests permettent de tester l’égalité de plusieurs variances. Parmi ceux-ci, un test souvent utilisé est le test de Bartlett dont le protocole est le suivant.
-
-L’hypothèse nulle : $$H_0, \sigma_1^2 = \sigma_2^2 = ...= \sigma_I^2$$
-
-contre l’hypothèse alternative : $$H_1, \text{Les variances } \sigma_i^2 \text{ ne sont pas toutes égales.}$$
-
-
-En pratique, nous pouvons l’appliquer lorsque les effectifs $n_i$ des $I$ échantillons sont tous au moins égaux à 3.
-
-Ce test requiert la normalité des erreurs.
-
-Note : nous avons également testé l’homoscedasticité avec *Goldfeld-Quandt* dans le cadre du premier TP et lors de la seconde séance.
 
 
 
-### En pratique...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Travaux pratiques
+
+
+**faraway::coagulation**
 
   - Mettre en place une analyse de variance pour étudier l’e􏰒ffet du régime sur les temps de coagulation.
   - Analyse graphique des donnée
-  - Vérifier les hypothèses du test. 
+  - Vérifier les hypothèses du test
+  
 
-```{r echo=TRUE, result="verbatim"}
-# Loading data
-d = faraway::coagulation
-head(d)
-table(d$diet)
+```{r echo=TRUE, results="verbatim"}
+coagulation = faraway::coagulation
+head(coagulation)
+dim(coagulation)
+table(coagulation$diet)
 
 # Graphicals
 layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-plot(d$diet, d$coag, main="coag~diet", xlab="diet", ylab="coag", border="grey")
-points(jitter(as.numeric(d$diet)), d$coag)
+plot(coagulation$diet, coagulation$coag, main="coag~diet", xlab="diet", ylab="coag", border="grey")
+points(jitter(as.numeric(coagulation$diet)), coagulation$coag)
+```
 
+```{r eval=FALSE}
 # Test hypothesis
-m = lm(coag~diet, d)
-m2 = aov(coag~diet, d)
+m = lm(coag~diet, coagulation)
+m2 = aov(coag~diet, coagulation)
 
 ## normality
 m$residuals
@@ -463,7 +415,7 @@ shapiro.test(m$residuals)
 # pval = 0.86 > 0.05, we keep H_0, residuals are normal
 
 ## homoscedasticity
-bartlett.test(coag~diet, d)
+bartlett.test(coag~diet, coagulation)
 # H_0 homoscedasticity
 # H_1 not homoscedasticity
 # pval = 0.6441 > 0.05, we keep H_0, variance of groups are equal
@@ -490,13 +442,14 @@ F_obs
 
 1 - pf(13.571, 3, 20)
 
-
-
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+i = seq(0,40, length.out=1000)
+plot(i,df(i, 3, 20), type="l", main="F_3_20")
+abline(v=F_obs, col=2)
 ```
 
----
 
-## Comparaisons multiples
+**Comparaisons multiples**
 
 
 Lorsque que nous rejettons $H_0$, nous pouvons chercher à analyser les différences entre les groupes. Nous procédons alors à des tests qui vont répondre à la question suivante : D’où vient la différence ? Quelles moyennes sont différentes ?
@@ -508,10 +461,44 @@ La plus connues est la correction de *Bonferroni*. Cela consiste à diviser le s
 Dans notre exemple, nous avons décidé que les moyennes théoriques sont différentes dans leur ensemble, mais nous aurions très bien pu trouver le contraire.
 Comme nous avons décidé que les moyennes théoriques sont différentes dans leur ensemble que le facteur étudié est à effets fixes et qu’il a plus de trois modalités, nous pourrions essayer de déterminer là où résident les différences avec un des tests de comparaisons multiples.
 
-```{r echo=TRUE, results="verbatim"}
-summary(m)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r, eval=FALSE}
+recovery = multcomp::recovery
+head(recovery)
+dim(recovery)
+plot(minutes~blanket, recovery)
+
+anorexia = MASS::anorexia
+head(anorexia)
+dim(anorexia)
+
+library(lsmeans)
+auto.noise
+head(d)
+dim(d)
+
+rats = faraway::rats
+head(rats)
+dim(rats)
+table(rats$poison, rats$treat)
 ```
 
+---
 
 
 

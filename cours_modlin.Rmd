@@ -228,7 +228,7 @@ m = lm(poids~taille, d)
 pred = predict(m, data.frame(taille=d$taille))
 i = which(d$poids - pred == max(d$poids - pred))
 points(d$taille[i], d$poids[i], pch=16, col=2)
-abline(v=d$taille[i], h=c(d$poids[i], d$poids[i]-m$residuals[i]), lty=2, col=2)
+abline(v=d$taille[i], h=c(d$poids[i], d$poids[i]-m$esiduals[i]), lty=2, col=2)
 axis(1, at=d$taille[i], "xi", las=2, col=2)
 axis(4, at=c(d$poids[i], d$poids[i]-m$residuals[i]), c("Yi", expression(bar("Yi"))), las=2, col=2)
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=1) # /!\ y = b.x + a

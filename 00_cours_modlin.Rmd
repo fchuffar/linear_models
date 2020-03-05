@@ -14,7 +14,7 @@ output:
 
 ```{r, echo=FALSE, eval=TRUE}
 knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, eval=TRUE, echo=FALSE, results="hide")
-d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+# d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
 # README RStudio config, uncheck: # preferences > R Markdown > show output inline for... 
 ```
 
