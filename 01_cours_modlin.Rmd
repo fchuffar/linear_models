@@ -36,6 +36,8 @@ Dans le cas de la regression linéaire simple, $x$ est également quantitatives 
 
 
 ```{r  echo=FALSE, results="hide"}
+d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+
 layout(matrix(1:2, 1), respect=TRUE)
 
 plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille")
@@ -505,8 +507,7 @@ plot(
 )
 abline(m2, col=2)
 summary(m1)
-summary(m2)
-
+summary(m2)z
 ```
 
 On s’intéresse uniquement aux plantes dont le `Type` est `Quebec`.

@@ -75,7 +75,9 @@ Séance 8 - 3h (14/03) Ancova
 ```{r child = '02_cours_modlin.Rmd', eval=FALSE}
 ```
 
-```{r child = '03_cours_modlin.Rmd'}
+```{r child = '03_cours_modlin.Rmd', eval=FALSE}
+```
+```{r child = '04_cours_modlin.Rmd'}
 ```
 
 
@@ -87,6 +89,7 @@ Ce cours s’inspire des références suivantes :
 
 - Frédéric Bertrand & Myriam Maumy-Bertrand
 - Franck Picard
+- http://math.agrocampus-ouest.fr (janvier 2020)
 
 ---
 

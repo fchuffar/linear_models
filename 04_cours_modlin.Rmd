@@ -1,0 +1,189 @@
+
+# ANOVA à deux facteurs sans répétition
+
+Ce chapitre est largement inspiré du cours "Analyse de variance à 2 facteurs" disponible en mars 2020 sur http://math.agrocampus-ouest.fr.
+
+
+**Données**
+
+```{r results="verbatim"}
+varfung = data.frame(
+  land=1:6,
+  variety=c("A","A","B","B","C","C"),
+  fungicide=c("Y","Z","Y","Z","Y","Z"),
+  yield=c(2,2,1,5,3,5)
+)
+varfung
+```
+
+Nous nous plaçons ici dans le cadre d’un plan 
+
+  - complet (toutes les combinaisons de facteurs sont présentent) 
+  - équirépété (même nombre de répétition pour chaque combinaison). 
+
+Ce type de plan à de bonnes propriétés : 
+ 
+  - numériques / d’optimalité
+  - facilité d’interprétation
+
+L’ANOVA à 2 facteurs fonctionne aussi dans le cadre de plan qui ne sont ni complets ni équirépétés, les calculs sont plus compliqués et l’interprétation moins évidents.
+
+**Notations**
+
+  - $y_{ij}$ le rendementet le fongicide $j$.
+  - $\overline y_{i.}$ la moyenne des rendements pour la variété $i$ 
+  - $\overline y_{.j}$ la moyenne des rendements pour le fongicide $j$ 
+  - $\overline y$ la moyenne des rendements
+  
+  
+**Problématique**
+
+  - Est-ce qu’il y a un effet de la variété sur le rendement ?
+  - Est-ce qu’il y a un effet du fongicide sur le rendement ?
+
+
+## Présentation du modèles
+
+
+$$Y_{ij} = \mu + \alpha_i + \beta_j + \epsilon_{ij}$$
+
+avec  : 
+
+  - $Y_{ij}$ le rendement de la variété $i$ avec le fongicide $j$ 
+  - $\mu$ un rendement basal
+  - $\alpha_i$ l’effet de la variété $i$
+  - $\beta_j$ l’effet de la variété $j$
+  - $\epsilon_{ij}$ un résidu aléatoire (variabilité biologique)
+  
+**Hypothèse sur les résidus**
+  
+  - normalité (avec cette hypothèse les lois sont exactes, sans cette hypothèse les approximations sont généralement bonnes,  le modèle est robuste à cette hypothèse)
+  - homoscédasticité (important)
+  - indépendance des résidus (important)
+  
+**Contrainte sur les paramètres**
+  
+  - $\sum \alpha_i = 0$
+  - $\sum \beta_j = 0$
+  
+Nous avons donc $I + J$ paramètres dont $I + J - 1$ paramètres indépendants.
+
+
+## Estimation des paramètres
+
+$$ y_{ij} = \widehat \mu + \widehat \alpha_i + \widehat \beta_j + e_{ij}$$
+
+avec : 
+
+  - $argmin(\sum (e_{ij})^2)$
+  - $\sum \widehat \alpha_i = 0$
+  - $\sum \widehat \beta_j = 0$
+
+Dans le cadre du plan complet equirépété : 
+
+  - $\widehat \mu = \overline y_{..}$
+  - $\widehat \alpha_i = \overline y_{i.} - \overline y_{..}$
+  - $\widehat \beta_j = \overline y_{.j} - \overline y_{..}$
+
+
+```{r eval=FALSE}
+# options(contrasts=c("contr.sum", "contr.poly")) #indique que, dans le cas équilibré, les estimations des effets akpha de chaque groupe doivent être de somme nulle
+# m = lm (yield~variety+fungicide, varfung)
+# m$coefficients
+# mu = m$coefficients[[1]]
+# alpha_B = m$coefficients[[2]] - mu
+# alpha_C = m$coefficients[[3]] - mu
+# alpha_A = - alpha_B  - alpha_C
+# beta_Z = m$coefficients[[4]]
+# beta_Y = - beta_Z
+
+mu = 3
+alpha_A = 2 - 3
+alpha_B = 3 - 3
+alpha_C = 4 - 3
+beta_Y = 2 - 3
+beta_Z = 4 - 3
+
+boxplot(yield~fungicide+variety, varfung)
+segments(0.8, alpha_A, 2.2, alpha_A, lwd=4, col=adjustcolor(2,alpha.f=.5))
+segments(2.8, alpha_B, 4.2, alpha_B, lwd=4, col=adjustcolor(2,alpha.f=.5))
+segments(4.8, alpha_C, 6.2, alpha_C, lwd=4, col=adjustcolor(2,alpha.f=.5))
+segments(0.8, beta_Y, 6.2, beta_Y, lwd=3, lty=2, col=adjustcolor("green3",alpha.f=.5))
+segments(0.8, beta_Z, 6.2, beta_Z, lwd=3, lty=2, col=adjustcolor("green3",alpha.f=.5))
+segments(0.8, mu, 6.2, mu, lwd=2, col=adjustcolor("grey",alpha.f=.5))
+
+
+```
+
+
+
+
+
+
+## Etude des résidus
+
+la valeur prédite vaut : 
+
+$$\widehat y_{ij} = \widehat \mu + \widehat \alpha_i + \widehat \beta_j$$
+
+
+Ainsi : 
+
+\begin{eqnarray}
+e_{ij} &=& y_{ij} - \widehat y_{ij}   \\
+       &=& y_{ij} - (\widehat \mu + \widehat \alpha_i) \\
+       &=& y_{ij} - \overline y_{i.} - \overline y_{.j} - - \overline y_{..}
+\end{eqnarray}
+
+
+
+Avec (propriété) : 
+
+$$\sum_i e_{ij} = 0 \forall j, \sum_j e_{ij} = 0, \forall i$$
+
+
+## Décomposition de la variance
+
+$$y_{ij} - \overline y = (\overline y_{i.} - \overline y) + (\overline y_{.j} - \overline y) + (y_{ij} - \overline y_{i.} - \overline y_{.j} + \overline y)$$
+
+
+Dans le cadre du plan équirépétés : 
+
+\begin{eqnarray}
+
+\sum_i \sum_j (y_{ij} - \overline y)^2 &=& \sum_i J (\overline y_{i.} - \overline y)^2 &+& \sum_j I (\overline y_{.j} - \overline y)^2 &+& \sum_i \sum_j (y_{ij} - \widehat y_{ij})^2 \\
+                                       &=&  J \sum_i \widehat \alpha_i^2  &+& I \sum_j \widehat \beta_j^2 &+& \sum_i \sum_j e_ij^2 \\
+                              SC_{tot} &=&  SC_{F1}                       &+&  SC_{F2}                    &+& SC_{res} 
+\end{eqnarray}
+
+
+$$R^2 =  \frac{SC_{tot} - SC_{res}}{SC_{tot}}$$
+
+
+
+... R^2
+
+
+
+## Test statistique
+
+**Fisher**
+
+
+**Student**
+
+
+## Exemple complet sous R
+
+
+
+
+
+
+
+
+
+
+
+
+

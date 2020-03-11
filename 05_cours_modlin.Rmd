@@ -1,0 +1,562 @@
+# ANOVA à deux facteurs avec interaction répétition
+
+
+
+
+
+
+
+*Définition* : il y a un effet d’*intéraction* entre deux facteurs lorsque l’effet d’un facteur dépend de la modalité de l’autre facteur.
+
+Cette définition est symétrique. en effet ...
+
+Pourquoi la répétion est nécéssaire pour évaluer l’interaction ? Sans répétition une valeur anormalement grande ne peut être attribué à l’interaction ou au résidu. Avec répétition on peut tester la distribution des résidus.
+
+
+
+
+
+```{r results="verbatim", echo=TRUE}
+# https://www.youtube.com/watch?v=bpM_PL2RVcY
+# https://www.youtube.com/watch?v=65sUYrDRFKU&t=881s
+nb_rep = 3
+d = data.frame(
+  y=rnorm(4*nb_rep),
+  f1=rep(c("A", "B"), nb_rep*2),
+  f2=rep(c("C", "D"), each=nb_rep*2)
+)
+as.numeric(d$f1)
+d$y = d$y - (as.numeric(d$f1)-1.5)*2
+d$y = d$y + (as.numeric(d$f2)-1.5)*2
+table(d$f1, d$f2)
+boxplot(y~f1+f2, d)
+  
+data.frame = data(warpbreaks)
+head(warpbreaks)
+dim(warpbreaks)
+table(warpbreaks$wool,warpbreaks$tension)
+boxplot(breaks~wool+tension, warpbreaks)
+m = lm(breaks~wool+tension, warpbreaks)
+m$coef
+abline(h=m$coef[[1]])
+mean(warpbreaks)
+
+```
+
+
+
+
+La difficulté des approches à plusieurs facteurs est l’identification des sources de variations observées, en prenant en compte la possible **confusion d’effets**
+
+C’est la construction du **plan d’expérience** qui garantira l’interprétabilité des résultats et la capacité du modèle à identifier les sources de variabilités pertinentes
+
+## Plan d’expérience
+
+*La table de contingence* est la table des effectifs croisés entre les modalités des facteurs. Elle définit la répartition des observations en fonction des modalités des facteurs
+
+$k = 1,...,n_{ij}$ est l’indice de répartition, $n_{i\cdot}$ et $n_{\cdot j}$ sont le nombre total d’individus dans la modalité i (j respectivement).
+
+On appellera **plan équilibré** un plan d’expérience tel que $n_{ij}$ est constante.
+
+On appellera **plan orthogonal** un plan d’expérience tel que $n_{ij} = \frac{n_{i\cdot}\times n_{\cdot j}}{n_{\cdot \cdot}}$
+
+Lorsque le plan d’expérience est orthogonal, le modèle permet de séparer les sources de variabilités et donc de quantifier séparemment les contributions de chacun des facteurs.
+
+## Exemple
+
+
+On souhaite expliquer le nombre de rupture de fil de chaîne (`break`) en fonction du type de laine (`wool`) et de la tension exercée (`tension`). 
+
+
+```{r results="verbatim", echo=TRUE}
+data(warpbreaks)
+head(warpbreaks)
+dim(warpbreaks)
+table(warpbreaks$wool,warpbreaks$tension)
+boxplot(breaks~wool+tension, warpbreaks)
+m = lm(breaks~wool+tension, warpbreaks)
+m$coef
+abline(h=m$coef[[1]])
+mean(warpbreaks)
+
+```
+
+1) Nous regardons quel type de plan expérimental nous avons.
+
+On note $I$ le facteur $tension$ à 3 modalités L, M et H.
+
+On note $J$ le facteur $wool$ à 2 modalités A et B.
+
+```{r results="verbatim", echo=TRUE}
+t = table(warpbreaks$wool,warpbreaks$tension)
+t
+n_ij = 9
+n_idot = unique(colSums(t))
+n_dotj = unique(rowSums(t))
+n_dotdot = dim(warpbreaks)[1]
+n_ij == (n_idot*n_dotj)/n_dotdot
+```
+
+- Nous avons un plan équilibré : $n_{ij} = 9$ est constante
+- $n_{ij} > 1$
+- Nous avons un plan othogonal :  $n_{ij} = \frac{n_{i\cdot}\times n_{\cdot j}}{n_{\cdot \cdot}}$
+
+2) Nous nous proposons d’utiliser l’analyse de la variance à deux facteurs. Nous observons trois variables :
+
+- deux d’entre elles sont des variables contrôlées, le type de laine, qualitative à deux modalités, et la tension qui peut être considérée comme qualitative à trois modalités.
+- La troisième variable est une réponse quantitative.
+
+On commence par visualiser les données. 
+
+```{r results="verbatim", echo=TRUE}
+layout(matrix(1:2,1), respect=TRUE)
+boxplot(breaks~wool,warpbreaks)
+boxplot(breaks~tension, warpbreaks)
+```
+
+La visualisation des effets du couple (wool,tension) sur la moyenne de la variable breaks est la suivante :
+
+```{r results="verbatim", echo=TRUE}
+layout(matrix(1:2,1), respect=TRUE)
+interaction.plot(warpbreaks$wool, warpbreaks$tension, warpbreaks$breaks, trace.label="tension")
+interaction.plot(warpbreaks$tension, warpbreaks$wool, warpbreaks$breaks, trace.label="wool")
+```
+
+Les lignes n’étant pas parallèles, nous envisageons un modèle avec interaction des facteurs. 
+
+Donc l’analyse de la variance à deux facteurs (type de laine et tension) croisés, avec interaction, peut convenir, entre autres méthodes d’analyse de ces données.
+
+---
+
+## Contexte
+
+Dans l’étude des effets simultanés d’un facteur à $I$ modalités et d’un facteur à $J$ modalités sur une variable quantitative $Y$ , supposons que $Y$ suive des lois normales, a priori différentes dans les $IJ$ populations disjointes déterminées par la conjonction de deux modalités des facteurs étudiés. Supposons que, dans la population correspondant à la modalité d’ordre $i$ du premier facteur et à la modalité d’ordre $j$ du deuxième facteur, nous ayons :
+
+$\mathcal{L}(Y) = \mathcal{N}(\mu_{ij},\sigma^2)$ pour $i = 1,...,I$ et $j=1,..,J$.
+
+Pour mettre en évidence les éventuelles différences entre le comportement de la variable $Y$ dans les $I$ modalités du premier facteur, dans les $J$ modalités du deuxième facteur, ou encore dans l’interaction entre les deux facteurs, nous considérons des échantillons indépendants de même taille $K$ de la variable $Y$ dans chacune des $IJ$ populations , soit au total un n-échantillon avec $n = IJK$.
+
+---
+
+## Modèle statistique avec intéraction
+
+$$Y_{ijk} = \mu + \alpha_i + \beta_j +(\alpha\beta)_{ij} + \epsilon_{ijk}$$
+
+$\alpha_i$ et $\beta_j$ sont les effets **principaux**, cela correspond à l’effet marginal des facteurs
+
+$(\alpha\beta)_{ij}$ est un terme d’**intéraction** qui modélise l’effet conjoint des facteurs sur la réponse.
+
+
+pour $i = 1,...,I$, $j=1,..,J$ et $k = 1,..,K$ avec, pour éviter une surparamétrisation, les contraintes:
+$$\sum_{i=1}^I \alpha_i = \sum_{j=1}^J \beta_j = \sum_{i=1}^I (\alpha\beta)_{ij_0}= \sum_{j=1}^J (\alpha\beta)_{i_0j} = 0$$ 
+pour $i_0 = 1,...,I$ et $j_0 = 1,...,J$
+
+
+---
+
+## Notion d’intéraction
+
+L’intéraction est une notion statistique permettant d’expliquer les **effets conjoints** de plusieurs facgeurs.
+
+C’est la part de variabilité qui ne peut pas être expliquée séparement par chaque facteur et qui n’est pas dans la résiduelle.
+
+Elle est en général présente mais il n’est pas toujours possible de l’estimer (dépend de la présence de répétition, cf dernière partie de ce cours).
+
+Dans l’interprétation des résultats, on s’interessera d’abords aux termes d’interactions pour savoir s’ils sont significatifs.
+
+**Attention**, si le terme d’interaction est très fort et que le plan expérimental n’est pas orthogonal, alors on ne pourra pas interpréter les effets principaux (non distinguables)
+
+
+---
+
+## Hypothèses du modèle
+
+Les variables $\epsilon_{ijk}$ sont ainsi supposées être indépendantes et suivre une loi normale $\mathcal{N}(\mu_{ij},\sigma^2)$.
+
+Leurs réalisations, notées $e_{ijk}$ , sont considérées comme les erreurs de mesure, elles sont inconnues et vérifient :
+
+$$y_{ijk} = \mu + e_{ijk}$$
+Pour $i = 1,...,I$, $j=1,..,J$ et $k = 1,..,K$ 
+
+---
+
+## Les 3 tests
+
+L’analyse de la variance à deux facteurs avec répétitions permet trois tests de Fisher
+
+### Test 1
+
+Nous testons l’effet du premier facteur $F_1$ : Nous testons l’égalité des $I$ paramètres $\alpha_i$ correspondant aux $I$ modalités du premier facteur
+
+$\mathcal{H}_0$ : les paramètres $\alpha_i$ sont tous nuls *contre* $\mathcal{H}_1$ : les paramètres $\alpha_i$ ne sont pas tous nuls.
+
+### Test 2
+
+Nous testons l’effet du deuxième facteur $F_2$ : Nous testons l’égalité des $J$ paramètres $\beta_j$ correspondant aux $J$ modalités du premier facteur
+
+$\mathcal{H}_0$ : les paramètres $\beta_j$ sont tous nuls *contre* $\mathcal{H}_1$ : les paramètres $\beta_j$ ne sont pas tous nuls.
+
+### Test 3
+
+Nous testons l’effet de l’interaction entre les facteurs $F_1$ et $F_2$.
+
+$\mathcal{H}_0$ : les $IJ$ paramètres $(\alpha\beta)_{ij}$ sont tous nuls *contre* $\mathcal{H}_1$ : les $IJ$ paramètres $(\alpha\beta)_{ij}$ ne sont pas tous nuls.
+
+---
+
+## Notations
+
+$$\overline{Y}=\frac{1}{n}\sum_{i,j,k}Y_{ijk}$$
+
+$$\overline{Y}_{ij\cdot}=\frac{1}{K}\sum_{k}Y_{ijk}$$
+
+$$\overline{Y}_{i\cdot\cdot}=\frac{1}{JK}\sum_{j,k}Y_{ijk}$$
+
+$$\overline{Y}_{\cdot j\cdot}=\frac{1}{IK}\sum_{i,k}Y_{ijk}$$
+
+$SC_T=\sum_{i,j,k}(Y_{ijk}-\overline{Y})^2$ , $SC_R=\sum_{i,j,k}(Y_{ijk}-\overline{Y}_{ij\cdot})^2$ 
+
+$SC_{\alpha}=\sum_{i,j,k}(\overline{Y}_{i\cdot\cdot}-\overline{Y})^2$ , $SC_{\beta}=\sum_{i,j,k}(Y_{\cdot j\cdot}-\overline{Y})^2$ 
+
+$SC_{\alpha\beta}=\sum_{i,j,k}(\overline{Y}_{ij\cdot} - \overline{Y}_{i\cdot\cdot} - \overline{Y}_{\cdot j \cdot}-\overline{Y})^2$ 
+
+
+---
+
+## Valeurs numériques
+
+Les calculs sont à réaliser avec les valeurs numériques suivantes:
+
+$\overline{y} = \frac{1}{IJK}\sum_{i,j,k}y_{ijk}$, $\overline{y}_{ij\cdot} = \frac{1}{K}\sum_{k}y_{ijk}$
+
+$\overline{y}_{i\cdot\cdot} = \frac{1}{JK}\sum_{j,k}y_{ijk}$, $\overline{y}_{\cdot j\cdot} = \frac{1}{IK}\sum_{i,k}y_{ijk}$
+
+---
+
+## Equation de l’ANOVA
+
+Léquation de l’anbalyse de la variance devient pour ce modèle : $$SC_T = SC_R + SC_\alpha + SC_\beta + SC_{\alpha\beta}$$
+
+Cette décomposition est **unique** si le dispositif est **orthogonal**.
+
+- la somme $SC_T$ , la **somme totale**, mesure la somme des carrés des écarts à la moyenne globale, toutes causes confondues,
+
+- la somme $SC_R$, **la somme résiduelle**, cumule les carrés des écarts des différentes observations à la moyenne de l’échantillon dont elles font partie. Dans la somme totale elle représente la part de la dispersion due aux **fluctuations individuelles**.
+
+- la somme $SC_\alpha$, la **somme due au premier facteur**, ou somme entre modalités du facteur $F_\alpha$, mesure l’effet du premier facteur.
+
+- la somme $SC_\beta$, ou **somme due au deuxième facteur**, ou somme entre modalités du facteur $F_\beta$, mesure l’effet du deuxième facteur.
+
+- la somme $SC_{\alpha\beta}$ mesure l’effet de **l’interaction entre les deux facteurs**.
+
+---
+
+## Propriétés
+
+$$\mathcal{L}_{\mathcal{H}_0}\Big(\frac{\frac{SC_\alpha}{I-1}}{\frac{SC_R}{IJ(K-1)}}\Big) = \mathcal{F}_{(I-1),IJ(K-1)}$$
+$$\mathcal{L}_{\mathcal{H}_0}\Big(\frac{\frac{SC_\beta}{J-1}}{\frac{SC_R}{IJ(K-1)}}\Big) = \mathcal{F}_{(J-1),IJ(K-1)}$$
+
+$$\mathcal{L}_{\mathcal{H}_0}\Big(\frac{\frac{SC_{\alpha\beta}}{(I-1)(J-1)}}{\frac{SC_R}{IJ(K-1)}}\Big) = \mathcal{F}_{(I-1)(J-1),IJ(K-1)}$$
+
+---
+
+
+## Tableau de l’ANOVA
+
+
+
+Pour un seuil donné $\alpha$, les tables de Fisher nous fournissent une valeur critique $c$ telle que
+$\mathbb{P}_{H_0} [F \leq c] = 1 -\alpha$ Alors nous décidons :
+
+- si $F_{obs} < c$, $\mathcal{H}_0$ est vraie,
+- si $F_{obs} \geq c$, $\mathcal{H}_1$ est vraie.
+
+### Tableau de l’anova
+
+
+| Source de variation     | sc                   | ddl           |  cm                                                    | $F_{obs}$                          | $F_c$
+| :---------------------- | :------------------: | :-----------: | :----------------------------------------------------: | :--------------------------------: | ---------------: 
+| Due à $F_\alpha$        | $sc_\alpha$          | $I-1$         | $cm_{\alpha}=\frac{sc_{\alpha}}{I-1}$                  | $\frac{cm_{\alpha}}{cm_{R}}$       | $c_\alpha$
+| Due à $F_\beta$         | $sc_\beta$           | $J-1$         | $cm_{\beta}=\frac{sc_{\beta}}{J-1}$                    | $\frac{cm_{\beta}}{cm_{R}}$        | $c_\beta$
+| Due à $F_{\alpha\beta}$ | $sc_{\alpha\beta}$     | $(I-1)(J-1)$  | $cm_{\alpha\beta}=\frac{sc_{\alpha\beta}}{(I-1)(J-1)}$ | $\frac{cm_{\alpha\beta}}{cm_{R}}$  | $c_{\alpha\beta}$
+| Résiduelle              | $sc_{R}$             | $IJ(K-1)$     | $cm_{R}=\frac{sc_{R}}{IJ(K-1)}$ 
+| Totale                  | $sc_{T}$             | $n-1$ 
+
+---
+
+## Exemple
+
+1) Dans un premier temps, on regarle la pertinence du modèle "global".
+
+$$ \mathcal{L}_{\mathcal{H}_0}\Big(\frac{\frac{SC_{mod}}{(IJ-1)}}{\frac{SC_{res}}{(IJ(k-1))}}\Big)= \mathcal{F}_{(IJ-1),IJ(K-1)}$$
+```{r results="verbatim", echo=TRUE}
+mod =lm(breaks~wool*tension, warpbreaks)
+summary(mod)
+```
+
+Le modèle est pertinent et explique 37% de la variabilité (31% si on corrige par le nombre de paramètres).
+
+2) Dans un deuxième temps, on teste les effets des facteurs.
+
+```{r results="verbatim", echo=TRUE}
+m = aov(breaks~wool*tension, warpbreaks)
+summary(m)
+coef(m)
+
+```
+
+Le modèle est significatif: les facteurs ont une influence sur la variable expliquée. On peut remarquer que le coefficient de la variable `wool` n’est pas significatif. Cependant le coefficient des effets croisés `wool:tension` étant significatif, la variable `wool` influence significativmenet la variable `breaks`.
+
+---
+
+# IV. Vérification des conditions
+
+Pour ce modèle, l’estimation des moyennes théoriques $\mu_{ij}$ se fait par les moyennes observées $\overline{y}_{ij\cdot}$ (« valeurs ajustées »). Les résidus sont alors donnés par l’expression :
+$\widehat\epsilon_{ijk} = y_{ijk}-\overline{y}_{ij\cdot}$, $i =1,...,I$;$j =1,...,J$;$k =1,...,K$.
+Leur normalité et l’homogénéité des variances se vérifient par les mêmes méthodes que pour une analyse de la variance à un facteur.
+
+- Indépendance
+- Normalité
+- Homoscedasticité
+
+
+```{r results="verbatim", echo=TRUE}
+par(mfrow=c(2,2))
+m = aov(breaks~wool*tension, warpbreaks)
+plot(m)
+```
+
+Après visualisation graphique, la normalité des résidus semble être respectée, par contre, l’homogénéité de la variance ne semble pas vérifiée.
+
+## Normalité des résidus
+
+```{r results="verbatim", echo=TRUE}
+shapiro.test(m$residuals)
+```
+
+## Homogénéité des variances
+
+```{r results="verbatim", echo=TRUE}
+bartlett.test(residuals(m)~I(warpbreaks$wool:warpbreaks$tension)) 
+bartlett.test(residuals(m),warpbreaks$wool)
+bartlett.test(residuals(m),warpbreaks$tension)
+```
+
+Cela confirme les observations graphiques.
+
+## Transformation des variables
+
+Nous testons une transformation des variable: la transformation log.
+
+```{r results="verbatim", echo=TRUE}
+attach(warpbreaks)
+log_breaks = log(breaks)
+par(mfrow=c(1,2))
+hist(breaks)
+hist(log_breaks)
+par(mfrow=c(2,2))
+m_log = aov(log_breaks~wool*tension)
+plot(m_log)
+shapiro.test(m_log$residuals)
+bartlett.test(residuals(m_log)~I(wool:tension)) 
+bartlett.test(residuals(m_log),wool)
+bartlett.test(residuals(m_log),tension)
+```
+
+---
+
+# V. Comparaisons multiples
+
+Lorsque l’effet d’un facteur a été mis en évidence, le test de Tukey ou celui de Dunnett s’applique chaque fois que le nombre d’observations le permet, à l’aide de la même statistique. Les effectifs $n_i$ et $n_{i′}$ sont alors ceux des classes comparées.
+
+---
+
+# V. Comparaisons multiples
+## Exemple 
+
+```{r results="verbatim", echo=TRUE}
+res<-lsmeans::lsmeans(m_log,~wool*tension)
+pairs(res)
+```
+
+```{r results="verbatim", echo=TRUE}
+plot(res)
+```
+
+Il apparaît que les diff􏰁érences ente les groupes sont peu signi􏰂catives, seules 3 p-valeurs corrigées étant inférieures à 5%. On constate que la principale diff􏰁érence est entre les groupes A,L et B,H. 
+
+C’est la différence entre ces deux groupes qui expliaue notamment l’influence du facteur `wool`.
+Au vu des graphiques d’interactions, ce qui nous intéresse est notamment de voir si les groupes A,M et B,M sont similaires. 
+
+La p-valeur de 0.8821 nous confime que la différence n’est pas significative
+
+On peut également regarder l’infl􏰃uence de chaque facteur conditionnellement à l’autre facteur. Les résultats obtenus sont donnés ci-après.
+
+```{r results="verbatim", echo=TRUE}
+res_w = lsmeans::lsmeans(m_log,~wool | tension)
+pairs(res_w)
+plot(res_w)
+res_t = lsmeans::lsmeans(m_log,~tension | wool)
+pairs(res_t)
+plot(res_t)
+```
+
+---
+
+# VI. ANOVA 2 facteurs sans répétition
+
+Dans le cas où nous étudions l’effet simultané de deux facteurs à, respectivement, $I$ et $J$ modalités et que nous disposons d’une seule observation pour chaque population, c’est à dire
+$K = 1$, les résultats du paragraphe précédent ne sont plus valables. Nous devons supposer que l’interaction entre les deux facteurs est nulle. Partant du même modèle, nous écrivons plus simplement 
+
+$$Y_{ij} = \mu + \alpha_i + \beta_j  + \epsilon_{ijk}$$
+
+ avec les contraintes:
+$$\sum_{i=1}^I \alpha_i = \sum_{j=1}^J \beta_j  = 0$$ 
+
+Remarquons que l’expression définissant, dans le cas avec répétitions, la somme des carrés associée à l’interaction, est associée ici à la somme des carrés de la résiduelle.
+
+| Source de variation     | sc                   | ddl           |  cm                                                    | $F_{obs}$                          | $F_c$
+| :---------------------- | :------------------: | :-----------: | :----------------------------------------------------: | :--------------------------------: | ---------------: 
+| Due à $F_\alpha$        | $sc_\alpha$          | $I-1$         | $cm_{\alpha}=\frac{sc_{\alpha}}{I-1}$                  | $\frac{cm_{\alpha}}{cm_{R}}$       | $c_\alpha$
+| Due à $F_\beta$         | $sc_\beta$           | $J-1$         | $cm_{\beta}=\frac{sc_{\beta}}{J-1}$                    | $\frac{cm_{\beta}}{cm_{R}}$        | $c_\beta$
+| Résiduelle              | $sc_{R}$             | $(I-1)(J-1)$     | $cm_{R}=\frac{sc_{R}}{(I-1)(J-1)}$ 
+| Totale                  | $sc_{T}$             | $IJ-1$ 
+
+
+---
+
+# VII. Cas non-orthogonal
+
+Le cas non-orthogonal est le cas le plus rencontré en pratique
+
+Ces plans d’expériences ne permettent pas de distinguer les effets des différents facteurs de manière unique.
+
+Lorsque l’on effectue un test sur $\alpha_i$, on ne peut pas s’affranchir des autres effets
+
+La décomposition de la somme des carrés du modèle n’est plus unique, on a donc plusieurs façons de la décomposer
+
+Plusieurs test sont possibles (sommes de type I, II, III).
+
+---
+
+# VIII. ANOVA à plus de 2 facteurs
+
+Dans le cas de plus de deux facteurs, la combinatoire explose pour les interactions d’ordre multiple.
+
+On fait en général l’hypothèse que l’intensité des effets décroit avec l’ordre de l’interaction.
+
+Dans un modèle avec 4 facteurs, on étudiera en général l’effet des facteurs principaux et les interactions d’ordre 2, voire 3.
+
+Pour des modèles avec beaucoup de facteurs, il est crucial de bien comprendre la signification de chaque paramètre.
+
+*Comment identifier les facteurs pertinents?*
+
+- les p-valeurs ajustées peuvent être utiles: elles quantifient la significativité de chaque test
+- lorsque beaucoups d’observations sont disponibles, les test deviennent puissants, et identifieront des interactions faibles mais significatives.
+- lorsque les p-valeurs sont plus petites que la précision machine ($~10^{-16}$), on peut utiliser les statistiques de Fisher pour comparer l’effet des facteurs et de leurs interactions
+
+
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r, eval=FALSE}
+
+rats = faraway::rats
+head(rats)
+dim(rats)
+table(rats$poison, rats$treat)
+m = lm(time~poison*treat,rats)
+anova(m)
+
+library(lsmeans)
+head(auto.noise)
+dim(auto.noise)
+table(auto.noise$size, auto.noise$type)
+m = lm(noise~size*type,auto.noise)
+anova(m)
+
+
+multcomp::cholesterol
+
+
+
+
+
+
+Penicillin = lme4::Penicillin
+head(Penicillin)
+dim(Penicillin)
+table(Penicillin$plate, Penicillin$sample)
+m = lm(diameter~plate+sample,Penicillin)
+anova(m)
+
+cake = lme4::cake
+head(cake)
+dim(cake)
+table(cake$temperature, cake$recipe)
+m = lm(angle~temperature*recipe,cake)
+anova(m)
+
+
+
+lme4::cake
+# http://www.stat.cmu.edu/~brian/463-663/hw10/hw10sol.pdf
+```
+
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
