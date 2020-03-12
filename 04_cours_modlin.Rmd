@@ -26,16 +26,19 @@ Ce type de plan à de bonnes propriétés :
   - numériques / d’optimalité
   - facilité d’interprétation
 
-L’ANOVA à 2 facteurs fonctionne aussi dans le cadre de plan qui ne sont ni complets ni équirépétés, les calculs sont plus compliqués et l’interprétation moins évidents.
+L’ANOVA à 2 facteurs fonctionne aussi dans le cadre de plan qui ne sont ni complets ni équirépétés, les calculs sont plus compliqués et l’interprétation moins évidentes.
 
 **Notations**
 
-  - $y_{ij}$ le rendementet le fongicide $j$.
+  - $y_{ij}$ le rendement de la variété avec le fongicide $j$.
   - $\overline y_{i.}$ la moyenne des rendements pour la variété $i$ 
   - $\overline y_{.j}$ la moyenne des rendements pour le fongicide $j$ 
   - $\overline y$ la moyenne des rendements
-  
-  
+
+**Travaux pratiques** : calculez $\overline y_{i.}$, $\overline y_{.j}$ et $\overline y$.
+
+
+
 **Problématique**
 
   - Est-ce qu’il y a un effet de la variété sur le rendement ?
@@ -86,10 +89,16 @@ Dans le cadre du plan complet equirépété :
   - $\widehat \beta_j = \overline y_{.j} - \overline y_{..}$
 
 
+**Travaux pratiques** : calculez $\widehat \mu$, $\widehat \alpha_i $, et $\widehat \beta_j$
+
+
 ```{r eval=FALSE}
 # options(contrasts=c("contr.sum", "contr.poly")) #indique que, dans le cas équilibré, les estimations des effets akpha de chaque groupe doivent être de somme nulle
 # m = lm (yield~variety+fungicide, varfung)
 # m$coefficients
+# anova(m)
+
+
 # mu = m$coefficients[[1]]
 # alpha_B = m$coefficients[[2]] - mu
 # alpha_C = m$coefficients[[3]] - mu
@@ -139,7 +148,9 @@ e_{ij} &=& y_{ij} - \widehat y_{ij}   \\
 
 Avec (propriété) : 
 
-$$\sum_i e_{ij} = 0 \forall j, \sum_j e_{ij} = 0, \forall i$$
+$$ \forall j \sum_i e_{ij} = 0,  \forall i \sum_j e_{ij} = 0$$
+
+**Travaux pratiques** : calculez les $e_{ij}$.
 
 
 ## Décomposition de la variance
@@ -153,32 +164,191 @@ Dans le cadre du plan équirépétés :
 
 \sum_i \sum_j (y_{ij} - \overline y)^2 &=& \sum_i J (\overline y_{i.} - \overline y)^2 &+& \sum_j I (\overline y_{.j} - \overline y)^2 &+& \sum_i \sum_j (y_{ij} - \widehat y_{ij})^2 \\
                                        &=&  J \sum_i \widehat \alpha_i^2  &+& I \sum_j \widehat \beta_j^2 &+& \sum_i \sum_j e_ij^2 \\
-                              SC_{tot} &=&  SC_{F1}                       &+&  SC_{F2}                    &+& SC_{res} 
+                              SC_{tot} &=&  SC_{F_1}                       &+&  SC_{F_2}                    &+& SC_{res} 
 \end{eqnarray}
 
 
+**Indicateur d’adéquation du modèle** 
+ 
 $$R^2 =  \frac{SC_{tot} - SC_{res}}{SC_{tot}}$$
 
+**Travaux pratiques** : calculez $SC_{F_1}$, $SC_{F_2}$, $SC_{res}$, $SC_{tot}$ et $R^2$.
 
 
-... R^2
+## Tests statistiques
 
+**Fisher** : test global de l’effet d’un facteur
 
+  - $H_0 : \alpha_i = 0, \forall i$
+  - $H_1 : \exists i, \alpha_i \neq 0$
 
-## Test statistique
+On compare la variabilité des moyennes $\overline y_{i.}$ et la variabilité résiduelle $\sigma^2$ en considèrant le rapport suivant : 
 
-**Fisher**
+$$ F_{obs} = \frac{\frac{SC_{F_1}}{I-1}}{\frac{SC_{res}}{N-I-J+1}} = \frac{cm_{F_1}}{cm_{res}}$$
 
-
-**Student**
-
-
-## Exemple complet sous R
-
-
+Si les conditions d’aplications sont satisfaites et sous $H_0$ alors $F_{obs}$ est une réalisation d’une variable aléatoire $F$ qui suit une loi de Fisher à $I-1$ degrés de liberté au numérateur et $n-I-J+1$ degrés de liberté au dénominateur. Cette loi est notée  $\mathcal{F}_{I-1,n-I-J+1}$.
 
 
 
+| Source de variation   | sc        | ddl        |  cm  | $F_{obs}$
+| :--------------------:| :-------: | :--:       | :--: | ---:
+| Due au facteur 1      | $sc_{F_1}$| $I-1$      | $cm_{F_1}=\frac{sc_{F_1}}{I-1}$    | $\frac{cm_{F_1}}{cm_{res}}$
+| Due au facteur 2      | $sc_{F_2}$| $J-1$      | $cm_{F_2}=\frac{sc_{F_2}}{J-1}$    | $\frac{cm_{F_2}}{cm_{res}}$
+| Résiduelle            | $sc_{res}$| $n-I-J+1$  | $cm_{res}=\frac{sc_{res}}{n-I-J+1}$ 
+| Totale                | $sc_{tot}$| $n-1$ 
+
+
+```{r results="verbatim"}
+options(contrasts=c("contr.sum", "contr.poly")) #indique que, dans le cas équilibré, les estimations des effets akpha de chaque groupe doivent être de somme nulle
+m = lm (yield~variety+fungicide, varfung)
+print(anova(m))
+
+ddl_f1  = 2
+ddl_f2  = 1
+ddl_res = 2
+sc_f1  = 4
+sc_f2  = 6
+sc_res = 4
+cm_f1  =  sc_f1 / ddl_f1
+cm_f2  =  sc_f2 / ddl_f2
+cm_res = sc_res / ddl_res
+f_obs_f1 = cm_f1 / cm_res
+f_obs_f2 = cm_f2 / cm_res
+
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+x = seq(0,3*f_obs_f1, length.out=100)
+plot(x,df(x, ddl_f1, ddl_res), type="l", main=paste0("F_", ddl_f1, "_", ddl_res, ", Fobs_F1=", f_obs_f1, ", P(>F)=", signif(1-pf(f_obs_f1,ddl_f1, ddl_res),3)), ylab=paste0("df(x, ", ddl_f1, ", ", ddl_res, ")"))
+polygon(c(f_obs_f1,f_obs_f1, 10, 10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+abline(v=f_obs_f1, col=2)
+
+x = seq(0,3*f_obs_f2, length.out=100)
+plot(x,df(x, ddl_f2, ddl_res), type="l", main=paste0("F_", ddl_f2, "_", ddl_res, ", Fobs_F1=", f_obs_f2, ", P(>F)=", signif(1-pf(f_obs_f2,ddl_f2, ddl_res),3)), ylab=paste0("df(x, ", ddl_f2, ", ", ddl_res, ")"))
+polygon(c(f_obs_f2,f_obs_f2,  10, 10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+abline(v=f_obs_f2, col=2)
+```
+
+
+
+
+**Student** : test de la significativité d’un coefficient 
+
+- $H_0 : \alpha_i = 0$
+- $H_1 : \alpha_i \neq 0$
+
+$\widehat \alpha_i$ suit une loi normale de moyenne $\alpha_i$ et variance $\sigma_{\widehat \alpha_i}^2$ inconnue.
+
+La variance est estimée par $\widehat \sigma_{\widehat \alpha_i}^2 = \frac{I-1}{I }\frac{CM_{res}}{J}$ et donc la statistique de test est :
+
+$$t_{obs} = \frac{\widehat \alpha_i}{\widehat \sigma_{\widehat \alpha_i}}$$
+
+Si les conditions d’aplications sont satisfaites et sous $H_0$ alors la valeur absolue de $t_{obs}$ est une réalisation d’une variable aléatoire $t$ qui suit une loi de Student à $n-I-J+1$ degrés de liberté. Cette loi est notée  $\mathcal{t}_{n-I-J+1}$.
+
+
+```{r results="verbatim"}
+m = lm (yield~variety+fungicide, varfung)
+print(summary(m))
+
+n = 6
+I = 3
+J = 2
+a1 = -1
+a2 = 0
+a3 = 1
+b1 = -1
+b2 = 1
+s_ai = (I-1)/(I*J) * cm_res
+s_ai
+s_bj = (J-1)/(J*I) * cm_res
+s_bj
+t_obs_a1 = abs(a1 / sqrt(s_ai))
+t_obs_a2 = abs(a2 / sqrt(s_ai))
+t_obs_a3 = abs(a3 / sqrt(s_ai))
+t_obs_b1 = abs(b1 / sqrt(s_bj))
+t_obs_b2 = abs(b2 / sqrt(s_bj))
+
+ddl = n-I-J+1
+
+layout(matrix(1:6, 2, byrow=TRUE), respect=TRUE)
+x = seq(-4, 4, length.out=100)
+pv = min(1,1-pt(t_obs_a1,ddl) + pt(-t_obs_a1,ddl))
+plot(x,dt(x, ddl), type="l", main=paste0("t_", ddl, ", |tobs_a1|=", signif(t_obs_a1, 3), ", P(>t)=", signif(pv, 3)), ylab=paste0("dt(x, ", ddl, ")"))
+polygon(c(t_obs_a1,t_obs_a1, 10, 10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+polygon(c(-t_obs_a1,-t_obs_a1, -10, -10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+abline(v=c(-1, 1)*t_obs_a1, col=2)
+
+x = seq(-4, 4, length.out=100)
+pv = min(1, 1-pt(t_obs_a2,ddl) + pt(-t_obs_a2,ddl))
+plot(x,dt(x, ddl), type="l", main=paste0("t_", ddl, ", |tobs_a2|=", signif(t_obs_a2, 3), ", P(>t)=", signif(pv, 3)), ylab=paste0("dt(x, ", ddl, ")"))
+polygon(c(t_obs_a2,t_obs_a2, 10, 10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+polygon(c(-t_obs_a2,-t_obs_a2, -10, -10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+abline(v=c(-1, 1)*t_obs_a2, col=2)
+
+x = seq(-4, 4, length.out=100)
+pv = min(1, 1-pt(t_obs_a3,ddl) + pt(-t_obs_a3,ddl))
+plot(x,dt(x, ddl), type="l", main=paste0("t_", ddl, ", |tobs_a3|=", signif(t_obs_a3, 3), ", P(>t)=", signif(pv, 3)), ylab=paste0("dt(x, ", ddl, ")"))
+polygon(c(t_obs_a3,t_obs_a3, 10, 10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+polygon(c(-t_obs_a3,-t_obs_a3, -10, -10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+abline(v=c(-1, 1)*t_obs_a3, col=2)
+
+x = seq(-4, 4, length.out=100)
+pv = min(1, 1-pt(t_obs_b1,ddl) + pt(-t_obs_b1,ddl))
+plot(x,dt(x, ddl), type="l", main=paste0("t_", ddl, ", |tobs_b1|=", signif(t_obs_b1, 3), ", P(>t)=", signif(pv, 3)), ylab=paste0("dt(x, ", ddl, ")"))
+polygon(c(t_obs_b1,t_obs_b1, 10, 10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+polygon(c(-t_obs_b1,-t_obs_b1, -10, -10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+abline(v=c(-1, 1)*t_obs_b1, col=2)
+
+x = seq(-4, 4, length.out=100)
+pv = min(1, 1-pt(t_obs_b2,ddl) + pt(-t_obs_b2,ddl))
+plot(x,dt(x, ddl), type="l", main=paste0("t_", ddl, ", |tobs_b2|=", signif(t_obs_b2, 3), ", P(>t)=", signif(pv, 3)), ylab=paste0("dt(x, ", ddl, ")"))
+polygon(c(t_obs_b2,t_obs_b2, 10, 10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+polygon(c(-t_obs_b2,-t_obs_b2, -10, -10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
+abline(v=c(-1, 1)*t_obs_b2, col=2)
+```
+
+
+
+## Travaux pratiques
+
+
+Etudiez les jeux de données suivants : 
+
+  - boxplot
+  - conditions d’application des tests
+  - test de Fisher
+  - test de Student
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+rats = faraway::rats
+head(rats)
+dim(rats)
+table(rats$poison, rats$treat)
+```
+```{r, eval=FALSE}
+m = lm(time~poison+treat,rats)
+anova(m)
+```
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+Penicillin = lme4::Penicillin
+head(Penicillin)
+dim(Penicillin)
+table(Penicillin$plate, Penicillin$sample)
+```
+```{r, eval=FALSE}
+m = lm(diameter~plate+sample,Penicillin)
+anova(m)
+```
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+cake = lme4::cake
+head(cake)
+dim(cake)
+table(cake$temperature, cake$recipe)
+```
+```{r, eval=FALSE}
+m = lm(angle~temperature+recipe,cake)
+anova(m)
+```
 
 
 

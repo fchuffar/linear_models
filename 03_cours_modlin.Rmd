@@ -314,7 +314,7 @@ Le carré moyen résiduel est un estimateur sans biais de la variance des erreur
 C’est pourquoi il est souvent également appelé variance résiduelle et presque systématiquement noté $S_{res}^2$ lorsqu’il sert à estimer la variance des erreurs.
 Sa valeur observée sur l’échantillon est ainsi notée $cm_{res}$ ou $s_{res}^2$ .
 
-Définissons la statidtioque de test :
+Définissons la statistique de test :
 
 $$ F_{obs} = \frac{cm_F}{cm_{res}}$$
 
@@ -488,9 +488,6 @@ Comme nous avons décidé que les moyennes théoriques sont différentes dans le
 
 
 
-```
-
-
 
 
 
@@ -510,6 +507,10 @@ plot(minutes~blanket, recovery)
 anorexia = MASS::anorexia
 head(anorexia)
 dim(anorexia)
+
+
+multcomp::cholesterol
+
 ```
 
 ---

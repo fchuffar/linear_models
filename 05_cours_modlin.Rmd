@@ -485,47 +485,12 @@ Pour des modèles avec beaucoup de facteurs, il est crucial de bien comprendre l
 
 
 ```{r, eval=FALSE}
-
-rats = faraway::rats
-head(rats)
-dim(rats)
-table(rats$poison, rats$treat)
-m = lm(time~poison*treat,rats)
-anova(m)
-
 library(lsmeans)
 head(auto.noise)
 dim(auto.noise)
 table(auto.noise$size, auto.noise$type)
 m = lm(noise~size*type,auto.noise)
 anova(m)
-
-
-multcomp::cholesterol
-
-
-
-
-
-
-Penicillin = lme4::Penicillin
-head(Penicillin)
-dim(Penicillin)
-table(Penicillin$plate, Penicillin$sample)
-m = lm(diameter~plate+sample,Penicillin)
-anova(m)
-
-cake = lme4::cake
-head(cake)
-dim(cake)
-table(cake$temperature, cake$recipe)
-m = lm(angle~temperature*recipe,cake)
-anova(m)
-
-
-
-lme4::cake
-# http://www.stat.cmu.edu/~brian/463-663/hw10/hw10sol.pdf
 ```
 
 
