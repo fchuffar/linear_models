@@ -4,11 +4,11 @@ On cherche une relation entre la variable observée $Y$ et la variable explicati
 
 $$ Y \sim x $$
 
-Les objectifs peuvent être multiples:
+Les objectifs peuvent être multiples :
 
-  * approche exploratoire
+  * modèle explicatif
 
-  * recherche de corrélation significative
+  * recherche d’une corrélation significative
 
   * modèles de prédiction
 
@@ -22,21 +22,24 @@ Historiquement, le modèle linéaire a été développé par Fisher, avec applic
 
 Considérons $x$ et $Y$ deux variables. Y est expliquée (modélisée) par  la variable explicative $x$. 
 
-**IMPORTANT**, dans le cadre des modèles linéaire Y est quantitatives (Ex : taille, poids, age...).
+**Important**, dans le cadre des modèles linéaire Y est quantitatives (Ex : taille, poids, age...).
 
-Dans le cas de la regression linéaire simple, $x$ est également quantitatives et la relation entre $Y$ et $x$ est une fonction **affine** (ou **linéaire**) de x (Cf. cours de maths de 3ème au collège).
+Dans le cas de la regression linéaire simple, $x$ est également quantitatives et la relation entre $Y$ et $x$ est une fonction **affine** (ou **linéaire**) de $x$ (Cf. programme du brevet des collèges).
 
 \begin{eqnarray}
-              \text{f: } \mathbb{R} & \rightarrow & \mathbb{R} \\
+              \text{f : } \mathbb{R} & \rightarrow & \mathbb{R} \\
                                  x & \rightarrow & f(x)  =  ax + b \\ 
 \end{eqnarray}
 
-**ATTENTION**, dans R la fonction *abline* utilise la formule $bx+a$ ! Dans ce cours nous utliserons la notation $f(x)  = \beta_0 + \beta_1 x$
+**Attention**, la fonction *abline* de R utilise la formule $bx+a$ ! Dans ce cours nous utliserons la notation $f(x)  = \beta_0 + \beta_1 x$
 
 
 
 ```{r  echo=FALSE, results="hide"}
 d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+set.seed(1)
+d = d[sample(1:nrow(d), 20), ]
+data_nutri = d
 
 layout(matrix(1:2, 1), respect=TRUE)
 
@@ -59,27 +62,25 @@ text(100, predict(m, data.frame(taille=75)), "50*beta_1", pos=4)
 
 
 
-Les $n$ observations vont permettre de vérifier si la droite candidate est adéquate.
+Les $n$ observations vont permettre :
 
-$Y$ et $x$ ne jouent pas un rôle identique : 
-
-  - $Y$ est expliqué par $x$
-  - $x$ est une variable *indépendante* (ou *explicative*) et $Y$ est une variable *dépendante* (ou *expliquée*)
+  - de construire le modèle (définir $\beta_0$ et $\beta_1$),
+  - de quantifier l’adéquation du modèle aux données.
 
 
 Remarques : 
 
-  - On utilise un modèle linéaire Gaussien pour des observations pouvant être modélisées par une loi normales. Pour d’autres distributions (Poisson, Bernoulli...), on utilisera un modèle linéaire généralisé.
-  - La régression linéaire se caractérise par des variables explicatives **continues** ou quantitatives (Ex : poids~taille). L’ANOVA se caractérise par des variables explicatives **discrètes**, catégorielle, ou qualitatives (Ex : poids~sexe).
+  - On utilise un modèle linéaire Gaussien pour des observations pouvant être modélisées par une loi normales. Pour d’autres distributions (Poisson, Bernoulli...), on utilisera un modèle linéaire généralisé (GLM).
+  - La régression linéaire se caractérise par des variables explicatives **quantitatives** (*e.g.*, $poids~taille$). L’ANOVA se caractérise par des variables explicatives  **qualitatives** (*e.g.*, $poids~sexe$).
 
 ---
 
-### Exemple d’une relation déterministe
+**Exemple d’une relation déterministe**
 
 La température $x$ en degrés Celsius explique entièrement la température  $y$ en degrés Farenheit par la relation : $y=32 + 9/5 x$.
 
 \begin{eqnarray}
-              \text{f: } \mathbb{R} & \rightarrow & \mathbb{R} \\
+              \text{f : } \mathbb{R} & \rightarrow & \mathbb{R} \\
                                  x & \rightarrow & f(x)  = \beta_0 + \beta_1 x = 32 + 9/5 x \\ 
                                  0 & \rightarrow & f(0)  = 32 \\ 
                                  10 & \rightarrow & f(10)  = 50 \\ 
@@ -88,7 +89,7 @@ La température $x$ en degrés Celsius explique entièrement la température  $y
 
 
 ```{r  echo=FALSE, results="hide"}
-layout(matrix(1:2, 1), respect=TRUE)
+layout(1, respect=TRUE)
 beta_0 = 32
 beta_1 = 9/5
 d_f = -10:20
@@ -102,21 +103,24 @@ abline(v=c(0,10), h=c(32,50), lty=2)
 
 ---
 
-### Exemple d’une relation stochastique
+**Exemple d’une relation stochastique**
 
 
-Si ce cas déterministe n’est pas vérifié, il faut chercher la droite qui ajuste le mieux l’échantillon : **modèle linéaire non déterministe**.
+Dans le cas d’une variable aléatoire $Y$, il faut chercher la droite qui ajuste le mieux les observations et on ajoute un terme qui portera la partira non déterministe des observations.
 
 $$Y   = \beta_0 + \beta_1x + \epsilon $$
 
-où $\beta_0$ et $\beta_1$ sont des réels fixes, mais inconnus, et $\epsilon$ une variable représentant le comportement individuel (résidus).
+$$Y_i   = \beta_0 + \beta_1x_i + \epsilon_i \ \ \ \ \  \forall i \in {1, ..., n}$$
 
-Modèle : $$E(Y) = \widehat Y = f(x) = \beta_0 + \beta_1 x$$
 
-Par exemple $x$ est la taille, $Y$ le poids, à une même taille, plusieurs poids peuvent correspondrent. Les données ne sont plus alignées.
+où $\beta_0$ et $\beta_1$ sont des réels fixes, mais inconnus, et $\epsilon_i$ une valeur caractérisant le comportement individuel de l’observation $i$ (résidus).
+
+Modèle : $$\mathbb{E} (Y|x) = \widehat Y = f(x) = \beta_0 + \beta_1 x$$
+
+Par exemple $x$ est la taille, $Y$ le poids, à une même taille, plusieurs poids peuvent correspondrent. Les données ne sont plus alignées, mais s’ajustent autour de la droite de régression laissant apparaitre les résidus.
 
 ```{r}
-layout(matrix(1:2, 1), respect=TRUE)
+layout(1, respect=TRUE)
 
 plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille")
 m = lm(poids~taille, d)
@@ -130,18 +134,15 @@ legend("topleft",c("E(Y)", "epsilon"), col=c(2,4), lty=1, cex=.8)
 
 ---
 
-## Estimation des paramètres (méthode des moindres carrés)
+## Estimation des paramètres
 
+**Question** : comment estimer les paramètres de la droite de regression ?
 
-
-**Exemple** : représentation des données *poids~tailles* dans le jeu de données `data_nutri`.
-
-**Question** : comment définir la droite de regression ?
-
+**Réponse** : Par la méthode des moindres carrés.
 
 ---
 
-### Droite de regression, estimation et résidus
+**Droite de regression, estimation et résidus**
 
 En analyse de régression linéaire, pour un individu $i$ :
 
@@ -156,7 +157,7 @@ $$Y_i = \widehat Y_i + \epsilon_i$$
 
 
 ```{r echo=FALSE}
-layout(matrix(1:2, 1), respect=TRUE)
+layout(1, respect=TRUE)
 plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille", col=adjustcolor(1, alpha.f=0.5))
 m = lm(poids~taille, d)
 # abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
@@ -164,12 +165,11 @@ pred = predict(m, data.frame(taille=d$taille))
 i = which(d$poids - pred == max(d$poids - pred))
 points(d$taille[i], d$poids[i], pch=16, col=2)
 abline(v=d$taille[i], h=c(d$poids[i], d$poids[i]-m$residuals[i]), lty=2, col=2)
-axis(1, at=d$taille[i], "xi", las=2, col=2)
-axis(4, at=c(d$poids[i], d$poids[i]-m$residuals[i]), c("Yi", expression(bar("Yi"))), las=2, col=2)
+axis(3, at=d$taille[i], "xi", las=2, col=2)
+axis(4, at=c(d$poids[i], d$poids[i]-m$residuals[i]), c("Yi", expression(hat("Yi"))), las=2, col=2)
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=1) # /!\ y = b.x + a
 suppressWarnings(arrows(d$taille[i], d$poids[i]-m$residuals[i], d$taille[i], d$poids[i], col=4, length=0.1, lwd=2))
 text(d$taille[i], d$poids[i]-m$residuals[i]/2, "eps_i", col=4, las=2, pos=2, cex=2)
-
 ```
 
 Lorsque $x = x_i$, alors $\widehat Y(x_i) = \widehat Y_i$ , c’est-à-dire :
@@ -183,29 +183,31 @@ sont estimées par les quantités observables :
 $$ e_i= Y_i-\widehat Y_i$$ 
 
 - Les quantités $e_i$ sont appelées les **résidus du modèle**.
-- La plupart des méthodes d’estimation : estimer la droite de régression par une droite qui minimise une fonction de résidus.
-- La plus connue : **la méthode des moindres carrés ordinaires (MCO)**.
+- La plupart des méthodes d’estimation cherchent à définir une droite qui minimise une fonction de résidus.
+- La plus connue : **la méthode des moindres carrés ordinaires** (MCO).
 
 ---
 
-### Intutition des moindres carrés 
+**Intutition des moindres carrés**
 
 
 Pour l’instant, la droite de régression est inconnue.
 Tout le problème est d’estimer $\beta_0$ et $\beta_1$ à partir d’un échantillon de données.
 
-On essaie de déterminer la **droite de regression** qui approche le mieux les données: $$\widehat Y(x) = \widehat{\beta}_0 + \widehat{\beta}_1x$$
+On essaie de déterminer la **droite de regression** qui approche le mieux les données : 
+
+$$\mathbb{E} (Y|x)) =  \widehat Y(x) = \widehat{\beta}_0 + \widehat{\beta}_1x$$
 
 Avec $\widehat Y(x)$ un estimateur de la moyenne théorique $\mu_Y(x)$ ($\widehat Y(x)$ correspond à la moyenne de $Y$ mésurée sur tous les individus pour lesquels $x$ prend une valeur donnée). 
 
 $\mu_Y(x)$ n’est ni observable, ni calculable (il faudrait alors recenser **tous** les individus de la population).
 
-*Remarque* : la moyenne empirique de $Y$, définie par $\overline{Y}_n(x) = \frac{1}{n}\sum^n_{i=1}Y_i(x)$ est un autre estimateur de $\mu_Y(x)$ . Si le modèle est bon, $\widehat Y(x)$ est plus précis que $\overline{Y}_n(x)$
+Remarque : la moyenne empirique de $Y$, définie par $\overline{Y}_n(x) = \frac{1}{n}\sum^n_{i=1}Y_i(x)$ est un autre estimateur de $\mu_Y(x)$ . Si le modèle est bon, $\widehat Y(x)$ est plus précis que $\overline{Y}_n(x)$ qui lui correspondrait au modèle *nul*, *i.e*, $Y$ ne depend pas de $x$.
 
 
 
-```{r results="verbatim", results="verbatim", echo=TRUE}
-d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+```{r}
+# d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
 head(d)
 dim(d)
 layout(matrix(1:2, 1), respect=TRUE)
@@ -213,68 +215,67 @@ plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille")
 ```
 
 ```{r echo=TRUE}
-layout(matrix(1:2, 1), respect=TRUE)
+layout(1, respect=TRUE)
 beta_0 = mean(d$poids)
 beta_1 = 0
 res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2)
 plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
+```
 
+```{r echo=TRUE}
 layout(matrix(1:2, 1), respect=TRUE)
 beta_0 = -100
 beta_1 = 1
 res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2)
-plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
+plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
 
-beta_0 = -260
-beta_1 = 2
+beta_0 = -16
+beta_1 = 0.5
 res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2)
-plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
+plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
-
+arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
 ```
 
 
 
 
 ```{r echo=TRUE}
-layout(matrix(1:2, 1), respect=TRUE)
+layout(1, respect=TRUE)
 results = list()
 for(beta_0 in 0:-260) {
-  for(beta_1 in seq(0,2, length.out=70)) {
+  for(beta_1 in seq(0,2, length.out=21)) {
     res =  d$poids - (beta_0 + beta_1*d$taille)
     eqm = sum(res^2)
     results[[length(results)+1]] = c(beta_0=beta_0, beta_1=beta_1, eqm=eqm)
   }
 }
 results = as.data.frame(do.call(rbind, results))
-head(results)
-min(results$eqm)
+# plot(results$beta_0, results$beta_1, pch=16, col=colorRampPalette(c("cyan", "black", "red"))(100)[as.numeric(cut(results$eqm, breaks=quantile(results$eqm, probs=(0:100)/100), include.lowest=TRUE))])
 r = results[results$eqm==min(results$eqm),]
 beta_0 = r[["beta_0"]]
 beta_1 = r[["beta_1"]]
 res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2)
-plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
+plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
 suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
-
 ```
 
 
 
 ---
 
-### Méthode  et démonstration
+**Méthode  et démonstration**
 
-**Objectif** : Définir des estimateurs qui minimisent la somme des carrés des résidus (ou **erreur quadratique moyenne** EQM).
+L’objectifest de définir des estimateurs qui minimisent la somme des carrés des résidus (ou **erreur quadratique moyenne** EQM).
 
 Les estimateurs sont donc les coordonnées du minimum de la fonction à deux variables :
 
@@ -288,7 +289,7 @@ Les estimateurs correspondent aux valeurs annulant les dérivées partielles de 
 $$\frac{\delta EQM(\beta_0, \beta_1)}{\delta \beta_0} = -2 \sum (Y_i - \beta_0 - \beta_1x_i)$$
 $$\frac{\delta EQM(\beta_0, \beta_1)}{\delta \beta_1} = -2 \sum x_i (Y_i - \beta_0 - \beta_1x_i)$$
 
-Les estimateurs $(\widehat\beta_0^{MCO},\widehat\beta_1^{MCO})$ sont les solutions du système d’équation:
+Les estimateurs $(\widehat\beta_0^{MCO},\widehat\beta_1^{MCO})$ sont les solutions du système d’équation :
 $$ \Bigg\{
 \begin{align}
 -2 \sum (Y_i - \beta_0 - \beta_1x_i) = 0  \\ 
@@ -297,7 +298,7 @@ $$ \Bigg\{
 $$
 
 
-Soient les equations suivantes: 
+Soient les equations suivantes : 
 
 $$(1) \sum{Y}_i = n\widehat\beta_0 + \widehat\beta_1 \sum{x_i} $$
 
@@ -306,7 +307,7 @@ On utilise les notations usuelles des moyennes empiriques $$\overline{x}_n = \fr
 
 D’après (1): $$\widehat\beta_0 = \overline{Y}_n - \widehat\beta_1 \overline{x}_n$$
 
-D’après (2):
+D’après (2) :
 
 \begin{eqnarray}
 \widehat\beta_1 \sum{x^2_i} & = & \sum{x_iY_i} - \widehat\beta_0 \overline{x}_n \\
@@ -322,17 +323,17 @@ Et comme nous avons :
                    \sum{(x_i-\overline{x}_n)}   & = & \sum{x_i^2} -  n(\overline{x}_n)^2
 \end{eqnarray}
 
-Nous obtenons: $$\widehat\beta_1 = \frac{\sum{(x_i-\overline{x}_n)(Y_i-\overline{Y}_n)}}{\sum{(x_i-\overline{x}_n)}}$$
+Nous obtenons : $$\widehat\beta_1 = \frac{\sum{(x_i-\overline{x}_n)(Y_i-\overline{Y}_n)}}{\sum{(x_i-\overline{x}_n)}}$$
 
 Dans la pratique, nous calculons $\widehat\beta_1$ puis $\widehat\beta_0$.
 
-Nous obtenons ainsi une estimation de la droite de régression, appelée la droite des moindres carrés ordinaires:
+Nous obtenons ainsi une estimation de la droite de régression, appelée la droite des moindres carrés ordinaires :
 
 $$\widehat Y(x) = \widehat\beta_0 + \widehat\beta_1x$$
 
 ---
 
-### Exemple
+**Exemple**
 
 $\widehat\beta_0$ correspond à l’ordonnée à l’origine. Ce paramètre n’est pas toujours interprétable (il dépend de la signifaction de $X$ et du fait que $X$ soit centré ou non).
 
@@ -350,40 +351,60 @@ plot(d$taille, d$poids, main="poids~taille")
 # Y_i = b_0 + b_1.X_i + e_i
 m = lm(d$poids~d$taille)
 m$coefficients
-abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+abline(a=m$coef[[1]], b=m$coef[[2]], col=2) # /!\ y = b.x + a
 # residuals
-m$residuals
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+# head(m$residuals)
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 ```
 
 ---
 
-## Décomposition de la variance
+## Qualité du modèle
 
-### Variation expliquée et inexpliquée
+### Décomposition de la variance
 
-La variation de $Y$ vient du fait de sa dépendance à la variable explicative $X$. C’est la **variation expliquée par le modèle**.
 
-Dans l’exemple « taille-poids », nous avons remarqué que lorsque nous mesurons $Y$ avec une même valeur de $X$, nous observons une certaine variation sur $Y$. C’est la **variation inexpliquée par le modèle**.
+La variation de $Y$ vient du fait de sa dépendance à la variable explicative $X$. 
+C’est la **variation expliquée par le modèle**.
 
-Variation totale de Y = Variation expliquée par le modèle + Variation inexpliquée par le modèle
+Dans l’exemple $poids \sim taille$, nous avons remarqué que lorsque nous mesurons $Y$ avec une même valeur de $X$, nous observons une certaine variation sur $Y$. 
+C’est la **variation inexpliquée par le modèle**.
 
-Soit $$(Y_i - \overline{Y}_n) = (\widehat Y_i - \overline{Y}_n) + (Y_i - \widehat Y_i)$$ avec $(\widehat Y_i - \overline{Y}_n)$ la différence expliquée par le modèle et $(Y_i - \widehat Y_i)$ la différence inexpliquée (ou résidu).
+On dit que la *variation totale de Y* se décompose en *Variation expliquée par le modèle* et *variation inexpliquée par le modèle*
 
----
+Soit : 
 
-### Interêt des moindres carrés
 
-La méthode des moindres carrés conserve la décomposition (en variance expliquée et résiduelle) en considérenat la somme des carrés de ces différences: 
+\begin{eqnarray}
+Y_i - \overline{Y}_n &=& Y_i - \widehat Y_i + \widehat Y_i - \overline{Y}_n \\
+                    &=& (Y_i - \widehat Y_i) + (\widehat Y_i - \overline{Y}_n)
+\end{eqnarray}
 
-$$ \sum(Y_i - \overline{Y}_n)^2 = \sum(\widehat Y_i - \overline{Y}_n)^2 + \sum(Y_i - \widehat Y_i)^2 $$
-Soit $$ SC_{tot} = SC_{reg} + SC_{res}$$ 
+avec $\widehat Y_i - \overline{Y}_n$ la différence expliquée par le modèle et $Y_i - \widehat Y_i$ la différence inexpliquée (ou résiduelle).
+
+La méthode des moindres carrés, en considérant la somme des carrés de ces différences, nous assure la décomposition de la variance totale en variance expliquée et variance résiduelle : 
+
+
+\begin{eqnarray}
+
+\sum(Y_i - \overline{Y}_n)^2 &=& \sum((Y_i - \widehat Y_i) + (\widehat Y_i - \overline{Y}_n))^2 \\
+&=& \sum(Y_i - \widehat Y_i)^2 + \sum(\widehat Y_i - \overline{Y}_n)^2 + 2 \sum(Y_i - \widehat Y_i) (\widehat Y_i - \overline{Y}_n) \\
+&=& \sum(\widehat Y_i - \overline{Y}_n)^2 + \sum(Y_i - \widehat Y_i)^2
+
+\end{eqnarray}
+
+
+$$  $$
+
+Soit : 
+
+$$ SC_{tot} = SC_{reg} + SC_{res}$$ 
 
 Avec $SC_{tot}$ la somme des carrés totale,  $SC_{reg}$ la somme des carrés due à la régression et  $SC_{res}$ la somme des carrés des résidus.
 
+Notons que $2 \sum(Y_i - \widehat Y_i) (\widehat Y_i - \overline{Y}_n)=0$ en raison des moindres carrés [[demo](https://www.unine.ch/files/live/sites/statistics/files/shared/documents/cours_modeles_regression.pdf)].
 
----
 
 ### Coefficient de determination $R^2$
 
@@ -396,7 +417,7 @@ $$ R^2 = \frac{SC_{reg}}{SC_{tot}}$$
 - $R^2$ est compris entre 0 et 1.
 - $R^2 = 1$ : cas où les données sont parfaitement alignées
 (comme c’est le cas pour un modèle déterministe).
-- $R^2 = 0$ :cas où la variation de $Y$ n’est pas due à la variation de $X$. Les données ne sont pas du tout alignées.
+- $R^2 = 0$ : cas où la variation de $Y$ n’est pas due à la variation de $X$. Les données ne sont pas du tout alignées.
 - Plus $R^2$  est proche de 1, plus les données sont alignées sur la droite de régression.
 
 
@@ -418,14 +439,61 @@ legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
 
 
----
-
-
-
 
 ### Travaux pratiques
 
-#### Jeu de données `anscombe`
+
+**Jeu de données `CO2`**
+
+```{r echo=TRUE, results="verbatim"}
+data(CO2)
+head(CO2)
+layout(matrix(1:2, 1), respect=TRUE)
+plot(
+  CO2[CO2$Type=="Quebec", ]$conc, 
+  CO2[CO2$Type=="Quebec", ]$uptake, 
+  xlab="food", ylab="growth", main="growth~food"
+)
+plot(
+  log10(CO2[CO2$Type=="Quebec", ]$conc), 
+  CO2[CO2$Type=="Quebec", ]$uptake, 
+  xlab="log(food)", ylab="growth", main="growth~log(food)"
+)
+```
+
+```{r eval=FALSE}
+m1 = lm(CO2[CO2$Type=="Quebec", ]$uptake~CO2[CO2$Type=="Quebec", ]$conc)
+m2 = lm(CO2[CO2$Type=="Quebec", ]$uptake~log(CO2[CO2$Type=="Quebec", ]$conc))
+layout(matrix(1:2, 1), respect=TRUE)
+plot(
+  CO2[CO2$Type=="Quebec", ]$conc, 
+  CO2[CO2$Type=="Quebec", ]$uptake, 
+  xlab="food", ylab="growth", 
+  main=paste0("growth~food R^2=", signif(summary(m1)$r.squared, 2)*100, "%")
+)
+abline(m1, col=2)
+plot(
+  log10(CO2[CO2$Type=="Quebec", ]$conc), 
+  CO2[CO2$Type=="Quebec", ]$uptake, 
+  xlab="log(food)", ylab="growth", 
+  main=paste0("growth~log(food) R^2=", signif(summary(m2)$r.squared, 2)*100, "%")
+)
+abline(m2, col=2)
+summary(m1)
+summary(m2)
+```
+
+On s’intéresse uniquement aux plantes dont le `Type` est `Quebec`.
+ 
+- Calculer les modèles de regression linéaire `m1: growth~food` et `m2: growth~log(food)`
+- Tracer les nuages de points et les droites de regression correspondantes.
+- Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
+- Comparer les coéficiants de chacun des modéles.
+
+
+
+
+**Jeu de données `anscombe`**
 
 ```{r echo=TRUE, results="verbatim"}
 data(anscombe)
@@ -438,7 +506,7 @@ plot(anscombe$x3, anscombe$y3)
 plot(anscombe$x4, anscombe$y4)
 ```
 
-- Calculer les modèles de regression linéaire `m1: y1~x1`, `m2: y2~x2`, `m3: y3~x3`, `m4: y4~x4`.
+- Calculer les modèles de regression linéaire `m1 : y1~x1`, `m2 : y2~x2`, `m3 : y3~x3`, `m4 : y4~x4`.
 - Tracer les nuages de points et les droites de regression correspondantes.
 - Calculer, comparer et commenter les coéficiants de chacun des modéles.
 - Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
@@ -458,71 +526,11 @@ summary(m4)
 
 # plot
 layout(matrix(1:4,2), respect=TRUE)
-plot(anscombe$x1,anscombe$y1, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m1 R^2=", signif(summary(m1)$r.squared, 2)*100, "%")) ; abline(m1)
-plot(anscombe$x2,anscombe$y2, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m2 R^2=", signif(summary(m2)$r.squared, 2)*100, "%")) ; abline(m2)
-plot(anscombe$x3,anscombe$y3, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m3 R^2=", signif(summary(m3)$r.squared, 2)*100, "%")) ; abline(m3)
-plot(anscombe$x4,anscombe$y4, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m4 R^2=", signif(summary(m4)$r.squared, 2)*100, "%")) ; abline(m4)
-
-# abline(a=m1$coefficients[[1]],b=m1$coefficients[[2]], lty=2, lwd=3, col=2)
+plot(anscombe$x1,anscombe$y1, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m1 R^2=", signif(summary(m1)$r.squared, 2)*100, "%, y=", signif(m1$coefficients[1], 3), "+", signif(m1$coefficients[2], 3), "x")) ; abline(m1, col=2)
+plot(anscombe$x2,anscombe$y2, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m2 R^2=", signif(summary(m2)$r.squared, 2)*100, "%, y=", signif(m2$coefficients[1], 3), "+", signif(m2$coefficients[2], 3), "x")) ; abline(m2, col=2)
+plot(anscombe$x3,anscombe$y3, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m3 R^2=", signif(summary(m3)$r.squared, 2)*100, "%, y=", signif(m3$coefficients[1], 3), "+", signif(m3$coefficients[2], 3), "x")) ; abline(m3, col=2)
+plot(anscombe$x4,anscombe$y4, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m4 R^2=", signif(summary(m4)$r.squared, 2)*100, "%, y=", signif(m4$coefficients[1], 3), "+", signif(m4$coefficients[2], 3), "x")) ; abline(m4, col=2)
 ```
-
-
-
----
-
-
-
-#### Jeu de données `CO2`
-
-```{r echo=TRUE, results="verbatim"}
-data(CO2)
-head(CO2)
-layout(matrix(1:2, 1), respect=TRUE)
-plot(
-  CO2[CO2$Type=="Quebec", ]$conc, 
-  CO2[CO2$Type=="Quebec", ]$uptake, 
-  xlab="food", ylab="growth", main="growth~food"
-)
-plot(
-  log(CO2[CO2$Type=="Quebec", ]$conc), 
-  CO2[CO2$Type=="Quebec", ]$uptake, 
-  xlab="log(food)", ylab="growth", main="growth~log(food)"
-)
-```
-
-```{r eval=FALSE}
-m1 = lm(CO2[CO2$Type=="Quebec", ]$uptake~CO2[CO2$Type=="Quebec", ]$conc)
-m2 = lm(CO2[CO2$Type=="Quebec", ]$uptake~log(CO2[CO2$Type=="Quebec", ]$conc))
-layout(matrix(1:2, 1), respect=TRUE)
-plot(
-  CO2[CO2$Type=="Quebec", ]$conc, 
-  CO2[CO2$Type=="Quebec", ]$uptake, 
-  xlab="food", ylab="growth", main=paste0("growth~food ")
-)
-abline(m1, col=2)
-plot(
-  log(CO2[CO2$Type=="Quebec", ]$conc), 
-  CO2[CO2$Type=="Quebec", ]$uptake, 
-  xlab="log(food)", ylab="growth", main=paste0("growth~log(food) ")
-)
-abline(m2, col=2)
-summary(m1)
-summary(m2)z
-```
-
-On s’intéresse uniquement aux plantes dont le `Type` est `Quebec`.
- 
-- Calculer les modèles de regression linéaire `m1: growth~food` et `m2: growth~log(food)`
-- Tracer les nuages de points et les droites de regression correspondantes.
-- Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
-- Comparer les coéficiants de chacun des modéles.
-
-```{r eval=FALSE, echo=FALSE, results="hide"}
-```
-
----
-
-
 
 
 
@@ -530,7 +538,7 @@ On s’intéresse uniquement aux plantes dont le `Type` est `Quebec`.
 
 ---
 
-## Test statistique et IC/IP
+## Test statistique
 
 Il est important de noter que la **construction du modèle de régression** et l’estimation des paramètres par MCO **ne fait pas appel aux hypothèses de distribution**.
 
@@ -541,12 +549,174 @@ Les hypothèses de distribution sont essentielles lorsqu’il s’agit de constr
 
 ### Test de Student
 
+Pour rappel, l’objectif d’un test statitsique est de :
+
+  1. valider une hypothèses,
+  2. quantifier le risque associé à cette décision.
+  
+Souvent, on cherche à invalider l’hypothèse dîte *nulle* ($\mathcal{H}_0$) et donc valider l’hypothèse dîte *alternative* ($\mathcal{H}_1$) au risque de première espèce $\alpha$ de 5%.
+
+**Conditions d’applications du test**
+
+- Les observations sont indépendantes
+- La variance des erreurs est constante
+- La loi des erreurs est une loi normale
 
 **Hypothèse nulle et hypothèse alternative**
 
 On se pose la question de l’effet de la variable $x$ :
 
 $\mathcal{H}_0 : {\beta_1 = 0}$ contre $\mathcal{H}_1 : {\beta_1 \neq 0}$
+
+
+**Risque de première espèce $\alpha$**
+
+Le risque de première espèce ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
+
+Notons que le risque de seconde espèce ou risque $\beta$ est le risque de conserver $\mathcal{H}_0$ alors que celle-ci est fausse. 
+Attention, le calcul du risque $\beta$ est plus compliqué. Souvent en minimisant $\alpha$ on augmente $\beta$. 
+Pour s’assurer que $\beta$ reste faible il faut généralement augmenter $n$.
+
+
+**Statistique du test** 
+
+Sous $\mathcal{H}_0$, 
+
+$$t_{\widehat\beta_1,n-2} = \frac{\widehat\beta_1}{s_{\widehat\beta_1}} \sim \mathcal{T}_{n-2}$$
+
+avec la variance résiduelle estimée :
+
+$$ \widehat\sigma^2_n = \frac{1}{n-2}\sum^n_{i=1}  (Y_i - \widehat\beta_0 - \widehat\beta_1x_i)^2 = \frac{1}{n-2}\sum^n_{i=1} \widehat\epsilon_i^2 $$
+
+et l’erreur standard sur $\beta_1$ estimée :
+
+$$ s^2_{\widehat\beta_1} = \frac{\widehat\sigma^2_n}{ns^2_x} = \frac{\widehat\sigma^2_n}{\sum^n_{i=1} (x_i - \overline x)^2} $$
+
+
+**Décision et conclusion du test**
+
+La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Student.
+
+- Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $t_{\widehat\beta_1,n-2}$ est supérieure ou égale à $c_\alpha$, alors le test est significatif. Vous rejetez  $\mathcal{H}_0$ et vous décidez que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
+
+- Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $t_{\widehat\beta_1,n-2}$ est strictement inférieure à $c_\alpha$, alors le test n’est pas significatif. Vous conservez $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
+
+
+
+
+**Mais alors pourquoi ?** 
+
+Si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, *i.e*. $\beta_1=0$, 
+alors la variable aléatoire $t_{\widehat\beta_1,n-2} = \frac{\widehat\beta_1}{s_{\widehat\beta_1}}$, *i.e*, l’effet de la variable $x$ extimé à partir des observations *"réduit"* de la *"variabilité"* observée sur cet estimateur, 
+suit une la loi de Student à $n-2$ dégré de liberté notée $\mathcal{T}_{n-2}$ **en raison des conditions d’applications du test**.
+
+
+
+**Exemple 0**
+
+```{r}
+m = lm(poids~taille, d)
+summary(m)
+```
+
+```{r}
+layout(matrix(1:2, 1), respect=TRUE)
+plot( d$taille, d$poids, main="poids ~ taille")
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+
+abline(m, col=2)
+x=seq(-7,7, length.out=200)
+plot(x, dt(x, m$df.residual), type="l", xlab="t", ylab="", main=paste0("Distibution de Student, ", m$df.residual," ddl."))
+abline(v=c(-1,1) * summary(m)$coefficients[2,3], lty=2, col=4)
+abline(v=c(-1,1) * qt(0.025, m$df.residual), lty=2, col=2)
+x = seq(-7,qt(0.025, m$df.residual), length.out=100)
+polygon(c(-7, x, qt(0.025, m$df.residual)), c(0, dt(x, m$df.residual), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
+x = seq(7,qt(0.975, m$df.residual), length.out=100)
+polygon(c(7, x, qt(0.975, m$df.residual)), c(0, dt(x, m$df.residual), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
+x = seq(-7,-summary(m)$coefficients[2,3], length.out=100)
+polygon(c(-7, x, -summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
+x = seq(7,summary(m)$coefficients[2,3], length.out=100)
+polygon(c(7, x, summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
+legend("topleft",c("t_beta1", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=c(2,2,1,1), lwd=c(1,1,3,3), cex=.8)
+
+```
+
+```{r echo=TRUE, results="verbatim"}
+m = lm(poids~taille, d)
+# Student test
+summary(m)
+n = length(m$residuals)
+xi = m$model$taille
+s_beta1 = sqrt( sum(m$residuals^2)/(n-2) / sum((xi-mean(xi))^2))
+s_beta1
+stat_t =  m$coefficient[2]/s_beta1
+stat_t
+pval = pt(-stat_t, n-2) + 1-pt(stat_t, n-2)
+pval
+```
+```{r eval=FALSE}
+x=seq(0,50, length.out=30)[-1]
+plot(x, dp(x, p-1,n-p), type="l")
+abline(v=stat_f, lty=2, col="grey")
+
+```
+
+
+
+**Exemple 1**
+
+```{r}
+set.seed(1)
+d = MASS::cats[sample(1:nrow(MASS::cats),10),]
+m = lm(Hwt~Bwt, d)
+summary(m)
+```
+
+```{r}
+layout(matrix(1:2, 1), respect=TRUE)
+plot( d$Bwt, d$Hwt, xlab="Body weight", ylab="Heart weight", main="Heart weight ~ Body weight")
+suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+
+abline(m, col=2)
+x=seq(-7,7, length.out=200)
+plot(x, dt(x, m$df.residual), type="l", xlab="t", ylab="", main=paste0("Distibution de Student, ", m$df.residual," ddl."))
+abline(v=c(-1,1) * summary(m)$coefficients[2,3], lty=2, col=4)
+abline(v=c(-1,1) * qt(0.025, m$df.residual), lty=2, col=2)
+x = seq(-7,qt(0.025, m$df.residual), length.out=100)
+polygon(c(-7, x, qt(0.025, m$df.residual)), c(0, dt(x, m$df.residual), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
+x = seq(7,qt(0.975, m$df.residual), length.out=100)
+polygon(c(7, x, qt(0.975, m$df.residual)), c(0, dt(x, m$df.residual), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
+x = seq(-7,-summary(m)$coefficients[2,3], length.out=100)
+polygon(c(-7, x, -summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
+x = seq(7,summary(m)$coefficients[2,3], length.out=100)
+polygon(c(7, x, summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
+legend("topleft",c("t_beta1", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=c(2,2,1,1), lwd=c(1,1,3,3), cex=.8)
+
+```
+
+```{r echo=TRUE, results="verbatim"}
+set.seed(1)
+d = MASS::cats[sample(1:nrow(MASS::cats),10),]
+m = lm(Hwt~Bwt, d)
+# Student test
+summary(m)
+n = length(m$residuals)
+xi = m$model$Bwt
+s_beta1 = sqrt( sum(m$residuals^2)/(n-2) / sum((xi-mean(xi))^2))
+s_beta1
+stat_t =  m$coefficient[2]/s_beta1
+stat_t
+pval = pt(-stat_t, n-2) + 1-pt(stat_t, n-2)
+pval
+```
+```{r eval=FALSE}
+x=seq(0,50, length.out=30)[-1]
+plot(x, dp(x, p-1,n-p), type="l")
+abline(v=stat_f, lty=2, col="grey")
+
+```
 
 
 **Conditions d’applications du test**
@@ -572,17 +742,6 @@ Pour tester l’homoscedasticité :
 
 
 ```{r echo=TRUE, results="verbatim"}
-set.seed(1)
-idx = sample(1:nrow(MASS::cats),30)
-m = lm(Hwt~Bwt, MASS::cats[idx,])
-layout(1, respect=TRUE)
-plot(
-  MASS::cats[idx,]$Bwt, MASS::cats[idx,]$Hwt, 
-  xlab="Body weight", ylab="Heart weight", 
-  main="Heart weight ~ Body weight"
-)
-abline(m, col=2)
-
 shapiro.test(rnorm(100))
 shapiro.test(runif(100))
 shapiro.test(m$residuals)
@@ -616,51 +775,66 @@ qqnorm(scale(m$residuals))
 abline(0, 1, col=2)
 ```
 
-**Risque de première espèce $\alpha$**
-
-Le risque de première espèce ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
-
-Généralement on fixe $\alpha=0.05$.
-
-Note : Le risque de seconde espèce ou risque $\beta$ est le risque de conserver $\mathcal{H}_0$ alors que celle-ci est fausse. Attention, le calcul du risque $\beta$ est plus compliqué. Souvent en minimisant $\alpha$ on augmente $\beta$. Pour s’assurer que $\beta$ reste faible il faut généralement augmenter $n$.
-
-**Statistique du test** 
-
-Si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, alors la variable aléatoire $\mathcal{T}_{\widehat\beta_1,n-2} = \frac{\widehat\beta_1}{s_{\widehat\beta_1}}$ suit la loi de Student $\mathcal{T}(n-2)$
-
-**Décision et conclusion du test**: La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Student.
-
-- Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $\mathcal{T}_{\widehat\beta_1,n-2}(obs)$ est supérieure ou égale à $c_\alpha$, alors le test est significatif. Vous rejetez  $\mathcal{H}_0$ et vous décidez que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
-
-- Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $\mathcal{T}_{\widehat\beta_1,n-2}(obs)$ est strictement inférieure à $c_\alpha$, alors le test n’est pas significatif. Vous conservez $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
-
-
-Calcul de la statistique de test :
-
-
-La variance des résidus est estimée par :
-
-$$ \widehat\sigma^2_n = \frac{1}{n-2}\sum^n_{i=1}  (Y_i - \widehat\beta_0 - \widehat\beta_1x_i)^2 = \frac{1}{n-2}\sum^n_{i=1} \widehat\epsilon_i^2 $$
-
-L’erreur standard sur $\beta_1$ est estimée par :
-
-$$ s^2_{\widehat\beta_1} = \frac{\widehat\sigma^2_n}{ns^2_x} = \frac{\widehat\sigma^2_n}{\sum^n_{i=1} (x_i - \overline x)^2} $$
 
 
 
-```{r echo=TRUE, results="verbatim"}
-# Student test
+
+
+
+```{r eval=FALSE}
+# **Exemple 2**
+d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+set.seed(1)
+d = d[sample(1:nrow(d),20),]
+
+layout(matrix(1:2, 1), respect=TRUE)
+m = lm(poids~taille, d)
+plot(d$taille, d$poids, main=paste0("poids~taille R^2=", signif(summary(m)$r.squared, 2)*100, "%"))
+abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+
 summary(m)
+shapiro.test(m$residuals)
+
 n = length(m$residuals)
-xi = m$model$Bwt
+xi = m$model$taille
 s_beta1 = sqrt( sum(m$residuals^2)/(n-2) / sum((xi-mean(xi))^2))
 s_beta1
 stat_t =  m$coefficient[2]/s_beta1
 stat_t
 pval = pt(-stat_t, n-2) + 1-pt(stat_t, n-2)
 pval
-```
 
+
+
+
+x=seq(-7,7, length.out=200)
+plot(x, dt(x, m$df.residual), type="l", xlab="t", ylab="", main=paste0("Distibution de Student, ", m$df.residual," ddl."))
+abline(v=c(-1,1) * summary(m)$coefficients[2,3], lty=2, col=4)
+abline(v=c(-1,1) * qt(0.025, m$df.residual), lty=2, col=2)
+x = seq(-7,qt(0.025, m$df.residual), length.out=100)
+polygon(c(-7, x, qt(0.025, m$df.residual)), c(0, dt(x, m$df.residual), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
+x = seq(7,qt(0.975, m$df.residual), length.out=100)
+polygon(c(7, x, qt(0.975, m$df.residual)), c(0, dt(x, m$df.residual), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
+x = seq(-7,-summary(m)$coefficients[2,3], length.out=100)
+polygon(c(-7, x, -summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
+x = seq(7,summary(m)$coefficients[2,3], length.out=100)
+polygon(c(7, x, summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
+legend("topleft",c("t_beta1", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=c(2,2,1,1), lwd=c(1,1,3,3), cex=.8)
+
+
+
+power.t.test(delta=m$coefficient[2], sd=s_beta1, sig.level = 0.05, power = 0.8)
+power.t.test(delta=mean(v)-mean(p), sd=sd(c(v,c,p)), sig.level = 0.05, power = 0.8)
+
+
+m = lm(d$poids~d$age)
+plot(d$age, d$poids, main=paste0("poids~age R^2=", signif(summary(m)$r.squared, 2)*100, "%"))
+abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
+suppressWarnings(arrows(d$age, d$poids, d$age, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+```
 
 
 
@@ -699,7 +873,7 @@ anova(m)
 n = length(m$residuals)
 p = m$rank
 res_sum_sq = sum(m$residuals^2)
-tot_sum_sq = sum((MASS::cats[idx,]$Hwt - mean(MASS::cats[idx,]$Hwt))^2)
+tot_sum_sq = sum((d$Hwt - mean(d$Hwt))^2)
 fac_sum_sq = tot_sum_sq - res_sum_sq
 res_mean_sq = res_sum_sq / (n-p)
 fac_mean_sq = fac_sum_sq
@@ -708,6 +882,8 @@ stat_f
 pval = 1-pf(stat_f, p-1, n-p)
 pval
 ```
+
+
 
 
 **Travaux pratiques**
@@ -759,7 +935,7 @@ $$IP_{1-\alpha}(Y) = \Big]\widehat Y_0 - t_{n-2;1-\alpha/2}\sqrt{\widehat\sigma^
 ```{r echo=TRUE, results="verbatim"}
 layout(1, respect=TRUE)
 plot(
-  MASS::cats[idx,]$Bwt, MASS::cats[idx,]$Hwt, 
+  d$Bwt, d$Hwt, 
   xlab="Body weight", ylab="Heart weight", 
   main="Heart weight ~ Body weight"
 )
@@ -805,88 +981,3 @@ pred =  predict(m2, interval="predict")
 ```
 
 ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

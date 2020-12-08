@@ -47,21 +47,21 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 
 ## Organisation prévisionnelle
 
-Séance 1 - 3h (10/01) Régression linéaire simple
+Séance 1 - 3h  Régression linéaire simple
 
-Séance 2 - 3h (24/01) Régression linéaire multiple
+Séance 2 - 3h  Régression linéaire multiple (I)
 
-Séance 3 - 3h (31/01) Anova 1 facteur / partie A
+Séance 3 - 3h  Régression linéaire multiple (II)
 
-Séance 4 - 3h (14/02) Anova 1 facteur / partie B
+Séance 4 - 3h  Data Challenge
 
-Séance 5 - 3h (21/02) Anova 2 facteurs
+Séance 5 - 3h  Anova 1 facteur
 
-Séance 6 - 3h (07/03) Anova multiple
+Séance 6 - 3h  Anova 2 facteurs sans répetition
 
-Séance 7 - 3h (11/03) Anova facteurs emboités
+Séance 7 - 3h  Anova 2 facteurs avec interaction
 
-Séance 8 - 3h (14/03) Ancova
+Séance 8 - 3h  Correction data challenge
 
 ---
 
@@ -91,7 +91,8 @@ Ce cours s’inspire des références suivantes :
 - Frédéric Bertrand & Myriam Maumy-Bertrand
 - Franck Picard
 - http://math.agrocampus-ouest.fr (janvier 2020)
-
+- https://delladata.fr/introduction-puissance-statistique/ (décembre 2020)
+- https://andrewlauactuary.com/2019/06/04/shiny-app-showing-statistical-power/ (juin 2019)
 ---
 
 # Informations de session

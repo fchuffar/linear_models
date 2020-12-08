@@ -31,7 +31,7 @@ d$y = d$y + (as.numeric(d$f2)-1.5)*2
 table(d$f1, d$f2)
 boxplot(y~f1+f2, d)
   
-data.frame = data(warpbreaks)
+warpbreaks = data(warpbreaks)
 head(warpbreaks)
 dim(warpbreaks)
 table(warpbreaks$wool,warpbreaks$tension)
@@ -477,14 +477,28 @@ Pour des modèles avec beaucoup de facteurs, il est crucial de bien comprendre l
 
 
 
+**TO DO** 
+
+Intégrer ici les exercices de la fiche TP8.pdf
 
 
 
 
+```{r eval=FALSE}
+warpbreaks = data(warpbreaks)
+head(warpbreaks)
+dim(warpbreaks)
+table(warpbreaks$wool,warpbreaks$tension)
+boxplot(breaks~wool+tension, warpbreaks)
+m = lm(breaks~wool+tension, warpbreaks)
+m$coef
+abline(h=m$coef[[1]])
+mean(warpbreaks)
+```
 
 
 
-```{r, eval=FALSE}
+```{r eval=FALSE}
 library(lsmeans)
 head(auto.noise)
 dim(auto.noise)

@@ -926,7 +926,7 @@ Par définition le BIC est plus parcimonieux que l’AIC.
 
 ### Les méthodes
 
-Méthodes les plus classiques:
+Méthodes les plus classiques :
 
 - Forward (ou pas à pas ascendante)
 - Backward (ou pas à pas descendante)
@@ -936,7 +936,7 @@ Ces méthodes s’appuient sur les *données recueillies*. Elles sont *itérativ
 
 Bien que l’efficacité de ces méthodes ne puisse être démentie par la pratique, il ne serait pas raisonnable de se fier uniquement aux résultats statistiques fournis par un algorithme. 
 
-En effet, pour décider d’ajouter ou de supprimer une variable dans un modèle, l’analyste ne se limite pas à la *technique*, il fait également appel à son *intuition*, sa *déduction* et son esprit de *synthèse*. Pour cela il confronte les approches (statistiques, analyse de données, classification) et il travaille en étroite collaboration avec les experts métiers (le métier dont son issue les données).
+En effet, pour décider d’ajouter ou de supprimer une variable dans un modèle, l’analyste ne se limite pas à la *technique*, il fait également appel à son *intuition*, sa *déduction* et son esprit de *synthèse*. Pour cela il confronte les approches (statistiques, analyse de données, classification) et il travaille en étroite collaboration avec les experts métiers (le métier dont sont issues les données).
 
 
 ---

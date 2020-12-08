@@ -489,6 +489,11 @@ Comme nous avons décidé que les moyennes théoriques sont différentes dans le
 
 
 
+**TO DO** 
+
+Intégrer ici les exercices de la fiche TP6.pdf
+
+
 
 
 
