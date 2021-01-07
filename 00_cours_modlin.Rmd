@@ -23,16 +23,6 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 ## Evaluations
 
  - individuelle via un questionnaire à la fin de chaque séance 
-
-   - Evaluation 1 https://forms.gle/Ja8NFsaGjdVfyUZ57
-   - Evaluation 2 https://forms.gle/Bf5naTXRq3dD2R7v5
-   - Evaluation 3 https://forms.gle/oVm1oFdknAz38Dbg6
-   - Evaluation 4 https://competitions.codalab.org/competitions/23123
-   - Evaluation 5 
-   - Evaluation 6 
-   - Evaluation 7 
-   - Evaluation 8 
- 
  - en équipe lors d‘un *data challenge* à la fin des 8 séances
 
 ## Pré-requis
@@ -48,19 +38,12 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 ## Organisation prévisionnelle
 
 Séance 1 - 3h  Régression linéaire simple
-
 Séance 2 - 3h  Régression linéaire multiple (I)
-
 Séance 3 - 3h  Régression linéaire multiple (II)
-
-Séance 4 - 3h  Data Challenge
-
+Séance 4 - 3h  Data challenge
 Séance 5 - 3h  Anova 1 facteur
-
 Séance 6 - 3h  Anova 2 facteurs sans répetition
-
 Séance 7 - 3h  Anova 2 facteurs avec interaction
-
 Séance 8 - 3h  Correction data challenge
 
 ---
