@@ -20,10 +20,35 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 
 # Avant Propos
 
+
+
+## Les plateformes
+
+1. __MATTERMOST__ Afin de faciliter les échanges, nous utiliserons la plateforme *mattermost*, un canal "Modèles Linéaires" a été créé, je vous invite à le rejoindre avec vos identifiants AGLAN :
+  https://im2ag-tchat.univ-grenoble-alpes.fr/signup_user_complete/?id=msa7add54jdi3qicp8n7e7pw5c
+
+
+2. __ZOOM__ Il a été montré :
+  - que donner une leçon devant un écran n'est pas un exercice facile,
+  - qu'il n'est pas facile d'activer la vidéo pour tout le monde (bande passante, intrusion, etc.),
+  - qu'un bon compromis est de mettre vos visages en photo de profil, alors je l'ai fait et je vous invite à le faire, cela nous permettra de faire connaissance avant de nous rencontrer.
+  
+3. __CHAGRADE__ Le cours est organisé autour d'un cours virtuel sur la plateforme chagrade. Vous serez donc évalué (contrôle continu) à la fin de chaque session par un court questionnaire. Je vous invite maintenant à créer un compte avec l'adresse mail sur laquelle vous avez reçu cet email (en minuscules impérativement) ici: https://chagrade.lri.fr, vous serez automatiquement redirigé vers le cours virtuel intitulé.
+
+4. __CODALAB__ Les TP seront organisés dès la première session autour de plusieurs data challenges sur la plateforme codalab, je vous invite à vous connecter ici maintenant pour gagner du temps
+  https://competitions.codalab.org/competitions/28092?secret_key=6d097f54-b525-4fa7-849c-5f31e142f848
+
+5. __GITHUB__ Le cours est dés maintenant disponible sur github, il évoluera au fil des sessions, le dépot sera régulièrement mis à jour  
+  https://github.com/fchuffar/linear_models
+
+
+
+
+
 ## Evaluations
 
- - individuelle via un questionnaire à la fin de chaque séance 
- - en équipe lors d‘un *data challenge* à la fin des 8 séances
+ - Individuelle via un questionnaire à la fin de chaque séance.
+ - En équipe lors d’un *data challenge* à la fin des 8 séances.
 
 ## Pré-requis
  
@@ -32,12 +57,12 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 
 ## Cours 
 
-
+https://github.com/fchuffar/linear_models
 
 ## Organisation prévisionnelle
 
   - Régression linéaire simple
-  - Régression linéaire multiple (I)
+  - Régression linéaire multiple
   - Anova 1 facteur
   - Anova 2 facteurs sans répetition
   - Anova 2 facteurs avec interaction
