@@ -219,7 +219,7 @@ layout(1, respect=TRUE)
 beta_0 = mean(d$poids)
 beta_1 = 0
 res =  d$poids - (beta_0 + beta_1*d$taille)
-eqm = sum(res^2)
+eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
 arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
@@ -230,7 +230,7 @@ layout(matrix(1:2, 1), respect=TRUE)
 beta_0 = -100
 beta_1 = 1
 res =  d$poids - (beta_0 + beta_1*d$taille)
-eqm = sum(res^2)
+eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
 arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
@@ -238,7 +238,7 @@ arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, 
 beta_0 = -16
 beta_1 = 0.5
 res =  d$poids - (beta_0 + beta_1*d$taille)
-eqm = sum(res^2)
+eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
 arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
@@ -253,7 +253,7 @@ results = list()
 for(beta_0 in 0:-260) {
   for(beta_1 in seq(0,2, length.out=21)) {
     res =  d$poids - (beta_0 + beta_1*d$taille)
-    eqm = sum(res^2)
+    eqm = sum(res^2) / length(res)
     results[[length(results)+1]] = c(beta_0=beta_0, beta_1=beta_1, eqm=eqm)
   }
 }
@@ -263,7 +263,7 @@ r = results[results$eqm==min(results$eqm),]
 beta_0 = r[["beta_0"]]
 beta_1 = r[["beta_1"]]
 res =  d$poids - (beta_0 + beta_1*d$taille)
-eqm = sum(res^2)
+eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
 suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
@@ -279,7 +279,7 @@ L’objectifest de définir des estimateurs qui minimisent la somme des carrés 
 
 Les estimateurs sont donc les coordonnées du minimum de la fonction à deux variables :
 
-$$EQM(\beta_0, \beta_1) = \sum^{n}_{i=1} e^2_i = \sum^{n}_{i=1} (Y_i - \widehat Y_i)^2 = \sum^{n}_{i=1} (Y_i - \widehat\beta_0 -  \widehat\beta_1x_i)^2$$
+$$EQM(\beta_0, \beta_1) = \frac{1}{n}\sum^{n}_{i=1} e^2_i = \sum^{n}_{i=1} (Y_i - \widehat Y_i)^2 = \sum^{n}_{i=1} (Y_i - \widehat\beta_0 -  \widehat\beta_1x_i)^2$$
 
 Cette fonction est appelée la **fonction objectif**.
 
