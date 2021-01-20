@@ -36,10 +36,10 @@ Dans le cas de la regression linéaire simple, $x$ est également quantitatives 
 
 
 ```{r  echo=FALSE, results="hide"}
-d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+data_nutri = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
 set.seed(1)
-d = d[sample(1:nrow(d), 20), ]
-data_nutri = d
+data_nutri_20 = data_nutri[sample(1:nrow(data_nutri), 20), ]
+d = data_nutri_20
 
 layout(matrix(1:2, 1), respect=TRUE)
 
@@ -207,7 +207,7 @@ Remarque : la moyenne empirique de $Y$, définie par $\overline{Y}_n(x) = \frac{
 
 
 ```{r}
-# d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+d = data_nutri_20
 head(d)
 dim(d)
 layout(matrix(1:2, 1), respect=TRUE)
@@ -538,29 +538,34 @@ plot(anscombe$x4,anscombe$y4, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m4 
 
 ---
 
-## Test statistique
+## Tests statistiques
 
 Il est important de noter que la **construction du modèle de régression** et l’estimation des paramètres par MCO **ne fait pas appel aux hypothèses de distribution**.
 
 Les hypothèses de distribution sont essentielles lorsqu’il s’agit de construire des tests et des intervalles de confiance et de prédiction.
+
+Pour rappel, l’objectif d’un test statitsique est de :
+
+  1. valider (ou non) une hypothèses,
+  2. quantifier le risque associé à cette décision.
+  
+Souvent, on cherche à invalider l’hypothèse dîte *nulle* ($\mathcal{H}_0$) et donc valider l’hypothèse dîte *alternative* ($\mathcal{H}_1$) au risque de première espèce $\alpha$ de 5%.
 
 
 ---
 
 ### Test de Student
 
-Pour rappel, l’objectif d’un test statitsique est de :
 
-  1. valider une hypothèses,
-  2. quantifier le risque associé à cette décision.
-  
-Souvent, on cherche à invalider l’hypothèse dîte *nulle* ($\mathcal{H}_0$) et donc valider l’hypothèse dîte *alternative* ($\mathcal{H}_1$) au risque de première espèce $\alpha$ de 5%.
+Le test de Student dans le cadre de la regression linéaire simple teste le coéfficient de la droite ®égression.
 
-**Conditions d’applications du test**
+Il pose la question de l’effet de la variables $x$.
 
-- Les observations sont indépendantes
-- La variance des erreurs est constante
-- La loi des erreurs est une loi normale
+
+**Ecriture analytique du modèle**
+
+$$Y = \beta_0 + \beta_1 x + \epsilon$$
+
 
 **Hypothèse nulle et hypothèse alternative**
 
@@ -569,14 +574,12 @@ On se pose la question de l’effet de la variable $x$ :
 $\mathcal{H}_0 : {\beta_1 = 0}$ contre $\mathcal{H}_1 : {\beta_1 \neq 0}$
 
 
-**Risque de première espèce $\alpha$**
 
-Le risque de première espèce ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
+**Conditions d’application du test**
 
-Notons que le risque de seconde espèce ou risque $\beta$ est le risque de conserver $\mathcal{H}_0$ alors que celle-ci est fausse. 
-Attention, le calcul du risque $\beta$ est plus compliqué. Souvent en minimisant $\alpha$ on augmente $\beta$. 
-Pour s’assurer que $\beta$ reste faible il faut généralement augmenter $n$.
-
+- Les observations sont indépendantes
+- La loi des erreurs est une loi normale
+- La variance des erreurs est constante
 
 **Statistique du test** 
 
@@ -593,13 +596,29 @@ et l’erreur standard sur $\beta_1$ estimée :
 $$ s^2_{\widehat\beta_1} = \frac{\widehat\sigma^2_n}{ns^2_x} = \frac{\widehat\sigma^2_n}{\sum^n_{i=1} (x_i - \overline x)^2} $$
 
 
+
+**Risque de première espèce $\alpha$ et p-valeur**
+
+Le *risque de première espèce* ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
+
+On prend généralement $\alpha=0.05$.
+
+Notons que le risque de seconde espèce ou risque $\beta$ est le risque de conserver $\mathcal{H}_0$ alors que celle-ci est fausse. 
+Attention, le calcul du risque $\beta$ est plus compliqué. Souvent en minimisant $\alpha$ on augmente $\beta$. 
+Pour s’assurer que $\beta$ reste faible il faut généralement augmenter $n$.
+
+La *p-valeur* est la probabilité d’observer la valeur de la statistique de test sous $\mathcal{H}_0$ en ayant préalablement vérifié les conditions d’application du test.
+
 **Décision et conclusion du test**
 
-La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Student.
+La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Student (ou avec le logiciel R). 
+C’est la valeur de la statistique de test pour laquelle $\mathcal{H}_0$ devient improbable compte tenu du risuqe $alpha$ que l’on s’est fixé. 
 
-- Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $t_{\widehat\beta_1,n-2}$ est supérieure ou égale à $c_\alpha$, alors le test est significatif. Vous rejetez  $\mathcal{H}_0$ et vous décidez que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
+Ainsi : 
 
-- Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $t_{\widehat\beta_1,n-2}$ est strictement inférieure à $c_\alpha$, alors le test n’est pas significatif. Vous conservez $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
+- si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $t_{\widehat\beta_1,n-2}$ est supérieure ou égale à $c_\alpha$, alors le test est significatif. Vous rejetez  $\mathcal{H}_0$ et vous décidez que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
+
+- si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $t_{\widehat\beta_1,n-2}$ est strictement inférieure à $c_\alpha$, alors le test n’est pas significatif. Vous conservez $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
 
 
 
@@ -607,16 +626,20 @@ La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi d
 **Mais alors pourquoi ?** 
 
 Si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, *i.e*. $\beta_1=0$, 
-alors la variable aléatoire $t_{\widehat\beta_1,n-2} = \frac{\widehat\beta_1}{s_{\widehat\beta_1}}$, *i.e*, l’effet de la variable $x$ extimé à partir des observations *"réduit"* de la *"variabilité"* observée sur cet estimateur, 
-suit une la loi de Student à $n-2$ dégré de liberté notée $\mathcal{T}_{n-2}$ **en raison des conditions d’applications du test**.
+alors la variable aléatoire $t_{\widehat\beta_1,n-2} = \frac{\widehat\beta_1}{s_{\widehat\beta_1}}$, *i.e*, l’effet de la variable $x$ estimé à partir des observations *"réduit"* de la *"variabilité"* observée sur cet estimateur, 
+suit une la loi de Student à $n-2$ dégrés de liberté notée $\mathcal{T}_{n-2}$ **en raison des conditions d’application du test**.
 
 
 
-**Exemple 0**
+**Exemple**
+
+On restreint le jeu de données à 20 observations prises aléatoirement parmi les observations du jeu de données `data_nutri`.
+Etudions le modèle $poids \sim taille$, au risque $\alpha = 0.05$.
+
 
 ```{r}
+d = data_nutri_20
 m = lm(poids~taille, d)
-summary(m)
 ```
 
 ```{r}
@@ -642,6 +665,35 @@ legend("topleft",c("t_beta1", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty
 
 ```
 
+
+
+1. Ecriture analytique du modèle
+
+$$poids = \beta_0 + \beta_1 taille + \epsilon$$
+
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
+
+$$\mathcal{H}_0 : {\beta_1 = 0}$ \text{ et } $\mathcal{H}_1 : {\beta_1 \neq 0}$$
+
+3. Statistique de test utilisée et conditions d’application
+
+Test de Student
+
+4. Valeur de la statistique de test
+
+`r summary(m)$coefficients[2,3]`
+
+5. P-valeur associée
+
+`r summary(m)$coefficients[2,4]`
+
+6. Conclusion du test
+
+La p-valeur est < 0.05, alors le test est significatif. Nous rejetons donc $\mathcal{H}_0$ et acceptons $\mathcal{H}_1$ au risque d’erreur de première espèce $\alpha = 0.05$.
+
+
+
+
 ```{r echo=TRUE, results="verbatim"}
 m = lm(poids~taille, d)
 # Student test
@@ -664,16 +716,36 @@ abline(v=stat_f, lty=2, col="grey")
 
 
 
-**Exemple 1**
+**TP `MASS::cats`**
 
-```{r}
+On restreint le jeu de données à 10 observations prises aléatoirement parmi les observations du jeu de données `MASS::cats`.
+
+```{r echo=TRUE}
 set.seed(1)
-d = MASS::cats[sample(1:nrow(MASS::cats),10),]
+d = d_mass_cats_10 = MASS::cats[sample(1:nrow(MASS::cats),10),]
 m = lm(Hwt~Bwt, d)
-summary(m)
 ```
 
+Etudier le modèle le modèle $Hwt \sim Bwt$
+
+1. Ecriture analytique du modèle
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
+3. Statistique de test utilisée et conditions d’application
+4. Valeur de la statistique de test
+5. P-valeur associée
+6. Conclusion du test
+7. Augmenter le nombre d’observations prisent alétoirement (20,30), quel est l’impact sur l’analyse ?
+
+
 ```{r}
+layout(1, respect=TRUE)
+plot( d$Bwt, d$Hwt, xlab="Body weight", ylab="Heart weight", main="Heart weight ~ Body weight")
+suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+abline(m, col=2)
+```
+
+```{r eval=FALSE}
 layout(matrix(1:2, 1), respect=TRUE)
 plot( d$Bwt, d$Hwt, xlab="Body weight", ylab="Heart weight", main="Heart weight ~ Body weight")
 suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
@@ -694,11 +766,7 @@ x = seq(7,summary(m)$coefficients[2,3], length.out=100)
 polygon(c(7, x, summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
 legend("topleft",c("t_beta1", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=c(2,2,1,1), lwd=c(1,1,3,3), cex=.8)
 
-```
-
-```{r echo=TRUE, results="verbatim"}
-set.seed(1)
-d = MASS::cats[sample(1:nrow(MASS::cats),10),]
+d = d_mass_cats_10
 m = lm(Hwt~Bwt, d)
 # Student test
 summary(m)
@@ -711,15 +779,231 @@ stat_t
 pval = pt(-stat_t, n-2) + 1-pt(stat_t, n-2)
 pval
 ```
-```{r eval=FALSE}
-x=seq(0,50, length.out=30)[-1]
-plot(x, dp(x, p-1,n-p), type="l")
-abline(v=stat_f, lty=2, col="grey")
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Test de Fisher
+
+Le test de Fisher repose sur cette décomposition de la variance.
+
+Il pose la question de l’effet de la variables $x$.
+
+
+**Ecriture analytique du modèle**
+
+$$Y = \beta_0 + \beta_1 x + \epsilon$$
+
+
+**Hypothèse nulle et hypothèse alternative**
+
+On se pose la question de l’effet de la variable $x$ :
+
+$\mathcal{H}_0 : {\beta_1 = 0}$ contre $\mathcal{H}_1 : {\beta_1 \neq 0}$
+
+
+
+**Conditions d’application du test**
+
+- Les observations sont indépendantes
+- La loi des erreurs est une loi normale
+- La variance des erreurs est constante
+
+**Statistique du test** 
+
+La statistique de test $\mathcal{F}$ est obtenue à partir du tableau de l’analyse de la variance : 
+
+| Source de variation   | sc        | ddl  |  cm  | $F_{obs}$
+| :-------------------- | :-------: | :--: | :--: | ---:
+| Régression            | $sc_{reg} = \sum^n_{i=1}(\widehat{y}_i - \overline{y})^2$    | p-1  | $\frac{sc_{reg}}{p-1}$ | $\frac{cm_{reg}}{cm_{res}}$
+| Résiduelle            | $sc_{res} = \sum^n_{i=1}(y_i - \widehat{y})^2$    | n-p  | $\frac{sc_{res}}{n-p}$ 
+| Totale            | $sc_{tot} = \sum^n_{i=1}(y_i - \overline{y})^2$    | n-1  
+
+
+
+Sous $\mathcal{H}_0$, 
+
+
+$$F_{obs} = \frac{CM_{reg}} {CM_{res}} \sim \mathcal{F}_{p-1, n-p}$$
+
+
+**Risque de première espèce $\alpha$ et p-valeur**
+
+Le *risque de première espèce* ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
+
+La *p-valeur* est la probabilité d’observer la valeur de la statistique de test sous $\mathcal{H}_0$ en ayant préalablement vérifié les conditions d’application du test.
+
+**Décision et conclusion du test**
+
+La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Fisher (ou avec le logiciel R). 
+C’est la valeur de la statistique de test pour laquelle $\mathcal{H}_0$ devient improbable compte tenu du risuqe $alpha$ que l’on s’est fixé. 
+
+Ainsi : 
+
+- si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $F_{obs}$ est supérieure ou égale à $c_\alpha$, alors le test est significatif. Vous rejetez  $\mathcal{H}_0$ et vous décidez que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
+
+- si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $F_{obs}$ est strictement inférieure à $c_\alpha$, alors le test n’est pas significatif. Vous conservez $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
+
+
+
+
+**Mais alors pourquoi ?** 
+
+Si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, *i.e*. $\beta_1=0$,  $CM_{reg}$, *i.e* la part de variabilité expliquée par le modèle doit être petite (proche de 0).
+Ainsi, la variable aléatoire $F_{obs} = \frac{CM_{reg}} {CM_{res}}$, doit être petite également.
+
+Par ailleurs, en raison des conditions d’application du test, $F_obs$ suit une la loi de Fisher à $p-1$ et $n-p$ dégrés de liberté notée $\mathcal{F}_{p-1,n-p}$.
+
+
+
+
+
+**Exemple**
+
+On restreint le jeu de données à 20 observations prises aléatoirement parmi les observations du jeu de données `data_nutri`.
+Etudions le modèle $poids \sim taille$, au risque $\alpha = 0.05$.
+
+
+```{r}
+d = data_nutri_20
+m = lm(poids~taille, d)
+```
+
+```{r}
+layout(matrix(1:2, 1), respect=TRUE)
+plot( d$taille, d$poids, main="poids ~ taille")
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+
+abline(m, col=2)
+x=seq(0,15, length.out=200)
+plot(x, df(x, anova(m)[1,1], anova(m)[2,1]), type="l", xlab="t", ylab="", main=paste0("Distibution de Fisher,  ", anova(m)[1,1]," et ", anova(m)[2,1]," ddl."))
+abline(v=anova(m)[1,4], lty=2, col=4)
+abline(v=qf(0.95, anova(m)[1,1], anova(m)[2,1]), lty=2, col=2)
+x = seq(15,qf(0.95, anova(m)[1,1], anova(m)[2,1]), length.out=100)
+polygon(c(15, x, qf(0.95, anova(m)[1,1], anova(m)[2,1])), c(0, df(x, anova(m)[1,1], anova(m)[2,1]), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
+x = seq(15,anova(m)[1,4], length.out=100)
+polygon(c(15, x, anova(m)[1,4]), c(0, df(x, anova(m)[1,1], anova(m)[2,1]), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
+legend("topleft",c("F_obs", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=c(2,2,1,1), lwd=c(1,1,3,3), cex=.8)
 ```
 
 
-**Conditions d’applications du test**
+
+1. Ecriture analytique du modèle
+
+$$poids = \beta_0 + \beta_1 taille + \epsilon$$
+
+2. Formulation des hypothèses $\mathcal{H}_0$ et $mathcal{H}_1$
+
+$$\mathcal{H}_0 : {\beta_1 = 0}$ \text{ et } $\mathcal{H}_1 : {\beta_1 \neq 0}$$
+
+3. Statistique de test utilisée et conditions d’application
+
+Test de Fisher
+
+4. Valeur de la statistique de test
+
+`r anova(m)[1,4]`
+
+5. P-valeur associée
+
+`r anova(m)[1,5]`
+
+6. Conclusion du test
+
+La p-valeur est < 0.05, alors le test est significatif. Nous rejetons donc $\mathcal{H}_0$ et acceptons $\mathcal{H}_1$ au risque d’erreur de première espèce $\alpha = 0.05$.
+
+
+
+
+```{r echo=TRUE, results="verbatim"}
+d = data_nutri_20
+m = lm(poids~taille, d)
+# Fisher test
+anova(m)
+# Sum Sq
+y_hat = d$taille * m$coefficient[2] + m$coefficient[1]
+y_bar = mean(d$poids)
+sum((y_hat - y_bar)^2)
+sum(m$res^2)
+#Mean Sq 
+sum((y_hat - y_bar)^2)
+sum(m$res^2) / m$df.residual
+#F value   
+sum((y_hat - y_bar)^2) / (sum(m$res^2) / m$df.residual)
+#Pr(>F)
+1-pf(sum((y_hat - y_bar)^2) / (sum(m$res^2) / m$df.residual), 1, m$df.residual)
+```
+
+
+
+
+**TP `MASS::cats`**
+
+On restreint le jeu de données à 10 observations prises aléatoirement parmi les observations du jeu de données `MASS::cats`.
+
+```{r echo=TRUE}
+set.seed(1)
+d = d_mass_cats_10 = MASS::cats[sample(1:nrow(MASS::cats),10),]
+m = lm(Hwt~Bwt, d)
+```
+
+Etudier le modèle le modèle $Hwt \sim Bwt$
+
+1. Ecriture analytique du modèle
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
+3. Statistique de test utilisée et conditions d’application
+4. Valeur de la statistique de test
+5. P-valeur associée
+6. Conclusion du test
+7. Augmenter le nombre d’observations prisent alétoirement (20,30), quel est l’impact sur l’analyse ?
+
+
+```{r}
+layout(1, respect=TRUE)
+plot( d$Bwt, d$Hwt, xlab="Body weight", ylab="Heart weight", main="Heart weight ~ Body weight")
+suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+abline(m, col=2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Tester les conditions d’application des tests
 
 - Les observations sont indépendantes
 - La variance des erreurs est constante $\sigma^2$
@@ -782,10 +1066,7 @@ abline(0, 1, col=2)
 
 
 ```{r eval=FALSE}
-# **Exemple 2**
-d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
-set.seed(1)
-d = d[sample(1:nrow(d),20),]
+d = data_nutri_20
 
 layout(matrix(1:2, 1), respect=TRUE)
 m = lm(poids~taille, d)
@@ -886,6 +1167,48 @@ pval
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 **Travaux pratiques**
 
 - Construire le modèle de régréssion linéaire sur la totalité des données `cats`.
@@ -980,4 +1303,4 @@ pred =  predict(m2, interval="predict")
 
 ```
 
----
+

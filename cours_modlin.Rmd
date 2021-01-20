@@ -7,7 +7,7 @@ output:
   rmarkdown::html_document:
     toc: true
     toc_float: true
-    toc_depth: 2
+    toc_depth: 3
     number_sections: true
 ---
 
@@ -96,8 +96,9 @@ Ce cours s’inspire des références suivantes :
 - Frédéric Bertrand & Myriam Maumy-Bertrand
 - Franck Picard
 - http://math.agrocampus-ouest.fr (janvier 2020)
-- https://delladata.fr/introduction-puissance-statistique/ (décembre 2020)
-- https://andrewlauactuary.com/2019/06/04/shiny-app-showing-statistical-power/ (juin 2019)
+- https://delladata.fr/introduction-puissance-statistique (décembre 2020)
+- https://andrewlauactuary.com/2019/06/04/shiny-app-showing-statistical-power (juin 2019)
+
 ---
 
 # Informations de session
