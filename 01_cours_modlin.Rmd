@@ -1204,8 +1204,6 @@ Etudier le modèle le modèle $pemax \sim weight$
 ```{r}
 layout(1, respect=TRUE)
 plot( d$weight, d$pemax, xlab="weight (kg)", ylab="maximum expiratory pressure", main="Hpemax ~ weight")
-suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
-legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 abline(m, col=2)
 ```
 
