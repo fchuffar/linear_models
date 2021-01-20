@@ -1065,104 +1065,26 @@ abline(0, 1, col=2)
 
 
 
-```{r eval=FALSE}
-d = data_nutri_20
-
-layout(matrix(1:2, 1), respect=TRUE)
-m = lm(poids~taille, d)
-plot(d$taille, d$poids, main=paste0("poids~taille R^2=", signif(summary(m)$r.squared, 2)*100, "%"))
-abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
-legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
-summary(m)
-shapiro.test(m$residuals)
 
-n = length(m$residuals)
-xi = m$model$taille
-s_beta1 = sqrt( sum(m$residuals^2)/(n-2) / sum((xi-mean(xi))^2))
-s_beta1
-stat_t =  m$coefficient[2]/s_beta1
-stat_t
-pval = pt(-stat_t, n-2) + 1-pt(stat_t, n-2)
-pval
 
 
 
 
-x=seq(-7,7, length.out=200)
-plot(x, dt(x, m$df.residual), type="l", xlab="t", ylab="", main=paste0("Distibution de Student, ", m$df.residual," ddl."))
-abline(v=c(-1,1) * summary(m)$coefficients[2,3], lty=2, col=4)
-abline(v=c(-1,1) * qt(0.025, m$df.residual), lty=2, col=2)
-x = seq(-7,qt(0.025, m$df.residual), length.out=100)
-polygon(c(-7, x, qt(0.025, m$df.residual)), c(0, dt(x, m$df.residual), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
-x = seq(7,qt(0.975, m$df.residual), length.out=100)
-polygon(c(7, x, qt(0.975, m$df.residual)), c(0, dt(x, m$df.residual), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
-x = seq(-7,-summary(m)$coefficients[2,3], length.out=100)
-polygon(c(-7, x, -summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
-x = seq(7,summary(m)$coefficients[2,3], length.out=100)
-polygon(c(7, x, summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
-legend("topleft",c("t_beta1", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=c(2,2,1,1), lwd=c(1,1,3,3), cex=.8)
 
 
 
-power.t.test(delta=m$coefficient[2], sd=s_beta1, sig.level = 0.05, power = 0.8)
-power.t.test(delta=mean(v)-mean(p), sd=sd(c(v,c,p)), sig.level = 0.05, power = 0.8)
 
 
-m = lm(d$poids~d$age)
-plot(d$age, d$poids, main=paste0("poids~age R^2=", signif(summary(m)$r.squared, 2)*100, "%"))
-abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$age, d$poids, d$age, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
-legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
-```
 
 
 
-```{r eval=FALSE}
-# Note (vérifier les notations):
-#
-#
-# - $\widehat\sigma^2_n$ : la variance résiduelle
-# - $s^2_Y$ : la variance de l’échantillon des $Y_i$
-# - $s^2_x$ : la variance de l’échantillon des $x_i$
-# - $s^2_{\widehat\beta_1}$ : La variance de l’estimateur $\widehat\beta_1$
-# - $s^2_{\widehat\beta_0}$ : La variance de l’estimateur $\widehat\beta_0$
-#
-#
-# $$\widehat\sigma^2_n = \frac{n}{n-2}s^2_Y(1-R^2)$$
-#
-# Avec $s^2_Y = \frac{1}{n}(\sum^n_{i=1}Y_i^2)-(\overline{Y}_n)^2$ la variance de l’échantillon des $Y_i$ et $\overline{Y}_n$ la moyenne des $Y_i$.
-#
-# $$ s^2_{\widehat\beta_0} = \widehat\sigma^2_n\Big(\frac{1}{n}+\frac{\overline{x}_n}{ns^2_x}\Big)$$
 
-s_beta0 = sqrt( sum(m$residuals^2)/(n-2) * ( 1/n +  mean(xi) / sum((xi-mean(xi))^2) ))
-s_beta0
 
-sum(m$residuals^2)/(n-2) * ( 1/n +  mean(xi) / sum((xi-mean(xi))^2) )
 
-stat_t =  m$coefficient[1]/s_beta0
-stat_t
 
-s_beta1 = sqrt( 1/(n-2) * sum(m$residuals^2) / (sum((xi-mean(xi))^2)))
-stat_t =  m$coefficient[2]/s_beta1
-stat_t
 
 
-# Fisher test
-anova(m)
-n = length(m$residuals)
-p = m$rank
-res_sum_sq = sum(m$residuals^2)
-tot_sum_sq = sum((d$Hwt - mean(d$Hwt))^2)
-fac_sum_sq = tot_sum_sq - res_sum_sq
-res_mean_sq = res_sum_sq / (n-p)
-fac_mean_sq = fac_sum_sq
-stat_f = fac_mean_sq / res_mean_sq
-stat_f
-pval = 1-pf(stat_f, p-1, n-p)
-pval
-```
 
 
 
@@ -1182,58 +1104,6 @@ pval
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-**Travaux pratiques**
-
-- Construire le modèle de régréssion linéaire sur la totalité des données `cats`.
-- Tracer la droite de régression correspondante.
-- Tester l’hypothèse $\mathcal{H}_0 : {\beta_1 = 0}$ contre $\mathcal{H}_1 : {\beta_1 \neq 0}$ sur ce modèle.
-- Comparer la p-valeur obtenue avec ce modèle avec celle obtenue sur le modèle du cours (30 observations).
-  
-```{r echo=TRUE, results="verbatim"}
-layout(1, respect=TRUE)
-plot(
-  MASS::cats$Bwt, MASS::cats$Hwt, 
-  xlab="Body weight", ylab="Heart weight", 
-  main="Heart weight ~ Body weight"
-)
-```
-
-```{r eval=FALSE}
-m2 = lm(Hwt~Bwt, MASS::cats)
-abline(m, col="grey")
-abline(m2, col=2)
-shapiro.test(m2$residuals)
-summary(m2)
-``` 
-
----
 
 ### Intervalle de confiance
 
@@ -1301,6 +1171,151 @@ points(m2$model$Bwt, pred[,2], col=4, pch=3)
 points(m2$model$Bwt, pred[,3], col=4, pch=3)
 pred =  predict(m2, interval="predict")
 
+```
+
+
+
+
+### Travaux pratiques
+
+
+
+
+
+**TP `ISwR::cystfibr`**
+
+
+```{r echo=TRUE}
+d = ISwR::cystfibr
+m = lm(pemax~weight, d)
+```
+
+Etudier le modèle le modèle $pemax \sim weight$
+
+1. Ecriture analytique du modèle
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
+3. Statistique de test utilisée et conditions d’application
+4. Valeur de la statistique de test
+5. P-valeur associée
+6. Conclusion du test
+7. Commenter le pourcentage de variance expliqué ($R^2$)
+
+
+```{r}
+layout(1, respect=TRUE)
+plot( d$weight, d$pemax, xlab="weight (kg)", ylab="maximum expiratory pressure", main="Hpemax ~ weight")
+suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+abline(m, col=2)
+```
+
+
+**TP `ISwR::cystfibr`**
+
+
+```{r echo=TRUE}
+d = ISwR::cystfibr
+m = lm(pemax~weight, d)
+```
+
+Etudier le modèle le modèle $pemax \sim weight$
+
+1. Ecriture analytique du modèle
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
+3. Statistique de test utilisée et conditions d’application
+4. Valeur de la statistique de test
+5. P-valeur associée
+6. Conclusion du test
+7. Commenter le pourcentage de variance expliquée ($R^2$)
+
+
+```{r}
+layout(1, respect=TRUE)
+plot( d$weight, d$pemax, xlab="weight (kg)", ylab="maximum expiratory pressure", main="Hpemax ~ weight")
+abline(m, col=2)
+```
+
+
+**TP `data(birth)`**
+
+
+```{r echo=TRUE}
+library(catdata)
+data(birth)
+d = birth
+head(d)
+m = lm(Weight~Height, d)
+```
+
+Etudier le modèle le modèle $Weight \sim Height$
+
+1. Ecriture analytique du modèle
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
+3. Statistique de test utilisée et conditions d’application
+4. Valeur de la statistique de test
+5. P-valeur associée
+6. Conclusion du test
+7. Commenter le pourcentage de variance expliquée ($R^2$)
+
+
+```{r}
+layout(1, respect=TRUE)
+plot( d$Height, d$Weight, main="Weight ~ Height")
+abline(m, col=2)
+```
+
+
+**TP `datasets::mtcars`**
+
+
+```{r echo=TRUE}
+d = datasets::mtcars
+m = lm(mpg~wt, d)
+```
+
+Etudier le modèle le modèle $mpg \sim wt$
+
+1. Ecriture analytique du modèle
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
+3. Statistique de test utilisée et conditions d’application
+4. Valeur de la statistique de test
+5. P-valeur associée
+6. Conclusion du test
+7. Commenter le pourcentage de variance expliquée ($R^2$)
+
+
+```{r}
+layout(1, respect=TRUE)
+plot( d$wt, d$mpg, main="mpg~wt")
+abline(m, col=2)
+```
+
+
+
+
+**TP `datasets::trees`**
+
+
+```{r echo=TRUE}
+d = datasets::trees
+m = lm(Volume~Girth, d)
+```
+
+Etudier le modèle le modèle $Volume \sim Girth$
+
+1. Ecriture analytique du modèle
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
+3. Statistique de test utilisée et conditions d’application
+4. Valeur de la statistique de test
+5. P-valeur associée
+6. Conclusion du test
+7. Commenter le pourcentage de variance expliquée ($R^2$)
+
+
+```{r}
+layout(1, respect=TRUE)
+plot( d$Girth, d$Volume, main="Volume~Girth")
+abline(m, col=2)
 ```
 
 
