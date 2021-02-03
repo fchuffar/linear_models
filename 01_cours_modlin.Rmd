@@ -4,11 +4,9 @@ On cherche une relation entre la variable observée $Y$ et la variable explicati
 
 $$ Y \sim x $$
 
-Les objectifs peuvent être multiples :
+Les objectifs peuvent être :
 
   * modèle explicatif
-
-  * recherche d’une corrélation significative
 
   * modèles de prédiction
 
@@ -222,7 +220,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
 ```
 
 ```{r echo=TRUE}
@@ -233,7 +231,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
 
 beta_0 = -16
 beta_1 = 0.5
@@ -241,7 +239,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
 ```
 
 
@@ -354,7 +352,7 @@ m$coefficients
 abline(a=m$coef[[1]], b=m$coef[[2]], col=2) # /!\ y = b.x + a
 # residuals
 # head(m$residuals)
-arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
+suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 ```
 
@@ -406,7 +404,9 @@ Avec $SC_{tot}$ la somme des carrés totale,  $SC_{reg}$ la somme des carrés du
 Notons que $2 \sum(Y_i - \widehat Y_i) (\widehat Y_i - \overline{Y}_n)=0$ en raison des moindres carrés [[demo](https://www.unine.ch/files/live/sites/statistics/files/shared/documents/cours_modeles_regression.pdf)].
 
 
-### Coefficient de determination $R^2$
+### $R^2$
+
+**Coefficient de determination $R^2$**
 
 
 
@@ -557,7 +557,7 @@ Souvent, on cherche à invalider l’hypothèse dîte *nulle* ($\mathcal{H}_0$) 
 ### Test de Student
 
 
-Le test de Student dans le cadre de la regression linéaire simple teste le coéfficient de la droite ®égression.
+Le test de Student dans le cadre de la regression linéaire simple teste le coéfficient de la droite régression.
 
 Il pose la question de l’effet de la variables $x$.
 
@@ -612,7 +612,7 @@ La *p-valeur* est la probabilité d’observer la valeur de la statistique de te
 **Décision et conclusion du test**
 
 La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Student (ou avec le logiciel R). 
-C’est la valeur de la statistique de test pour laquelle $\mathcal{H}_0$ devient improbable compte tenu du risuqe $alpha$ que l’on s’est fixé. 
+C’est la valeur de la statistique de test pour laquelle $\mathcal{H}_0$ devient improbable compte tenu du risque $\alpha$ que l’on s’est fixé. 
 
 Ainsi : 
 
@@ -673,7 +673,7 @@ $$poids = \beta_0 + \beta_1 taille + \epsilon$$
 
 2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
 
-$$\mathcal{H}_0 : {\beta_1 = 0}$ \text{ et } $\mathcal{H}_1 : {\beta_1 \neq 0}$$
+$$\mathcal{H}_0 : {\beta_1 = 0} \text{ et } \mathcal{H}_1 : {\beta_1 \neq 0}$$
 
 3. Statistique de test utilisée et conditions d’application
 
@@ -734,7 +734,7 @@ Etudier le modèle le modèle $Hwt \sim Bwt$
 4. Valeur de la statistique de test
 5. P-valeur associée
 6. Conclusion du test
-7. Augmenter le nombre d’observations prisent alétoirement (20,30), quel est l’impact sur l’analyse ?
+7. Augmenter le nombre d’observations prisent aléatoirement (20,30), quel est l’impact sur l’analyse ?
 
 
 ```{r}
@@ -800,7 +800,7 @@ pval
 
 ### Test de Fisher
 
-Le test de Fisher repose sur cette décomposition de la variance.
+Le test de Fisher repose sur la décomposition de la variance.
 
 Il pose la question de l’effet de la variables $x$.
 
@@ -867,7 +867,7 @@ Ainsi :
 Si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, *i.e*. $\beta_1=0$,  $CM_{reg}$, *i.e* la part de variabilité expliquée par le modèle doit être petite (proche de 0).
 Ainsi, la variable aléatoire $F_{obs} = \frac{CM_{reg}} {CM_{res}}$, doit être petite également.
 
-Par ailleurs, en raison des conditions d’application du test, $F_obs$ suit une la loi de Fisher à $p-1$ et $n-p$ dégrés de liberté notée $\mathcal{F}_{p-1,n-p}$.
+Par ailleurs, en raison des conditions d’application du test, $F_{obs}$ suit une la loi de Fisher à $p-1$ et $n-p$ dégrés de liberté notée $\mathcal{F}_{p-1,n-p}$.
 
 
 
@@ -908,9 +908,9 @@ legend("topleft",c("F_obs", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=c
 
 $$poids = \beta_0 + \beta_1 taille + \epsilon$$
 
-2. Formulation des hypothèses $\mathcal{H}_0$ et $mathcal{H}_1$
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
 
-$$\mathcal{H}_0 : {\beta_1 = 0}$ \text{ et } $\mathcal{H}_1 : {\beta_1 \neq 0}$$
+$$\mathcal{H}_0 : {\beta_1 = 0} \text{ et } \mathcal{H}_1 : {\beta_1 \neq 0}$$
 
 3. Statistique de test utilisée et conditions d’application
 
@@ -971,7 +971,7 @@ Etudier le modèle le modèle $Hwt \sim Bwt$
 4. Valeur de la statistique de test
 5. P-valeur associée
 6. Conclusion du test
-7. Augmenter le nombre d’observations prisent alétoirement (20,30), quel est l’impact sur l’analyse ?
+7. Augmenter le nombre d’observations prisent aléatoirement (20,30), quel est l’impact sur l’analyse ?
 
 
 ```{r}
@@ -1013,16 +1013,31 @@ abline(m, col=2)
 Pour tester la normalité des résidus : 
 
 - Test de Shapiro-Wilk
-- Test de Anderson-Darling
-- Test de Jarque-Bera (package `tseries`, grands échantillons)
 - Test de Kolmogorov-Smirnov (comparaison de distributions)
 - QQ plot 
+- Test de Anderson-Darling
+- Test de Jarque-Bera (package `tseries`, grands échantillons)
 
 Pour tester l’homoscedasticité : 
 
-- Test de Goldfeld-Quandt 
-- Test de Hartley (??)
+- Test de Goldfeld-Quandt (quantiles)
+- Test de Hartley (rapport des variances)
 - Test de Bartlett (ANOVA)
+
+
+**Shapiro-Wilk**
+
+H_0 : les données sont normales
+
+H_1 : les données ne sont pas normales
+
+
+**Kolmogorov-Smirnov**
+
+H_0 : les deux distributions sont identiques
+
+H_1 : les deux distributions ne sont pas identiques
+
 
 
 ```{r echo=TRUE, results="verbatim"}
@@ -1176,7 +1191,7 @@ pred =  predict(m2, interval="predict")
 
 
 
-### Travaux pratiques
+## Exercices
 
 
 

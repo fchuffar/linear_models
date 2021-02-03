@@ -1,30 +1,77 @@
 # Régression linéaire multiple
 
 
-**Objectif de la regression linéaire multiple**: chercher une relation entre la variable observée $Y$ et plusieurs variables explicative $X_1, ..., X_p$. 
+La regression linéaire multiple characterise la relation entre une variable **quantitatives** observée $Y$ et plusieurs variables **quantitatives** explicatives $X_1, ..., X_p$. 
 
+$$ Y \sim X_1 +  ... + X_p $$
 
----
 
 ## Présentation du modèle
 
 Y est expliquée (modélisée) par  les variables explicatives $X_1, ..., X_p$. 
 
-On applique alors le modèle linéaire suivant:
+On applique alors le modèle linéaire suivant :
 
 $$Y  = \beta_0 + \beta_1X_1 + ... + \beta_pX_p + \epsilon  $$
 
-En pratique: 
-
-Dans un échantillon de $n$ individus, nous mesurons $y_i, x_{i,1},...,x_{i,p}$ pour $i=1,...,n$.
-
+En pratique, dans un échantillon de $n$ individus, nous mesurons $y_i, x_{i,1},...,x_{i,p}$ pour $i=1,...,n$.
 Les variables $x_{i,j}$ sont fixes, tandis que les variables $y_i$ sont aléatoires.
-
-
 
 ---
 
-## Estimation des paramètres du modèle
+**Exemple**
+
+La base de données `data(state)` comprend les mesures suivantes prisent sur 50 états des Etats-Unis.
+
+```{r echo=TRUE, results="verbatim"}
+data(state)
+d = state_us =  data.frame(state.x77, row.names=state.abb)[,-8]
+head(d)
+dim(d)
+```
+
+- Life.Exp : espérance de vie moyenne (1969-1971)
+- Population : population estimée au 1er juillet 1975
+- Income : revenu par individu (1974)
+- Illiteracy : illettrisme (1970, pourcentage de la population)
+- Murder :  taux d’homicide pour 100 000 individus (1976)
+- HS Grad :  pourcentage de diplômés niveau baccalauréat --high-school graduates-- (1970)
+- Frost : nombre de jours moyens avec des températures inférieures à 0$^o$C dans les grandes villes (1931-1960)
+
+
+On cherchera par exemples à expliquer la variables *Life.Exp* par les variables *Murder*, *HS.Grad* et *Frost*
+
+
+$$Life.Exp \sim Murder + HS.Grad + Frost$$
+
+Soit une formualtion analytique du modèle : 
+
+$$Life.Exp = \beta_0 + \beta_{Murder} Murder + + \beta_{HS.Grad} HS.Grad + \beta_{Frost} Frost + \epsilon$$
+
+
+```{r fig.height=9}
+pairs(d)
+```
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Estimation des paramètres
 
 ### Méthode des moindres carrés
 
@@ -32,9 +79,10 @@ Les variables $x_{i,j}$ sont fixes, tandis que les variables $y_i$ sont aléatoi
 Pour l’instant, la droite de régression est inconnue.
 Tout le problème est d’estimer les paramètres $\beta_0, ..., \beta_p$ du modèle de regression, à partir d’un échantillon de données.
 
-Utiliser les **moindres carrés** revient à minimiser la quantité suivante: $$min_{\beta_0, ...,\beta_p}\sum^n_{i=1}\Big(y_i -(\beta_0+ \beta_1X_1 + ... + \beta_pX_p)\Big)^2$$
+Utiliser les **moindres carrés** revient à minimiser la quantité suivante :
 
----
+$$min_{\beta_0, ...,\beta_p}\sum^n_{i=1}\Big(y_i -(\beta_0+ \beta_1X_1 + ... + \beta_pX_p)\Big)^2$$
+
 
 **Version matricielle du problème**
 
@@ -72,6 +120,24 @@ Les variables $y$ et $X$ sont mesurées tandis que l’estimateur $\beta$  est �
 La **méthode des moindres carrés ordinaires** consiste à trouver le vecteur $\beta$  qui minimise $||\epsilon||^2 =  {}^t{\epsilon}\epsilon$.  
 
 
+La formulation matricielle du problème montre qu’idéalement $n >> p$. 
+Dans le cas inverse il faudra contrôler le **surapprentisage** et/ou la surinterprétation (*overfitting*) et mettre en oeuvre des statégies de **selection de variables** et/ou de **réduction de dimensions**.
+
+---
+
+
+
+
+
+
+
+
+
+
+
+**Exercice** : démontrer les développements suivants
+
+
 
 \begin{eqnarray}
          ||\epsilon||^2    & = & {}^t(y-X\widehat\beta) (y-X\widehat\beta)            \\
@@ -79,7 +145,7 @@ La **méthode des moindres carrés ordinaires** consiste à trouver le vecteur $
                            & = & {}^tyy - 2{}^t\widehat\beta^t(X)y - {}^t\widehat\beta{}^tXX\widehat\beta     
 \end{eqnarray}
 
-car ${}^t\widehat\beta{}^tXy$ est un scalaire. Donc il est égal à sa transposée.
+comme ${}^t\widehat\beta{}^tXy$ est un scalaire, il est égal à sa transposée.
 
 La dérivée par rapport à $\beta$ est alors égale à : $−2{}^tXy+2{}^tXX\widehat\beta$.
 
@@ -91,9 +157,8 @@ $$^tXX\widehat\beta = {}^tXy$$
 Nous trouvons après avoir inversé la matrice ${}^tXX$ (il faut naturellement vérifier que ${}^tXX$ est carrée et inversible c’est-à-dire qu’aucune des colonnes qui compose cette matrice ne soit proportionnelle aux autres colonnes)
 $$\widehat\beta  = ({}^t XX)^{-1}{}^{t} Xy.$$
 
----
 
-**Application à la régression linéaire simple avec p=2 (pour info)**
+**Application** : cas simple avec $p=2$ 
 
 $$\left(\begin{array}
 {rrr}
@@ -133,25 +198,61 @@ $$
 
 ---
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### Maximum de vraisemblance
 
-La vraisemblance n’a de sens que pour :
 
-- un modèle statistique 
-- des données observées
+**Définition** : Probabilité d’observer les évènements $Y$, sachant les $X$, en considérant le modèle $\mathcal{M}$
+
+**Important** : la vraisemblance dépend
+
+  - des observations ($Y$ et $X$)
+  - du modèle $\mathcal{M}$
+
   
 En effet, 
 
 \begin{eqnarray}
 
 \mathcal{L}_{\mathcal{M}, Y,X} &=& \mathbb{P}_\mathcal{M}(Y|X) \\
-                               &=& \prod^n_{i=1} \mathbb{P}_\mathcal{M}(Y_i|X_i)
+                               &=& \prod^n_{i=1} \mathbb{P}_\mathcal{M}(Y_i|X_i)\\
+
+log\mathcal{L}_{\mathcal{M}, Y,X} &=& log(\mathbb{P}_\mathcal{M}(Y|X)) \\
+                                   &=& \sum^n_{i=1} log(\mathbb{P}_\mathcal{M}(Y_i|X_i))\\
 
 \end{eqnarray}
 
+---
 
 
-...  DEMO ...
+
+
+
+
+
+
+
+**Exercice** : démontrer les développements suivants
 
 Dans le cadre de la régression  linéaire multiple, la vraisemblance vaut : 
 
@@ -168,154 +269,202 @@ D’où l’on déduit la log-vraisemblance
 $$ log\mathcal{L}(Y,\beta,\sigma^2) = \frac{n}{2}log(2\pi) -\frac{n}{2}log(\sigma^2) - \frac{1}{2\sigma^2}||Y-X\beta||^2 $$
 Pour maximiser la log-vraisemblance, il faut d’abord minimiser la quantité $||Y-X\beta||^2$, ce qui est justement le principe des moindres carrés ordinaires.
 
+
+Dans notre **exemple** : 
+
+```{r echo=TRUE, results="verbatim"}
+m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
+m$coef
+```
+
 ---
 
-## Analyse de la variance
 
-### Décomposition de la variance
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Qualité du modèle
+
+### Décomposition de la variance 
 La variation de $Y$ vient du fait de sa dépendance aux variables explicatives $X$. C’est la **variation expliquée par le modèle**.
 
 
 Variation totale de Y = Variation expliquée par le modèle + Variation inexpliquée par le modèle
 
 
-La méthode des moindres carrés conserve la décomposition (en variance expliquée et résiduelle) en considérenat la somme des carrés de ces différences: 
+La méthode des moindres carrés, en considérant la somme des carrés de ces différences, nous assure la décomposition de la variance totale en variance expliquée et variance résiduelle :
 
 $$ \sum(y_i - \overline{y})^2 = \sum(y_i - \widehat{y}_i)^2  \sum(\widehat{y}_i - \overline{y})^2 $$
-Soit $$ SC_{tot} = SC_{reg} + SC_{res}$$ 
+
+Soit : 
+
+$$ SC_{tot} = SC_{reg} + SC_{res}$$ 
 
 Avec $SC_{tot}$ la somme des carrés totale,  $SC_{reg}$ la somme des carrés due à la régression et  $SC_{res}$ la somme des carrés des résidus.
 
 
----
+### $R^2$
 
-### Coefficient de determination $R^2$
 
 La mesure du pourcentage de la variation totale expliquée par le modèle se fait par le **coefficient de détermination**.
 
 $$ R^2 = \frac{SC_{reg}}{SC_{tot}}$$
 
-- $R^2$ est compris entre 0 et 1.
-- $R^2 = 1$ : cas où les données sont parfaitement alignées
-(comme c’est le cas pour un modèle déterministe).
-- $R^2 = 0$ :cas où la variation de $Y$ n’est pas due à la variation de $X$. Les données ne sont pas du tout alignées.
-- Plus $R^2$  est proche de 1, plus les données sont alignées sur la droite de régression.
+**Attention**, l’ajout de variables explicatives augmente systématiquement le pourcentage de variance expliquée.
 
+
+**Exemple**
+
+On calcule chacun des modèles de regression linéaire univariés permettant d’expliquer la variable *Life.Exp*.
+
+Pour chacun des modèles, on calculer le $R^2$. Que peut-on dire ?
+
+
+```{r}
+m_Population = lm(Life.Exp ~ Population, d)
+m_Income     = lm(Life.Exp ~ Income    , d)
+m_Illiteracy = lm(Life.Exp ~ Illiteracy, d)
+m_Murder     = lm(Life.Exp ~ Murder    , d)
+m_HS.Grad    = lm(Life.Exp ~ HS.Grad   , d)
+m_Frost      = lm(Life.Exp ~ Frost     , d)
+layout(matrix(1:6, 2, byrow=TRUE), respect=TRUE)
+plot(d$Population , d$Life.Exp, main=paste0("Life.Exp~Population", ", R^2=", signif(summary(m_Population)$r.squared, 3))); abline(m_Population, col=2)
+plot(d$Income     , d$Life.Exp, main=paste0("Life.Exp~Income"    , ", R^2=", signif(summary(m_Income    )$r.squared, 3))); abline(m_Income    , col=2)
+plot(d$Illiteracy , d$Life.Exp, main=paste0("Life.Exp~Illiteracy", ", R^2=", signif(summary(m_Illiteracy)$r.squared, 3))); abline(m_Illiteracy, col=2)
+plot(d$Murder     , d$Life.Exp, main=paste0("Life.Exp~Murder"    , ", R^2=", signif(summary(m_Murder    )$r.squared, 3))); abline(m_Murder    , col=2)
+plot(d$HS.Grad    , d$Life.Exp, main=paste0("Life.Exp~HS.Grad"   , ", R^2=", signif(summary(m_HS.Grad   )$r.squared, 3))); abline(m_HS.Grad   , col=2)
+plot(d$Frost      , d$Life.Exp, main=paste0("Life.Exp~Frost"     , ", R^2=", signif(summary(m_Frost     )$r.squared, 3))); abline(m_Frost     , col=2)
+```
+
+On calcule ensuite les modèles de regression linéaire ci-après. Que peut-on dire ?
+
+```{r echo=TRUE, results="verbatim"}
+summary(lm(Life.Exp ~ Murder                  , d))$r.squared
+summary(lm(Life.Exp ~ Murder + HS.Grad        , d))$r.squared
+summary(lm(Life.Exp ~ Murder + HS.Grad + Frost, d))$r.squared
+```
 
 ---
 
-**Travaux pratiques**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Tests statistiques
+
+### Test de Student
+
+
+Le test de Student dans le cadre de la regression linéaire multiple teste un des coéfficients du modèle de régression (*e.g* le *k*-ième).
+
+Il pose la question de l’effet de la variables $X_k$ sur $Y$.
+
+
+**Ecriture analytique du modèle**
+
+$$Y = \beta_0 + \beta_1 X_1 + ... + \beta_k X_k + ... + \beta_p X_p + \epsilon$$
+
+
+**Hypothèse nulle et hypothèse alternative**
+
+On se pose la question de l’effet de la variable $X_k$ :
+
+$\mathcal{H}_0 : {\beta_k = 0}$ contre $\mathcal{H}_1 : {\beta_k \neq 0}$
+
+
+
+**Conditions d’application du test**
+
+- Les observations sont indépendantes
+- La loi des erreurs est une loi normale
+- La variance des erreurs est constante
+
+**Statistique du test** 
+
+Sous $\mathcal{H}_0$, 
+
+$$t_{\widehat\beta_k,n-2} = \frac{\widehat\beta_k}{s_{\widehat\beta_k}} \sim \mathcal{T}_{n-2}$$
+
+
+**Risque de première espèce $\alpha$ et p-valeur**
+
+Le *risque de première espèce* ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
+
+On prend généralement $\alpha=0.05$.
+
+La *p-valeur* est la probabilité d’observer la valeur de la statistique de test sous $\mathcal{H}_0$ en ayant préalablement vérifié les conditions d’application du test.
+
+**Décision et conclusion du test**
+
+Ainsi :
+
+  - si la p-valeur calculée est plus petite que notre risque $\alpha$ fixé, alors le test est significatif, H_0 est improbable), on rejete  $\mathcal{H}_0$ et on décide que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
+
+  - si la p-valeur calculée est plus grande que notre risque $\alpha$ fixé, alors le test n’est pas significatif, on conserve $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
+
+
+
+
+**Exemple**
 
 
 ```{r echo=TRUE, results="verbatim"}
-data(state)
-state_us =  data.frame(state.x77, row.names=state.abb)
-layout(matrix(1:4, 2, byrow=TRUE), respect=TRUE)
-plot(state_us$Life.Exp, state_us$Murder    , main="Life.Exp~Murder"    )
-plot(state_us$Life.Exp, state_us$HS.Grad   , main="Life.Exp~HS.Grad"   )
-plot(state_us$Life.Exp, state_us$Frost     , main="Life.Exp~Frost"     )
-plot(state_us$Life.Exp, state_us$Population, main="Life.Exp~Population")
+d = state_us
+m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
+summary(m)
 ```
 
-Cette base de données comprend les mesures sur 50 pays des Etats-Unis de :
-
-- Population : population estimée au 1er juillet 1975
-- Income : revenu par individu (1974)
-- Illiteracy : illettrisme (1970, pourcentage de la population)
-- Life.Exp : espérance de vie moyenne (1969-1971)
-- Murder :  taux d’homicide pour 100 000 individus (1976)
-- HS Grad :  pourcentage de diplômés niveau baccalauréat --high-school graduates-- (1970)
-- Frost : nombre de jours moyens avec des températures inférieures à 0$^o$C dans les grandes villes (1931-1960)
-- Area : surface du pays en miles carrés.
-
-
-Ainsi : 
-
-- Calculer chacun des modèles de regression linéaire univariés permettant d’expliquer la variable *Life.Exp*
-- Pour chacun des modèles, calculer le $R^2$, Comparer les $R^2$ obtenus
-- Calculer le modèle de regression linéaire multiple *Life.Exp ~ Murder + HS.Grad + Frost*
-- Comparer le $R^2$ obtenu à celui des modèles univariés.
-
-```{r eval=FALSE}
-m_Population = lm(Life.Exp ~ Population, state_us)
-m_Income     = lm(Life.Exp ~ Income    , state_us)
-m_Illiteracy = lm(Life.Exp ~ Illiteracy, state_us)
-m_Murder     = lm(Life.Exp ~ Murder    , state_us)
-m_HS.Grad    = lm(Life.Exp ~ HS.Grad   , state_us)
-m_Frost      = lm(Life.Exp ~ Frost     , state_us)
-m_Area       = lm(Life.Exp ~ Area      , state_us)
-
-shapiro.test(m_Population$residuals)$p.value
-shapiro.test(m_Income    $residuals)$p.value
-shapiro.test(m_Illiteracy$residuals)$p.value
-shapiro.test(m_Murder    $residuals)$p.value
-shapiro.test(m_HS.Grad   $residuals)$p.value
-shapiro.test(m_Frost     $residuals)$p.value
-shapiro.test(m_Area      $residuals)$p.value
-
-plot(state_us$Life.Exp, state_us$Illiteracy)
-
-summary(m_Population)$r.squared
-summary(m_Income    )$r.squared
-summary(m_Illiteracy)$r.squared
-summary(m_Murder    )$r.squared
-summary(m_HS.Grad   )$r.squared
-summary(m_Frost     )$r.squared
-summary(m_Area      )$r.squared
-
-m_mult       = lm(Life.Exp ~ Murder + HS.Grad + Frost, state_us)
-
-summary(m_mult)$r.squared
-
-anova(m_Population)[1,5]
-anova(m_Income    )[1,5]
-anova(m_Illiteracy)[1,5]
-anova(m_Murder    )[1,5]
-anova(m_HS.Grad   )[1,5]
-anova(m_Frost     )[1,5]
-anova(m_Area      )[1,5]
-anova(m_mult      )
-
-m_mult       = lm(Life.Exp ~ Murder + HS.Grad + Frost, state_us)
-anova(m_mult )
-m_mult       = lm(Life.Exp ~ HS.Grad + Murder + Frost, state_us)
-anova(m_mult )
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+---
 
 
 
@@ -323,9 +472,12 @@ anova(m_mult )
 
 Le test de Fisher repose sur cette décomposition de la variance.
 
-Il pose la question de l’effet des variables $X$.
+Il pose la question de l’effet de la variables $x$.
 
 
+**Ecriture analytique du modèle**
+
+$$Y = \beta_0 + \beta_1 x + \epsilon$$
 
 **Hypothèses nulle et hypothèse alternative**
 
@@ -339,772 +491,61 @@ $\mathcal{H}_1 : \exists$ au moins un $j$ tel que ${\beta_j \neq 0}$ où $j$ var
 
 
 
-
-**Conditions d’applications du test**
+**Conditions d’application du test**
 
 - Les observations sont indépendantes
-- La variance des erreurs est homogène $\sigma^2$
-- La loi des erreurs est une loi normale $\mathcal{N}(0, \sigma^2)$
-
-
-
-**Risque de première espèce $\alpha$**
-
-Le risque de première espèce ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
-
-Généralement on fixe $\alpha=.05$.
-
-
-
+- La loi des erreurs est une loi normale
+- La variance des erreurs est constante
 
 **Statistique du test** 
 
-
-La statistique de test *F* est obtenue à partri de tableau de l’analyse de la variance : 
+La statistique de test $\mathcal{F}$ est obtenue à partir du tableau de l’analyse de la variance : 
 
 | Source de variation   | sc        | ddl  |  cm  | $F_{obs}$
 | :-------------------- | :-------: | :--: | :--: | ---:
 | Régression            | $sc_{reg} = \sum^n_{i=1}(\widehat{y}_i - \overline{y})^2$    | p-1  | $\frac{sc_{reg}}{p-1}$ | $\frac{cm_{reg}}{cm_{res}}$
-| Résiduelle            | $sc_{res} = \sum^n_{i=1}(y_i - \widehat{y})^2$    | n-p  | $\frac{sc_{reg}}{n-p}$ 
+| Résiduelle            | $sc_{res} = \sum^n_{i=1}(y_i - \widehat{y})^2$    | n-p  | $\frac{sc_{res}}{n-p}$ 
 | Totale            | $sc_{tot} = \sum^n_{i=1}(y_i - \overline{y})^2$    | n-1  
 
 
-1) Calculer la statistique
-$$F_{obs} = \frac{CM_{reg}} {CM_{res}}$$
 
-2) Lire la valeur critique $F_{1−\alpha,p−1,n−p}$ où $F_{1−\alpha,p−1,n−p}$ est le $(1 − \alpha)$-quantile d’une loi de Fisher avec $(p − 1)$ et $(n − p)$ degrés de liberté, car si l’hypothèse nulle $\mathcal{H}_0$ est vraie, alors $F_{obs}$ suit une loi de Fisher avec $(p − 1)$ et $(n − p)$ degrés de liberté.
+Sous $\mathcal{H}_0$, 
 
-3) Comparer la statistique c’est-à-dire la valeur observée à la valeur critique.
 
+$$F_{obs} = \frac{CM_{reg}} {CM_{res}} \sim \mathcal{F}_{p-1, n-p}$$
 
 
+**Risque de première espèce $\alpha$ et p-valeur**
 
+Le *risque de première espèce* ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
 
-**Décision et conclusion du test**: 
+La *p-valeur* est la probabilité d’observer la valeur de la statistique de test sous $\mathcal{H}_0$ en ayant préalablement vérifié les conditions d’application du test.
 
-La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Fisher.
+**Décision et conclusion du test**
 
-Nous décidons de rejeter l’hypothèse nulle  $\mathcal{H}_0$ et d’accepter l’hypothèse alternative  $\mathcal{H}_1$, au seuil $\alpha = 5\%$, si
-$$|F_{obs}| \geq F_{1−\alpha,p−1,n−p}$$
+La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Fisher (ou avec le logiciel R). 
+C’est la valeur de la statistique de test pour laquelle $\mathcal{H}_0$ devient improbable compte tenu du risuqe $alpha$ que l’on s’est fixé. 
 
-Nous décidons de ne pas rejeter l’hypothèse nulle $\mathcal{H}_0$ et
-donc de l’accepter si
-$$|F_{obs}| < F_{1−\alpha,p−1,n−p}$$
+Ainsi : 
 
+- si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $F_{obs}$ est supérieure ou égale à $c_\alpha$, alors le test est significatif. Vous rejetez  $\mathcal{H}_0$ et vous décidez que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
 
+- si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $F_{obs}$ est strictement inférieure à $c_\alpha$, alors le test n’est pas significatif. Vous conservez $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
 
 
 
 
-**Travaux pratiques**
 
-On souhaitre réaliser le test de Fisher sur le modèle *Life.Exp ~ Murder + HS.Grad + Frost*.
-
-- Poser les hypothèses nulle et hypothèse.
-- Vérifier les conditions d’applications du test de Fisher au modéle 
-- Définir le risque de première espèce $\alpha$ 
-- Calculer la statistique de test
-- Conclure 
-- A l’aide de la function `anova` calculer le tableau de l’analyse de la variance pour les modèles : 
-  - *Life.Exp ~ Murder + HS.Grad + Frost*
-  - *Life.Exp ~ Frost + Murder + HS.Grad*
-  - *Life.Exp ~ HS.Grad + Murder + Frost*
-
-
-```{r eval=FALSE}
-life.lm = lm(Life.Exp ~ Murder + HS.Grad + Frost, data = state_us)
-summary(life.lm)
-```
-
-
-**Travaux pratiques**
-
-- Réaliser le test de Fisher pour le modéle *Life.Exp~Murder*
-- Réaliser le test de Student pour le modéle *Life.Exp~Murder*
-- Comparer les résultats obtenues
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r eval=FALSE}
-# ### Analyse de la variance: Test de Student
-#
-# On se pose la question de l’effet de la variable $x$ :
-#
-# $\mathcal{H}_0 : {\beta_j = 0}$ contre $\mathcal{H}_1 : {\beta_j \neq 0}$ pour $j = 0, ..., p$
-#
-# **Conditions d’applications du test** : Les variables aléatoire $\epsilon_i$ sont indépendantes et suivent la loi normale centrée et de variance $\sigma^2$.
-#
-# *Test d’ajustement des résidus à une gaussienne* : Test de shapiro, Kolmogoroff-Smirnoff, QQ plot
-#
-# **Statistique du test** : Si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, alors la variable aléatoire $\mathcal{T}_{\widehat\beta_j,n-2} = \frac{\widehat\beta_j-0}{s_{\widehat\beta_j}}$ suit la loi de Student $\mathcal{T}(n-2)$
-#
-# **Décision et conclusion du test**: La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Student.
-#
-# - Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $\mathcal{T}_{\widehat\beta_j,n-2}(obs)$ est supérieure ou égale à $c_\alpha$, alors le test est significatif. Vous rejetez  $\mathcal{H}_0$ et vous décidez que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
-#
-# - Si la valeur absolue de la valeur de la statistique calculée sur l’echantillon, notée $\mathcal{T}_{\widehat\beta_j,n-2}(obs)$ est strictement inférieure à $c_\alpha$, alors le test n’est pas significatif. Vous conservez $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer.
-#
-# ---
-#
-# ### Test de Student: exemple avec R
-#
-#
-# ```{r}
-# summary(life.lm)
-# ```
-#
-# La p-valeur (p-value = 8.04e-10) du test de Student, associée à
-# « Murder » étant inférieure ou égale à  $\alpha = 5\%$, le test est significatif. Nous rejetons H0 et nous décidons que H1 est vraie avec un risque de première espèce  $\alpha = 5\%$.
-#
-# La p-valeur (p-value = 0.00195  ) du test de Student, associée à
-# « HS.Grad » étant inférieure ou égale à  $\alpha = 5\%$, le test est significatif. Nous rejetons H0 et nous décidons que H1 est vraie avec un risque de première espèce  $\alpha = 5\%$.
-#
-# La p-valeur (p-value = 0.00699  ) du test de Student, associée à
-# « Frost » étant inférieure ou égale à  $\alpha = 5\%$, le test est significatif. Nous rejetons H0 et nous décidons que H1 est vraie avec un risque de première espèce  $\alpha = 5\%$.
-#
-# ---
-#
-# ### Intervalle de confiance
-#
-# On peut construire les intervalles de confiance suivants
-#
-# $$IC_{1-\alpha}(\widehat\beta_j) = \Big]\widehat\beta_j - t_{n-2;1-\alpha/2}*s_{\beta_j}; \widehat\beta_j + t_{n-2;1-\alpha/2}*s_{\beta_j}\Big[$$
-#
-# Cet intervalle de confiance est construit de telle sorte qu’il contienne le paramètre inconnu $\beta_j$ avec une probabilité de $(1−\alpha)$.
-#
-# ---
-#
-# ### IC/IP exemples sous R
-#
-# 1) Intervalle de confiance
-# ```{r}
-# confint(life.lm)
-# ci=  c(life.lm$coefficients - 1.96*summary(life.lm)$coefficients[,2], life.lm$coefficients+ 1.96*summary(life.lm)$coefficients[,2])
-# ci
-# ```
-#
-# 2) Intervalle de prédiction
-#
-# Supposons que nous disposions des données pour un nouveau pays, par exemple européen. Nous souhaitons comparer l’espérance de vie estimée avec ce modèle avec l’espérance de vie observée. L’intervalle de con ance sur la valeur prédite est donné par l’instruction suivante :
-#
-# ```{r}
-# life.pred = predict(life.lm,data.frame(Murder=8,  HS.Grad=75, Frost=80, Population=4250), interval="confidence",se.fit = TRUE)
-# ci=  c(life.pred$fit[1] - 1.96*life.pred$se.fit, life.pred$fit[1]+ 1.96*life.pred$se.fit)
-# life.pred
-# ci
-# ```
-#
-# ---
-#
-#
-#
-# ## Test statistique et IC
-#
-# ### Hypothèses fondamentales
-#
-# Il est important de noter que la construction du modèle de régression et l’estimation des paramètres par MCO ne fait pas appel aux hypothèses de distribution
-#
-# Les hypothèses de distribution sont essentielles lorsqu’il s’agit de construire des tests et des intervalles de confiance et de prédiction.
-#
-# Hypothèses fondamentales:
-#
-# - Les observations sont indépendantes
-# - La variance des erreurs est constante $\sigma^2$
-# - La loi des erreurs est une loi normale $\mathcal{N}(0, \sigma^2)$
-#
-# ---
-#
-#
-#
-# $y = X\beta + \epsilon$ où le vecteur aléatoire $\epsilon$ suit une loi multinormale qui vérifie les hypothèses suivantes:
-# $$ \mathbb{E}[\epsilon] = 0 $$
-#
-# $$ Var[\epsilon] = \sigma^2I_n $$
-# où $\sigma^2$ est la variance de la population et $I_n$ est la matrice identité de taille $n$.
-#
-# Les hypothèses précédentes impliquent $\mathbb{E}[y] = X\beta$ et $Var[y] = \sigma^2I_n$.
-#
-# ---
-#
-#
-# Sous ces hypothèses, on peut alors démontrer les propriétés des estimateurs:
-#
-# $\mathbb{E}[\widehat\beta] = \beta$ : estimateur sans biais
-#
-# $Var[\widehat\beta] = \sigma^2({}^tXX)^{-1}$
-#
-# La variance $\sigma^2$ est inconnue. Il faut l’estimer:
-#
-# $$CM_{res} = \frac{\sum(y_i -\widehat{y}_i)^2}{n-p} = \frac{SC_{res}}{n-p} = \frac{SC_{tot}-SC_{reg}}{n-p}$$
-#
-# où $n$ est le nombre d’individus/observations, $p$ est le nombre de variables explicatives, et $(n-p)$ le nombre de degrés de liberté associé à $SC_{res}$.
-#
-# ---
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Qualité du modèle (étude des résidus)
-
-Une étude approfondie des résidus permet d’évaluer la qualité d’un modèle.
-
-### Effet levier, distance de Cook
-
-La distance de Cook est utilisée pour mesurer l’influence de l’observation  $i$ sur l’estimation.
-
-On introduit $h_i$ tel que:
-
-$$h_i = \frac{1}{n} + \frac{(x_i -\overline{x})^2}{\sum^n_{k=1}(x_k -\overline{x})^2}$$
-
-
-Le terme $h_i$ représente le poids de l’observation $i$ sur sa propre estimation.
-
-On peut montrer que : 
-
-$$ \widehat{Y_i} = h_iY_i + \sum_{j\neq i}h_jY_j$$
-
-
-
-De même $h_{ij}$ représente le poids de l’observation $i$ sur l’estimation de $\widehat Y_j$.
-
-$$ h_{ij} = \frac{1}{n} + \frac{(x_i - \overline{x})(x_j - \overline{x}) }{\sum^n_{k=1}(x_k - \overline{x})^2}$$
-
-Si $h_{ij}$ est grand ($\geq \frac{1}{2}$), alors le point $i$ est un point levier (point atypique).
-
-
-
-**ATTENTION**, problème d’indice et de notation ! 
-
-$$ D_i= \frac{\sum^n_{j=1}(\widehat Y_{(i)j}-\widehat Y_j)^2}{2\widehat\sigma^2} = \frac{h_{ij}}{2(1-h_{ij})}r^2_i$$
-
-avec $\widehat Y_{(i)j}$  la prédiction pour l’observation j à partir d’un modèle de régression ajustée dans lequel l’observation i a été omise.
-
-
-
-
-**Représentation graphique**
-
-La fonction `plot.lm` représente les principaux graphiques qui concernent les résidus.
-
-- L’hypothèse d’homoscédasticité des résidus se vérifie visuellement sur le graphique "Residuals vs Fitted".
-- L’hypothèse de normalité des résidus se vérifie visuellement sur le "QQ-plot" (comparaison quantiles observés avec quantiles théoriques)
-- Les graphiques "Cook’s distance", "Residuals vs Leverage" et "Cook’s distance vs Leverage" présente l’influence de chacunes des observations.
+**Exemple**
 
 
 ```{r echo=TRUE, results="verbatim"}
-m = lm(Hwt~Bwt, MASS::cats)
-layout(1, respect=TRUE)
-plot(
-  m$model$Bwt, m$model$Hwt, 
-  xlab="Body weight", ylab="Heart weight", 
-  main="Heart weight ~ Body weight"
-)
-abline(m, col=2)
-layout(matrix(1:6, 2, byrow=TRUE), respect=TRUE)
-plot(m, which=1:6)
+d = state_us
+m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
+summary(m)
+anova(m)
 ```
-
-
-
-
-### Auto correlation des résidus
-
-On vérifie plus précisément l’hypothèse d’indépendance des observations en étudiant l’autocorrélation des résidus. 
-
-La fonction ACF indique si la valeur actuelle dépend toujours des valeurs précédentes (les décalages = lag).
-
-**ATTENTION**, il faut : 
-
-  1) réordonner aléatoirement les observations.
-  2) ordonner les résidus en fonction des valeurs prédites ($Y_i$).
-
-
-Les deux exemples suivants (séries temporelles), l’hypothèse d’indépendance ne semble pas vérifée.
-
-
-```{r echo=TRUE, results="verbatim"}
-layout(matrix(1:2, 1), respect=TRUE)
-sub_CO2 = CO2[CO2$Type=="Quebec" & CO2$Treatment=="chilled", ]
-sub_CO2 = sub_CO2[sample(1:nrow(sub_CO2)),]
-m = lm(uptake~conc, sub_CO2)
-plot(m$model$conc, m$model$uptake)
-abline(m, col=2)
-acf(m$residuals[order(m$fitted.values)])
-
-layout(matrix(1:2, 1), respect=TRUE)
-m = lm(y2~x2, anscombe)
-plot(anscombe$x2, anscombe$y2)
-abline(m, col=2)
-acf(m$residuals[order(m$fitted.values)])
-```
-
-
-
-
-Dans l’exemple suivant, on voit l’effet de l’ordre des observations sur l’autocorrélation.
-
-```{r echo=TRUE, results="verbatim"}
-layout(matrix(1:2, 1), respect=TRUE)
-m = lm(Hwt~Bwt, MASS::cats)
-plot(m$model$Bwt, m$model$Hwt)
-abline(m, col=2)
-acf(m$residuals[order(m$fitted.values)])
-
-layout(matrix(1:2, 1), respect=TRUE)
-m = lm(Hwt~Bwt, MASS::cats[sample(1:nrow(MASS::cats)),])
-plot(m$model$Bwt, m$model$Hwt)
-abline(m, col=2)
-acf(m$residuals[order(m$fitted.values)])
-```
-
-
-
-
-
-
-
-
-### Exemple complet avec le modèle `Life.Exp ~ Murder + HS.Grad + Frost`
-
-
-**Contribution des individus**
-
-
-
-```{r echo=TRUE, results="verbatim"}
-m = lm(Life.Exp ~ Murder + HS.Grad + Frost, data = state_us)
-layout(matrix(1:3, 1, byrow=TRUE), respect=TRUE)
-plot(m$model$Murder, m$model$Life.Exp, col=0, main="Life.Exp~Murder")
-text(m$model$Murder, m$model$Life.Exp , labels=rownames(m$model))
-plot(m$model$HS.Grad, m$model$Life.Exp, col=0, main="Life.Exp~HS.Grad")
-text(m$model$HS.Grad, m$model$Life.Exp , labels=rownames(m$model))
-plot(m$model$Frost, m$model$Life.Exp, col=0, main="Life.Exp~Frost")
-text(m$model$Frost, m$model$Life.Exp , labels=rownames(m$model))
-
-layout(matrix(1:6, 2, byrow=TRUE), respect=TRUE)
-plot(m, which=1:6)
-
-layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-acf(residuals(m[order(m$fitted.values)]),ci=0.99)
-acf(residuals(m[order(m$fitted.values)]),ci=0.95)
-```
-
-Toutes les hypothèses semblent vérifiées : 
-
-1) pas de structure dans le premier graphique ni dans le troisième (résidus standardisé). Les résidus étant centrés, la droite horizontale d’ordonnée 0 est ajoutée, pour pouvoir juger plus facilement de la répartition aléatoire des points. Si le graphique présente une quelconque structure, il convient de réfléchir à une nouvelle modélisation.
-2) pas d’homoscédasticité au vu du premier graphique, 
-3) hypothèse gaussienne non remise en cause par le QQ-plot (comparaison quantiles observés avec quantiles théoriques)
-4) aucun point aberrant d’après la distance de Cook.
-
-**Autocorrélation**
-
-```{r echo=TRUE, results="verbatim"}
-layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-acf(m$residuals[order(m$fitted.values)], ci=0.99, main="ci=0.99")
-acf(m$residuals[order(m$fitted.values)], ci=0.95, main="ci=0.95")
-```
-
-L’hypothèse d’indépendance est cohérente graphiquement, au seuil 0.99, mais elle ne l’est pas valide avec une confiance de 0.95.
-
-**Tests statistiques**
-
-*Shapiro test* : test de la normalité des résidus.
-
-```{r echo=TRUE, results="verbatim"}
-shapiro.test(resid(m))
-```
-On obtient une p-valeur de 10.4%. On ne rejette pas l’hypothèse de normalité avec un seuil de 5%.
-
-*Rainbow test* : test de la linéarité du modèle.
-
-```{r echo=TRUE, results="verbatim"}
-lmtest::raintest(m)
-```
-On obtient une p-valeur de 32.98%. On ne rejette pas le modèle linéaire. On teste ensuite l’hypothèse d’homogénéité des variances :
-
-*Goldfeld-Quandt test* : test de l’homoscedasticité.
-
-```{r echo=TRUE, results="verbatim"}
-lmtest::gqtest(m)
-```
-On obtient une p-valeur de 75.62%. L’homogénéité de la variance des résidus n’est pas rejetée.
-
-*Durbin-Watson test* : test de l’indépendance des résidus.
-
-
-```{r echo=TRUE, results="verbatim"}
-lmtest::dwtest(m)
-```
-
-On obtient une p-valeur de 23.23%. L’indépendance des résidus n’est pas rejetée (Attention, le test de Durbin Wastson teste l’autocorrélation d’ordre 1 et d’autres tests peuvent être plus adaptés,le test de Box-Pierce par exemple).
-Nous vérifions enfin qu’il n’y a pas de colinéarité forte dans le modèle, c’est-à-dire que les variables explicatives ne sont pas linéairement dépendantes.
-
-```{r echo=TRUE, results="verbatim"}
-car::vif(m)
-```
-
-Les valeurs des VIF (Variance Inflation Factors) étant inférieures à 10, les variables ne présentent pas de forte colinéarité.
-
 ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Sélection de variables
-
-Le fléau de la dimension (*curse of dimensionality*), concept introduit par Bellman [1], précise que le nombre d’observations nécessaires pour estimer précisément une variable aléatoire augmente de maniére exponentielle par rapport au nombre de variable explicatives. lire [2]
-
-[1] Bellman R.E. Adaptive Control Processes. Princeton University Press, Princeton, NJ, 1961.
-
-[2] *Le fléau de la dimension : techniques de sélection de variables*, sept. 2015, https://www.quantmetry.com
-
-
-**Problèmes**, quand $p > n$ :
-
-  - la solution du système linéaire des moindres carrés n’est pas unique.
-  - il existe toujours un ensemble de plans qui sépare parfaitement n’importe quelle partition de l’espace des observations.
-  
-Il est donc nécesaire de réduire le nombre de variables explicatives d’un modèle.
-
-**Remarque**, si on veut à *expliquer* un phénomène ($Y$), on cherche souvent un modèle *parcimonieux* (peu de $X$). Si on veut *prédire*, ce n’est pas forcément le cas.
-
-Pour sélectionner les variables d’intérêt, il existe classiquement plusieurs : 
- 
-- critères de choix : 
-  -- Critère du $R^2$ 
-  -- Critère d’information d’Akaike (AIC)
-  -- Critère d’information bayesien (BIC)
-
-- procédure :
--- Forward (ou pas à pas ascendante)
--- Backward (ou pas à pas descendante)
--- Stepwise
-
----
-
-### Les critères
-
-**$R^2$**
-
-La variance expliquée par le modèle. Augmente de façon monotone avec l’introduction de nouvelles variables.
-
-
-**Critère d’information d’Akaike (AIC)**
-
-Le critère AIC est défini par : 
-
-$$AIC = - 2 ln(\mathcal{L}) + 2p $$
-
-**Critère d’information bayesien (BIC)**
-
-Le critère BIC est défini par : 
-
-$$BIC =  - 2 ln(\mathcal{L}) + log(n)p $$
-
-avec :
-
- - $\mathcal{L}$ le maximum de la fonction de vraisemblance
- - $n$ le nombre d’observations
- - $p$ le nombre de paramètres
- 
- 
-Pour l’AIC et le BIC : 
-
-- le critère s’applique aux modèles estimés par une méthode du **maximum de vraisemblance**
-- le meilleur modèle est celui qui minimise le critère
-- le nombre de paramètres du modèle ($p$) vient donc pénaliser le modèle.
-
-Par définition le BIC est plus parcimonieux que l’AIC.
-
----
-
-### Les méthodes
-
-Méthodes les plus classiques :
-
-- Forward (ou pas à pas ascendante)
-- Backward (ou pas à pas descendante)
-- Stepwise
-
-Ces méthodes s’appuient sur les *données recueillies*. Elles sont *itératives*. Elle dépendent de *paramètres*.
-
-Bien que l’efficacité de ces méthodes ne puisse être démentie par la pratique, il ne serait pas raisonnable de se fier uniquement aux résultats statistiques fournis par un algorithme. 
-
-En effet, pour décider d’ajouter ou de supprimer une variable dans un modèle, l’analyste ne se limite pas à la *technique*, il fait également appel à son *intuition*, sa *déduction* et son esprit de *synthèse*. Pour cela il confronte les approches (statistiques, analyse de données, classification) et il travaille en étroite collaboration avec les experts métiers (le métier dont sont issues les données).
-
-
----
-
-### Exemple détaillé sous R
-
-
-On souhaite expliquer l’espérance de vie Life.Exp en fonction des autres variables. On va utiliser pour cela une méthode descendante.
-
-Si nous souhaitons minimiser le critère AIC, nous pouvons l’obtenir de la façon suivante :
-
-```{r echo=TRUE, results="verbatim"}
-life.lm = lm(Life.Exp ~ ., data=state_us) 
-summary(life.lm)
-extractAIC(life.lm)
-```
-
-On préférera extractAIC à la fonction AIC qui donne un critère légèrement différent. 
-
-Ici, on commence par enlever les variables dont la p-valeur est supérieure à 0.3.
-
-```{r echo=TRUE, results="verbatim"}
-life.lm =  update(life.lm,.~.-Area-Illiteracy-Income)
-summary(life.lm)
-extractAIC(life.lm)
-```
-On constate que l’AIC a bien diminué.
-On enlève ensuite la variable dont le coefficient est le moins significatif, ici Population.
-
-```{r echo=TRUE, results="verbatim"}
-life.lm =  update(life.lm,.~.-Population)
-summary(life.lm)
-extractAIC(life.lm)
-```
-
-On constate que l’AIC a augmenté (et que l’écart-type estimé des résidus a augmenté : il vaut 0.7427 contre 0.7197 auparavant). On préfère donc le modèle conservant la variable Population.
-
-```{r echo=TRUE, results="verbatim"}
-life.lm = lm(Life.Exp ~ Murder + HS.Grad + Frost + Population, data=state_us)
-```
-R peut faire ce raisonnement de manière automatisée. Il suffit d’appliquer 
-
-```{r echo=TRUE, results="verbatim"}
-life.lm = step(lm(Life.Exp ~ ., data=state_us), method="bakward")
-```
-
-Le critère choisi par défaut est alors l’AIC. Il est également possible de choisir les méthodes "forward" et "both". Ensuite on peut résumer les différentes étapes de la façon suivante :
-
-```{r echo=TRUE, results="verbatim"}
-life.lm$anova
-```
-On peut également utiliser les fonctions add1 et drop1, non détaillées ici.
-
-
-**Travaux pratiques**
-
-- Réaliser la selections de variable avec la method **Forward**
-- Comparer les 2 modèles obtenus.
-
-```{r eval=FALSE}
-m_lo = lm(Life.Exp ~ 1, data=state_us)
-m_up = lm(Life.Exp ~ ., data=state_us)
-life.lm = step(m_lo, method="forward", scope=list(upper=m_up,lower=m_lo))
-```
-
----
-
-### Travaux pratiques 
-
-Les données `ISwR::cystfibr` concernent la fonction respiratoire de patients atteints de fibrose kystique (mucoviscidose).
-
-On cherche à expliquer la variable `pemax` qui caracterise cette maladie.
-
-```{r echo=TRUE, results="verbatim"}
-# ?ISwR::cystfibr
-d = ISwR::cystfibr
-head(d)
-dim(d)
-# removing sex
-d = d[,-2]
-```
-
-
-2.1) Etudier la corrélation des variables à l’aide du code suivant. Commenter les graphiques obtenus.
-
-```{r echo=TRUE, fig.width=9, fig.height=9, eval=TRUE}
-pairs(d, gap=0)
-lattice::levelplot((cor(d)))
-```
-
-2.2) Réaliser l’analyse en composante principale à l’aide du code suivant. Commenter les graphiques obtenus.
-
-```{r echo=TRUE, eval=TRUE}
-# mat = x[,-9]
-mat = d
-pca = prcomp(mat, scale=TRUE)
-v = pca$sdev * pca$sdev
-p = v / sum(v) * 100
-
-# layout(matrix(1:6,2), respect=TRUE)
-layout(matrix(1:2,1), respect=TRUE)
-barplot(p)
-
-for (i in 1:5) {
-  j = i+1
-  plot(pca$x[,i], pca$x[,j], xlab=paste0("PC", i, "(", signif(p[i], 3), "%)"), ylab=paste0("PC", j, "(", signif(p[j], 3), "%)"), pch=16)  
-  scale_factor = min(abs(c(min(c(pca$x[,i], pca$x[,j])), max(c(pca$x[,i], pca$x[,j])))))  
-  # scale_factor = min(abs(c(max(min(pca$x[,i]), min(pca$x[,j])), min(max(pca$x[,i]), max(pca$x[,j])))))
-  plotrix::draw.ellipse(0,0,scale_factor,scale_factor, lty=2, border="grey")
-  arrows(0,0,pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, col="grey")
-  text(pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, rownames(pca$rotation))
-}
-
-m_lo = lm(pemax ~ 1, data=d)
-m_up = lm(pemax ~ ., data=d)
-m_step = step(m_lo, method="forward", scope=list(upper=m_up,lower=m_lo))
-
-m_step$anova
-summary(m_step)
-
-m_w = lm(pemax ~ weight, data=d)
-summary(m_w)
-m_wb = lm(pemax ~  weight + bmp, data=d)
-summary(m_wb)
-m_wbf = lm(pemax ~  weight + bmp + fev1 , data=d)
-summary(m_wbf)
-summary(m_w)
-
-```
-
-2.3) Proposer un modèle permettant d’expliquer la variable `pemax`. Détaillez votre méthodologie.
-
-4) Discuter et interpréter le modèle obtenue (point de vue statistique)
-
-5) Discuter et interpréter le modèle obtenue (point de vue métier, ici biologie, santé)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

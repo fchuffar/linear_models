@@ -14,7 +14,6 @@ output:
 
 ```{r, echo=FALSE, eval=TRUE}
 knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, eval=TRUE, echo=FALSE, results="hide")
-# d = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
 # README RStudio config, uncheck: # preferences > R Markdown > show output inline for... 
 ```
 
@@ -63,27 +62,27 @@ https://github.com/fchuffar/linear_models
 
   - Régression linéaire simple
   - Régression linéaire multiple
-  - Anova 1 facteur
-  - Anova 2 facteurs sans répetition
-  - Anova 2 facteurs avec interaction
-
-
+  - ANOVA 
+  - *data challenge*
+  
 ---
 
 
 
 
 
-```{r child = "01_cours_modlin.Rmd"}
+```{r child = "01_cours_modlin.Rmd", eval=FALSE}
 ```
 
-```{r child = "02_cours_modlin.Rmd"}
+```{r child = "02_cours_modlin.Rmd", eval=TRUE}
+```
+```{r child = "02.1_cours_modlin.Rmd", eval=FALSE}
 ```
 
-```{r child = "03_cours_modlin.Rmd"}
+```{r child = "03_cours_modlin.Rmd", eval=FALSE}
 ```
 
-```{r child = "04_cours_modlin.Rmd"}
+```{r child = "04_cours_modlin.Rmd", eval=FALSE}
 ```
 
 
@@ -100,8 +99,6 @@ Ce cours s’inspire des références suivantes :
 - https://andrewlauactuary.com/2019/06/04/shiny-app-showing-statistical-power (juin 2019)
 
 ---
-
-# Informations de session
 
 ```{r, results="verbatim"}
 sessionInfo()
