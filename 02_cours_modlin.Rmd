@@ -419,21 +419,6 @@ for (i in 1:5) {
   text(pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, rownames(pca$rotation))
 }
 
-m_lo = lm(pemax ~ 1, data=d)
-m_up = lm(pemax ~ ., data=d)
-m_step = step(m_lo, method="forward", scope=list(upper=m_up,lower=m_lo))
-
-m_step$anova
-summary(m_step)
-
-m_w = lm(pemax ~ weight, data=d)
-summary(m_w)
-m_wb = lm(pemax ~  weight + bmp, data=d)
-summary(m_wb)
-m_wbf = lm(pemax ~  weight + bmp + fev1 , data=d)
-summary(m_wbf)
-summary(m_w)
-
 ```
 
 
