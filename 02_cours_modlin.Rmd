@@ -400,6 +400,43 @@ layout(1, respect=TRUE)
 et_pairs(d)
 ```
 
+```{r echo=TRUE, eval=TRUE}
+pca = prcomp(d, scale=TRUE)
+v = pca$sdev * pca$sdev
+p = v / sum(v) * 100
+
+# layout(matrix(1:6,2), respect=TRUE)
+layout(matrix(1:2,1), respect=TRUE)
+barplot(p)
+
+for (i in 1:5) {
+  j = i+1
+  plot(pca$x[,i], pca$x[,j], xlab=paste0("PC", i, "(", signif(p[i], 3), "%)"), ylab=paste0("PC", j, "(", signif(p[j], 3), "%)"), pch=16)  
+  scale_factor = min(abs(c(min(c(pca$x[,i], pca$x[,j])), max(c(pca$x[,i], pca$x[,j])))))  
+  # scale_factor = min(abs(c(max(min(pca$x[,i]), min(pca$x[,j])), min(max(pca$x[,i]), max(pca$x[,j])))))
+  plotrix::draw.ellipse(0,0,scale_factor,scale_factor, lty=2, border="grey")
+  arrows(0,0,pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, col="grey")
+  text(pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, rownames(pca$rotation))
+}
+
+m_lo = lm(pemax ~ 1, data=d)
+m_up = lm(pemax ~ ., data=d)
+m_step = step(m_lo, method="forward", scope=list(upper=m_up,lower=m_lo))
+
+m_step$anova
+summary(m_step)
+
+m_w = lm(pemax ~ weight, data=d)
+summary(m_w)
+m_wb = lm(pemax ~  weight + bmp, data=d)
+summary(m_wb)
+m_wbf = lm(pemax ~  weight + bmp + fev1 , data=d)
+summary(m_wbf)
+summary(m_w)
+
+```
+
+
 
 ---
 
