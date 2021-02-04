@@ -284,9 +284,9 @@ La vraisemblance est une **probabilité**, elle quantifie l’information conten
 
 **Exercice** 
 
+Illustrer graphiquement le concept de vraisemblance.
+
 ```{r ex1, echo=TRUE, results="verbatim"}
-# Illustrer graphiquement le concept de vraisemblance #
-                                                     ## Cf. Chap.1
 d = state_us
 m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
 logLik(m)
@@ -400,23 +400,23 @@ layout(1, respect=TRUE)
 et_pairs(d)
 ```
 
-```{r echo=TRUE, eval=TRUE}
+```{r echo=FALSE, eval=TRUE}
+d = state_us
 pca = prcomp(d, scale=TRUE)
 v = pca$sdev * pca$sdev
 p = v / sum(v) * 100
 
-# layout(matrix(1:6,2), respect=TRUE)
-layout(matrix(1:2,1), respect=TRUE)
+layout(matrix(1:6,2), respect=TRUE)
+# layout(matrix(1:2,1), respect=TRUE)
 barplot(p)
 
 for (i in 1:5) {
   j = i+1
-  plot(pca$x[,i], pca$x[,j], xlab=paste0("PC", i, "(", signif(p[i], 3), "%)"), ylab=paste0("PC", j, "(", signif(p[j], 3), "%)"), pch=16)  
+  plot(pca$x[,i], pca$x[,j], xlab=paste0("PC", i, "(", signif(p[i], 3), "%)"), ylab=paste0("PC", j, "(", signif(p[j], 3), "%)"), pch=16, col="grey")  
   scale_factor = min(abs(c(min(c(pca$x[,i], pca$x[,j])), max(c(pca$x[,i], pca$x[,j])))))  
-  # scale_factor = min(abs(c(max(min(pca$x[,i]), min(pca$x[,j])), min(max(pca$x[,i]), max(pca$x[,j])))))
   plotrix::draw.ellipse(0,0,scale_factor,scale_factor, lty=2, border="grey")
-  arrows(0,0,pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, col="grey")
-  text(pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, rownames(pca$rotation))
+  arrows(0,0,pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, length=.1)
+  text(pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, rownames(pca$rotation), col=2)
 }
 
 ```
