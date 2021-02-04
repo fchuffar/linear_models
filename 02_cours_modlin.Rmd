@@ -21,16 +21,18 @@ Les variables $x_{i,j}$ sont fixes, tandis que les variables $y_i$ sont aléatoi
 
 **Exemple**
 
-La base de données `data(state)` comprend les mesures suivantes prisent sur 50 états des Etats-Unis.
+$$Life.Exp = \beta_0 + \beta_{Murder} Murder + + \beta_{HS.Grad} HS.Grad + \beta_{Frost} Frost + \epsilon$$
+
+Le jeu de données `Life.Exp` comprend les mesures **quantitaves** suivantes prisent sur 50 états des Etats-Unis.
 
 ```{r echo=TRUE, results="verbatim"}
 data(state)
-d = state_us =  data.frame(state.x77, row.names=state.abb)[,-8]
+d = state_us =  data.frame(state.x77, row.names=state.abb)[,c(4:7, 1:3)]
 head(d)
 dim(d)
 ```
 
-- Life.Exp : espérance de vie moyenne (1969-1971)
+- **Life.Exp** : espérance de vie moyenne (1969-1971)
 - Population : population estimée au 1er juillet 1975
 - Income : revenu par individu (1974)
 - Illiteracy : illettrisme (1970, pourcentage de la population)
@@ -44,12 +46,10 @@ On cherchera par exemples à expliquer la variables *Life.Exp* par les variables
 
 $$Life.Exp \sim Murder + HS.Grad + Frost$$
 
-Soit une formualtion analytique du modèle : 
-
-$$Life.Exp = \beta_0 + \beta_{Murder} Murder + + \beta_{HS.Grad} HS.Grad + \beta_{Frost} Frost + \epsilon$$
 
 
 ```{r fig.height=9}
+layout(1, respect=TRUE)
 pairs(d)
 ```
 
@@ -84,7 +84,7 @@ Utiliser les **moindres carrés** revient à minimiser la quantité suivante :
 $$min_{\beta_0, ...,\beta_p}\sum^n_{i=1}\Big(y_i -(\beta_0+ \beta_1X_1 + ... + \beta_pX_p)\Big)^2$$
 
 
-**Version matricielle du problème**
+**La formulation matricielle du problème**
 
 Le système peut se réecrire :
 
@@ -120,8 +120,21 @@ Les variables $y$ et $X$ sont mesurées tandis que l’estimateur $\beta$  est �
 La **méthode des moindres carrés ordinaires** consiste à trouver le vecteur $\beta$  qui minimise $||\epsilon||^2 =  {}^t{\epsilon}\epsilon$.  
 
 
-La formulation matricielle du problème montre qu’idéalement $n >> p$. 
-Dans le cas inverse il faudra contrôler le **surapprentisage** et/ou la surinterprétation (*overfitting*) et mettre en oeuvre des statégies de **selection de variables** et/ou de **réduction de dimensions**.
+La formulation matricielle du problème montre qu’idéalement $n > p$ et la matice des résidus est inversible.
+ 
+Dans notre **exemple** `Life.Exp` : 
+
+```{r echo=TRUE, results="verbatim"}
+m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
+m$coef
+```
+
+Qu’est-ce qui pourrait rendre la matrice non inversible ?
+
+
+Si $p >> n$, il faudra mettre en oeuvre des statégies de **sélection de variables** et/ou de **réduction de dimensions** et par conséquent contrôler la surinterprétation (surapprentisage, *overfitting*).
+
+Que se passe-t-il quand $n >> p$ ?
 
 ---
 
@@ -135,9 +148,7 @@ Dans le cas inverse il faudra contrôler le **surapprentisage** et/ou la surinte
 
 
 
-**Exercice** : démontrer les développements suivants
-
-
+**Développements** 
 
 \begin{eqnarray}
          ||\epsilon||^2    & = & {}^t(y-X\widehat\beta) (y-X\widehat\beta)            \\
@@ -222,39 +233,31 @@ $$
 ### Maximum de vraisemblance
 
 
-**Définition** : Probabilité d’observer les évènements $Y$, sachant les $X$, en considérant le modèle $\mathcal{M}$
+Le maximum de vraisemblance est la **Probabilité** de l’évènements $Y$, sachant les observations $X$, en considérant le modèle $\mathcal{M}$
 
 **Important** : la vraisemblance dépend
 
-  - des observations ($Y$ et $X$)
-  - du modèle $\mathcal{M}$
+  - des observations ($Y_i, X_{ij}, i\in1..n, j\in1..p$)
+  - du modèle $\mathcal{M}$ et de ses hypothèses (conditions d’application).
 
   
-En effet, 
+On écrit : 
 
 \begin{eqnarray}
-
 \mathcal{L}_{\mathcal{M}, Y,X} &=& \mathbb{P}_\mathcal{M}(Y|X) \\
                                &=& \prod^n_{i=1} \mathbb{P}_\mathcal{M}(Y_i|X_i)\\
+\end{eqnarray}
 
+On calcule : 
+                               
+\begin{eqnarray}
 log\mathcal{L}_{\mathcal{M}, Y,X} &=& log(\mathbb{P}_\mathcal{M}(Y|X)) \\
-                                   &=& \sum^n_{i=1} log(\mathbb{P}_\mathcal{M}(Y_i|X_i))\\
-
+                                  &=& \sum^n_{i=1} log(\mathbb{P}_\mathcal{M}(Y_i|X_i))\\
 \end{eqnarray}
 
 ---
 
-
-
-
-
-
-
-
-
-**Exercice** : démontrer les développements suivants
-
-Dans le cadre de la régression  linéaire multiple, la vraisemblance vaut : 
+Dans le cadre de la régression  linéaire multiple (**normalité des résidus**), la vraisemblance vaut : 
 
 \begin{eqnarray}
 
@@ -267,14 +270,26 @@ Dans le cadre de la régression  linéaire multiple, la vraisemblance vaut :
 D’où l’on déduit la log-vraisemblance
 
 $$ log\mathcal{L}(Y,\beta,\sigma^2) = \frac{n}{2}log(2\pi) -\frac{n}{2}log(\sigma^2) - \frac{1}{2\sigma^2}||Y-X\beta||^2 $$
-Pour maximiser la log-vraisemblance, il faut d’abord minimiser la quantité $||Y-X\beta||^2$, ce qui est justement le principe des moindres carrés ordinaires.
+
+Maximiser la log-vraisemblance revient à minimiser la quantité $||Y-X\beta||^2$, ce qui est l’objectif des *moindres carrés ordinaires*.
 
 
-Dans notre **exemple** : 
 
-```{r echo=TRUE, results="verbatim"}
+
+
+
+La vraisemblance est une **probabilité**, elle quantifie l’information contenue dans les observations, sous les hypothèses du modèle.
+
+---
+
+**Exercice** 
+
+```{r ex1, echo=TRUE, results="verbatim"}
+# Illustrer graphiquement le concept de vraisemblance #
+                                                     ## Cf. Chap.1
+d = state_us
 m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
-m$coef
+logLik(m)
 ```
 
 ---
@@ -308,7 +323,7 @@ Variation totale de Y = Variation expliquée par le modèle + Variation inexpliq
 
 La méthode des moindres carrés, en considérant la somme des carrés de ces différences, nous assure la décomposition de la variance totale en variance expliquée et variance résiduelle :
 
-$$ \sum(y_i - \overline{y})^2 = \sum(y_i - \widehat{y}_i)^2  \sum(\widehat{y}_i - \overline{y})^2 $$
+$$ \sum(y_i - \overline{y})^2 = \sum(\widehat{y}_i - \overline{y})^2 + \sum(y_i - \widehat{y}_i)^2  $$
 
 Soit : 
 
@@ -357,6 +372,34 @@ summary(lm(Life.Exp ~ Murder                  , d))$r.squared
 summary(lm(Life.Exp ~ Murder + HS.Grad        , d))$r.squared
 summary(lm(Life.Exp ~ Murder + HS.Grad + Frost, d))$r.squared
 ```
+
+
+```{r et_pairs, echo=FALSE, fig.height=9}
+et_pairs = function (...) 
+{
+    panel.cor = function(x, y, digits = 2, prefix = "", cex.cor, ...) {
+        usr = par("usr")
+        on.exit(par(usr))
+        par(usr = c(0, 1, 0, 1))
+        r = abs(cor(x, y))
+        txt = format(c(r, 0.123456789), digits = digits)[1]
+        txt = paste(prefix, txt, sep = "")
+        if (missing(cex.cor)) 
+            cex = 0.8/strwidth(txt)
+        test = cor.test(x, y)
+        Signif = symnum(test$p.value, corr = FALSE, na = FALSE, 
+            cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1), symbols = c("***", 
+                "**", "*", ".", " "))
+        text(0.5, 0.5, txt, cex = cex * r)
+        text(0.8, 0.8, Signif, cex = cex, col = 2)
+    }
+    pairs(..., lower.panel = panel.cor)
+}
+
+layout(1, respect=TRUE)
+et_pairs(d)
+```
+
 
 ---
 
@@ -442,9 +485,10 @@ Le *risque de première espèce* ou risque $\alpha$ est le risque de rejeter l�
 
 On prend généralement $\alpha=0.05$.
 
-La *p-valeur* est la probabilité d’observer la valeur de la statistique de test sous $\mathcal{H}_0$ en ayant préalablement vérifié les conditions d’application du test.
 
 **Décision et conclusion du test**
+
+Critère, la *p-valeur* est la probabilité d’observer la valeur de la statistique de test sous $\mathcal{H}_0$ en ayant préalablement vérifié les conditions d’application du test.
 
 Ainsi :
 
@@ -472,12 +516,13 @@ summary(m)
 
 Le test de Fisher repose sur cette décomposition de la variance.
 
-Il pose la question de l’effet de la variables $x$.
+Il pose la question de l’effet **des** variables $X$.
 
 
 **Ecriture analytique du modèle**
 
 $$Y = \beta_0 + \beta_1 x + \epsilon$$
+
 
 **Hypothèses nulle et hypothèse alternative**
 
@@ -545,6 +590,7 @@ m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
 summary(m)
 anova(m)
 ```
+
 ---
 
 
