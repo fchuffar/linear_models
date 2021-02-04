@@ -49,6 +49,7 @@ $$Life.Exp \sim Murder + HS.Grad + Frost$$
 
 
 ```{r fig.height=9}
+d = state_us
 layout(1, respect=TRUE)
 pairs(d)
 ```
@@ -102,7 +103,7 @@ y_n
 {rrr}
 \beta_0\\
 \vdots\\
-\beta_n
+\beta_p
 \end{array}\right) + \left(\begin{array}
 {rrr}
 \epsilon_1\\
@@ -233,7 +234,7 @@ $$
 ### Maximum de vraisemblance
 
 
-Le maximum de vraisemblance est la **Probabilité** de l’évènements $Y$, sachant les observations $X$, en considérant le modèle $\mathcal{M}$
+La vraisemblance est la **Probabilité** d’observer l’évènement $Y$, sachant les observations $X$, en considérant le modèle $\mathcal{M}$
 
 **Important** : la vraisemblance dépend
 
@@ -290,6 +291,9 @@ Illustrer graphiquement le concept de vraisemblance.
 d = state_us
 m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
 logLik(m)
+# LLR rapport des vraisemblance ~ Chi2
+anova(m, lm(Life.Exp ~ 1, d), test="Chisq")
+
 ```
 
 ---
@@ -514,7 +518,7 @@ Critère, la *p-valeur* est la probabilité d’observer la valeur de la statist
 
 Ainsi :
 
-  - si la p-valeur calculée est plus petite que notre risque $\alpha$ fixé, alors le test est significatif, H_0 est improbable), on rejete  $\mathcal{H}_0$ et on décide que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
+  - si la p-valeur calculée est plus petite que notre risque $\alpha$ fixé, alors le test est significatif, H_0 est improbable, on rejete  $\mathcal{H}_0$ et on décide que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
 
   - si la p-valeur calculée est plus grande que notre risque $\alpha$ fixé, alors le test n’est pas significatif, on conserve $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
 
@@ -543,7 +547,7 @@ Il pose la question de l’effet **des** variables $X$.
 
 **Ecriture analytique du modèle**
 
-$$Y = \beta_0 + \beta_1 x + \epsilon$$
+$$Y = \beta_0 + \beta_1 X_1 + ... + \beta_k X_k + ... + \beta_p X_p + \epsilon$$
 
 
 **Hypothèses nulle et hypothèse alternative**
@@ -554,7 +558,7 @@ contre
 
 $\mathcal{H}_1 : \exists$ au moins un $j$ tel que ${\beta_j \neq 0}$ où $j$ varie de $1$ à $p$.
 
-*Remarque*: Si l’hypothèse nulle est vérifiée, alors $y_i = \beta_0 + \epsilon_i$
+*Remarque* : Si l’hypothèse nulle est vérifiée, alors $y_i = \beta_0 + \epsilon_i$
 
 
 
@@ -611,6 +615,15 @@ d = state_us
 m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
 summary(m)
 anova(m)
+
+m = lm(Life.Exp ~ HS.Grad + Murder + Frost, d)
+anova(m)
+
+anova(lm(Life.Exp ~ Illiteracy + Murder, d))
+anova(lm(Life.Exp ~ Murder + Illiteracy, d))
+
+m = lm(Life.Exp ~ Income + Illiteracy, d)
+
 ```
 
 ---
