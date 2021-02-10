@@ -149,9 +149,23 @@ On peut également utiliser les fonctions add1 et drop1, non détaillées ici.
 m_lo = lm(Life.Exp ~ 1, data=state_us)
 m_up = lm(Life.Exp ~ ., data=state_us)
 life.lm = step(m_lo, method="forward", scope=list(upper=m_up,lower=m_lo))
+life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
 
 set.seed(1)
 d_train = d[sample(1:nrow(d), 25),]
+m_lo = lm(Life.Exp ~ 1, data=d_train)
+m_up = lm(Life.Exp ~ ., data=d_train)
+life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
+
+d_train = d[sample(1:nrow(d), 10),]
+m_lo = lm(Life.Exp ~ 1, data=d_train)
+m_up = lm(Life.Exp ~ ., data=d_train)
+life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
+
+d_train = d[sample(1:nrow(d), 10),]
+m_lo = lm(Life.Exp ~ 1, data=d_train)
+m_up = lm(Life.Exp ~ ., data=d_train)
+life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
 
 ```
 

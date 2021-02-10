@@ -62,8 +62,13 @@ https://github.com/fchuffar/linear_models
 
   - Régression linéaire simple
   - Régression linéaire multiple
+  - *data challenge 1* : 
+      - codalab : https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910
+      - fin de séance, 1 compte rendu par équipe : https://github.com/fchuffar/starting_kit_expred3.0
+      - fin de semaine, 1 questionnaire par personne : https://chagrade.lri.fr
+
+      
   - ANOVA 
-  - *data challenge*
   
 ---
 
