@@ -4,7 +4,7 @@ Dans le cadre de l’analyse de la variance (**ANOVA**) on cherche une relation 
 
 $$Y \sim X$$
 
-Comme pour la regression linéaire, l’ANOVA est à la fois:
+Comme pour la regression linéaire, l’ANOVA est à la fois :
 
   * un **modèle** (linéaire) fondé sur la décomposition de la variance 
   * un **test** statistique permettant de comparer les moyennes d’une variable aléatoire *indépendante*, *gaussienne* et *homogène en variance*.
@@ -25,10 +25,9 @@ $$Y = \mu + I_X \beta + \epsilon$$
 
 avec : 
 
-  - $Y$ un vecteur de taille $n$ (le nombre d’obeservations) correspondant aux valeurs de la variable aléatoire 
+  - $Y$ un vecteur de taille $n$ (le nombre d’observations) correspondant aux valeurs de la variable aléatoire 
   - $\mu$ la moyenne des observations.  
   - $I_X \beta$ un vecteur correspondant à l’effet du groupe au quel appartient chaque observation
-  -  la *matrice d’incidence* (ou tableau disjonctif) de taille $n$ x $p$, ne comportant que des 0 et des 1 et permettant d’associer chaque observation à son niveau de facteur $X$.   
   - $\epsilon$ un vecteur de taille $n$ correspondant aux valeurs des résidus. 
 
 On note : 
@@ -97,7 +96,7 @@ Dans le cas d’un plan **équi-distribué** :
   - l’effet d’un groupe se calcul comme la différence entre la moyenne des observations du groupe et la moyenne de toutes les observations.
   - la somme des effets des groupes est nulle.
 
-Dans notre exemple $\beta_i$ prend ses valeurs dans $\{ \beta_A, \beta_B, \beta_C, \beta_D, \beta_E, \beta_F \}$, les moyennes des observations pour les individus des groupes A, B, C, D, E et F. Les groupes sont équilibrés donc $\beta_A + \beta_B + \beta_C + \beta_D + \beta_E + \beta_F = 0$ 
+Dans notre exemple $\beta_i$ prend ses valeurs dans $\{ \beta_A, \beta_B, \beta_C, \beta_D, \beta_E, \beta_F \}$, les moyennes des observations pour les individus des groupes A, B, C, D, E et F. Les groupes sont équilibrés donc $\beta_A + \beta_B + \beta_C + \beta_D + \beta_E + \beta_F = \mu$ 
 
 
 
@@ -137,7 +136,7 @@ Dans notre exemple $\beta_i$ prend ses valeurs dans $\{ \beta_A, \beta_B, \beta_
 Plaçons nous dans le cas d’un plan **équi-distribué**. Les observations sont notées $Y_{jk}$ avec :
 
 - $j$ identifie les niveaux du facteur $X$ (dans notre exemple, le type d’insecticide, $j \in J = \{ A, B, C, D, E, F \}$).
-- $k$ identifie la *k*-éme observation pour un niveau de facteur donné (dans notre exemple, pour chaque type d’insecticide, $k \in K = \{1,...,12\}$).
+- $k$ identifie la *k*-éme observation pour un niveau de facteur donné (dans notre exemple, pour chaque type d’insecticide, $k \in K = \{1,...,3\}$).
 
 Les observations d’un niveau de facteur donné sont appelés des **réplicats**. D’une maniére générale, les réplicats correspondnent à la répétition de la mesure Y pour des conditions expérimentales similaires.
 
@@ -305,9 +304,9 @@ legend("bottomright","residuals", col=4, lty=1, cex=.8)
 ## Tests statistiques
 
 
-### Test de   er
+### Test de   Fisher
 
-Le Test de l'ANOVA à 1 facteur (*one way ANOVA*), s'applique sous certaines condition : 
+Le test de l’ANOVA à 1 facteur (*one way ANOVA*), s’applique sous certaines conditions : 
 
 - Indépendance des observations
 - Homoscedasticité entre les groupes
@@ -449,6 +448,11 @@ plot(TukeyHSD(m, conf.level=0.95), las=2)
 d = InsectSprays
 m = aov(count~spray,d)
 plot(TukeyHSD(m, conf.level=0.95), las=2)
+
+
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+p = plot(d$spray, d$count, main="count~spray", xlab="spray", ylab="count", border="grey")
+points(jitter(as.numeric(d$spray)), d$count)
 ```
 
 On peut aussi réaliser plusieurs Test de Student et appliqué une correction
@@ -458,6 +462,7 @@ Bonferroni a montré que cette procédure garantit un taux d’erreur global p
 
 
 ```{r echo=TRUE, results="verbatim"}
+d = InsectSprays_sub
 pairwise.t.test(d$count, d$spray, p.adjust.method="none") 
 pairwise.t.test(d$count, d$spray, p.adjust.method="bon") 
 ```
@@ -512,13 +517,13 @@ Une autre méthode utilisée quand le nombre de tests multiples à réalisé est
 Etudier le modèle le modèle $coag \sim diet$ : 
 
 
-1. Ecriture analytique du modèle
-2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
-3. Statistique de test utilisée et conditions d’application
-4. Valeur de la statistique de test
-5. P-valeur associée
-6. Conclusion du test
-7. Commenter le pourcentage de variance expliquée ($R^2$)
+1. Ecriture analytique du modèle ;
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$ ;
+3. Statistique de test utilisée et conditions d’application ; 
+4. Valeur de la statistique de test ; 
+5. P-valeur associée ; 
+6. Conclusion du test ; 
+7. Tests de comparaisons multiples à l’aide de la méthode de votre choix.
 
 
 ```{r echo=TRUE, results="verbatim"}
@@ -534,15 +539,13 @@ points(jitter(as.numeric(d$diet)), d$coag)
 ```
 
 ```{r eval=FALSE}
+d = faraway::coagulation
 # Test hypothesis
 m = lm(coag~diet, d)
-m2 = aov(coag~diet, d)
 
 
 ## normality
 m$residuals
-m2$residuals
-m$residuals == m2$residuals
 shapiro.test(m$residuals)
 # H_0 normality
 # H_1 not normality
@@ -562,31 +565,16 @@ anova(m)
 # alpha = 5%
 # pval = 4.6e-05 < 5% we reject H_0 and accept H_1 at threshold of 5%, means are not equals.
 
-
-sc_F = 228
-sc_res = 112
-
-mc_F = sc_F/3
-mc_F
-mc_res = sc_res/20
-mc_res
-
-F_obs = mc_F/mc_res
-F_obs
-
-1 - pf(13.571, 3, 20)
-
 layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-i = seq(0,40, length.out=1000)
-plot(i,df(i, 3, 20), type="l", main="F_3_20")
-abline(v=F_obs, col=2)
+plot(d$diet, d$coag, main="coag~diet", xlab="diet", ylab="coag", border="grey")
+points(jitter(as.numeric(d$diet)), d$coag)
+plot(TukeyHSD(aov(coag~diet, d), conf.level=0.95))
 
+pairwise.t.test(d$coag, d$diet, p.adjust.method="none") 
+pairwise.t.test(d$coag, d$diet, p.adjust.method="bon") 
+pairwise.t.test(d$coag, d$diet, p.adjust.method="BH") 
 
-m = lm(coag~diet, d[d$diet %in% c("A", "B"),])
-summary(m)
-anova(lm(coag~diet, d[d$diet %in% c("A", "B"),]))
-
-  
+pairwise.t.test(d$coag, d$diet, p.adjust.method="none", pool.sd=FALSE) 
 
 anova(lm(coag~diet, d[d$diet %in% c("C", "B"),]))
 t.test(d[d$diet == "A",]$coag, d[d$diet == "B",]$coag)
@@ -595,13 +583,6 @@ t.test(d[d$diet == "B",]$coag, d[d$diet == "B",]$coag)
 t.test(d[d$diet == "A",]$coag, d[d$diet == "D",]$coag)
 t.test(d[d$diet == "B",]$coag, d[d$diet == "B",]$coag)
 t.test(d[d$diet == "B",]$coag, d[d$diet == "B",]$coag)
-
-plot(TukeyHSD(m2, conf.level=0.95))
-pairwise.t.test(d$coag, d$diet) 
-
-
-pairwise.t.test(d$coag, d$diet, p.adjust.method="none") 
-pairwise.t.test(d$coag, d$diet, p.adjust.method="bon") 
 
 ```
 
