@@ -14,7 +14,7 @@ varfung = data.frame(
   yield=c(2,2,1,5,3,5)
 )
 varfung
-# m = lm (yield~variety+fungicide, varfung)
+# m = lm (yield~variety+fungicide, d)
 # summary(m)
 ```
 
@@ -35,11 +35,26 @@ L’ANOVA à 2 facteurs fonctionne aussi dans le cadre de plan qui ne sont ni co
   - $y_{ij}$ le rendement de la variété $i$ avec le fongicide $j$.
   - $\overline y_{i.}$ la moyenne des rendements pour la variété $i$ 
   - $\overline y_{.j}$ la moyenne des rendements pour le fongicide $j$ 
-  - $\overline y$ la moyenne des rendements
+  - $\overline y_{..}$ la moyenne des rendements
 
 **Travaux pratiques** : calculez $\overline y_{i.}$, $\overline y_{.j}$ et $\overline y$.
 
+```{r results="verbatim"}
+d = varfung
+df = as.data.frame(matrix(d$yield,nrow=3, byrow=TRUE))
+colnames(df) = levels(d$fungicide)
+rownames(df) = levels(d$variety)
+df
 
+df2 = df
+yi = apply(df2, 1, mean)
+yj = apply(df2, 2, mean)
+y = mean(yi)
+df2$'yi.' = yi
+df2 = rbind(df2, c(yj, y))
+rownames(df2) = c(levels(d$variety), "y.j")
+df2
+```
 
 **Problématique**
 
@@ -93,9 +108,35 @@ Dans le cadre du plan complet equirépété :
 
 **Travaux pratiques** : calculez $\widehat \mu$, $\widehat \alpha_i$, et $\widehat \beta_j$
 
+```{r results="verbatim"}
+d = varfung
+df = as.data.frame(matrix(d$yield,nrow=3, byrow=TRUE))
+colnames(df) = levels(d$fungicide)
+rownames(df) = levels(d$variety)
+
+df2 = df
+yi = apply(df2, 1, mean)
+yj = apply(df2, 2, mean)
+y = mean(yi)
+df2$'yi.' = yi
+df2 = rbind(df2, c(yj, y))
+rownames(df2) = c(levels(d$variety), "y.j")
+df2
+
+df3 = df
+ai = yi - y
+bj = yj - y
+df3$'ai' = ai
+df3 = rbind(df3, c(bj, mean(bj)))
+rownames(df3) = c(levels(d$variety), "bj")
+df3
+
+```
 
 
-## Etude des résidus
+## Qualité du modèle
+
+### Etude des résidus
 
 la valeur prédite vaut : 
 
@@ -107,7 +148,8 @@ Ainsi :
 \begin{eqnarray}
 e_{ij} &=& y_{ij} - \widehat y_{ij}   \\
        &=& y_{ij} - (\widehat \mu + \widehat \alpha_i + \widehat \beta_j) \\
-       &=& y_{ij} - \overline y_{i.} - \overline y_{.j} - \overline y_{..}
+       &=& y_{ij} - (\overline y_{..} + (\overline y_{i.} - \overline y_{..}) + (\overline y_{.j} - \overline y_{..})) \\
+       &=& y_{ij} - \overline y_{i.} - \overline y_{.j} + \overline y_{..}
 \end{eqnarray}
 
 
@@ -118,8 +160,35 @@ $$ \forall j \sum_i e_{ij} = 0,  \forall i \sum_j e_{ij} = 0$$
 
 **Travaux pratiques** : calculez les $e_{ij}$.
 
+```{r results="verbatim"}
+d = varfung
+df = as.data.frame(matrix(d$yield,nrow=3, byrow=TRUE))
+colnames(df) = levels(d$fungicide)
+rownames(df) = levels(d$variety)
 
-## Décomposition de la variance
+df2 = df
+yi = apply(df2, 1, mean)
+yj = apply(df2, 2, mean)
+y = mean(yi)
+df2$'yi.' = yi
+df2 = rbind(df2, c(yj, y))
+rownames(df2) = c(levels(d$variety), "y.j")
+
+df3 = df
+ai = yi - y
+bj = yj - y
+df3$'ai' = ai
+df3 = rbind(df3, c(bj, mean(bj)))
+rownames(df3) = c(levels(d$variety), "bj")
+df3
+
+df4 = t(t(df - ai) - bj) - y 
+df4 = cbind(df4, apply(df4, 1, sum))
+df4 = rbind(df4, apply(df4, 2, sum))
+df4
+```
+
+### Décomposition de la variance
 
 $$y_{ij} - \overline y = (\overline y_{i.} - \overline y) + (\overline y_{.j} - \overline y) + (y_{ij} - \overline y_{i.} - \overline y_{.j} + \overline y)$$
 
@@ -141,9 +210,47 @@ $$R^2 =  \frac{SC_{tot} - SC_{res}}{SC_{tot}}$$
 **Travaux pratiques** : calculez $SC_{F_1}$, $SC_{F_2}$, $SC_{res}$, $SC_{tot}$ et $R^2$.
 
 
+```{r results="verbatim"}
+d = varfung
+df = as.data.frame(matrix(d$yield,nrow=3, byrow=TRUE))
+colnames(df) = levels(d$fungicide)
+rownames(df) = levels(d$variety)
+
+df2 = df
+yi = apply(df2, 1, mean)
+yj = apply(df2, 2, mean)
+y = mean(yi)
+df2$'yi.' = yi
+df2 = rbind(df2, c(yj, y))
+rownames(df2) = c(levels(d$variety), "y.j")
+
+df3 = df
+ai = yi - y
+bj = yj - y
+df3$'ai' = ai
+df3 = rbind(df3, c(bj, mean(bj)))
+rownames(df3) = c(levels(d$variety), "bj")
+df3
+
+df4 = t(t(df - ai) - bj) - y 
+df4 = cbind(df4, apply(df4, 1, sum))
+df4 = rbind(df4, apply(df4, 2, sum))
+df4
+
+c(
+  SC_F1 = ncol(df) * sum(ai^2), 
+  SC_F2 = nrow(df) * sum(bj^2), 
+  SC_res = sum(df4^2)         , 
+  SC_tot = sum((df - y)^2)
+)
+```
+
+
 ## Tests statistiques
 
-**Fisher** : test global de l’effet d’un facteur
+### Test de Fisher
+
+Test global de l’effet **d’un** facteur.
 
   - $H_0 : \alpha_i = 0, \forall i$
   - $H_1 : \exists i, \alpha_i \neq 0$
@@ -195,8 +302,9 @@ abline(v=f_obs_f2, col=2)
 
 
 
+### Test de Student
 
-**Student** : test de la significativité d’un coefficient 
+Test de la significativité d’un **coefficient**. 
 
 - $H_0 : \alpha_i = 0$
 - $H_1 : \alpha_i \neq 0$
@@ -273,29 +381,69 @@ abline(v=c(-1, 1)*t_obs_b2, col=2)
 
 
 
-## Travaux pratiques
+## Exercices
+
+Etudier les jeux de données suivants : 
 
 
-Etudiez les jeux de données suivants : 
+1. Ecriture analytique du modèle ;
+2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$ ;
+3. Statistique de test utilisée et **conditions d’application** ; 
+4. Valeur de la statistique de test ; 
+5. P-valeur associée ; 
+6. Conclusion du test.
 
-  - boxplot
-  - conditions d’application des tests
-  - test de Fisher
-  - test de Student
 
 ```{r, eval=TRUE, echo=TRUE, results="verbatim"}
-# http://irma.math.unistra.fr/~geffray/cours/cours-strasbourg/GLM-M2-2017-2018-TP
+# Note sur les contrasts
 # https://www.dummies.com/programming/r/how-to-set-the-contrasts-for-your-data-with-r/
 # X = levels(rats$poison)
 # contr.treatment(X)
 # contr.sum(X)
 options(contrasts=c("contr.sum", "contr.poly")) # indique que, dans le cas équilibré, les estimations des effets alpha de chaque groupe doivent être de somme nulle
 
-rats = faraway::rats
-head(rats)
-dim(rats)
-table(rats$poison, rats$treat)
+d = ISwR::lung
+head(d)
+dim(d)
+table(d$method, d$subject)
+layout(matrix(1:2,1), respect=TRUE)
+plot(volume~method+subject, d)
+
+library(lsmeans)
+d = auto.noise
+head(d)
+dim(d)
+table(d$size, d$type)
+layout(matrix(1:2,1), respect=TRUE)
+plot(noise~size+type, d)
+
+d = faraway::rats
+head(d)
+dim(d)
+table(d$poison, d$treat)
+layout(matrix(1:2,1), respect=TRUE)
+plot(time~poison+treat, d)
+
+Penicillin = lme4::Penicillin
+head(Penicillin)
+dim(Penicillin)
+table(Penicillin$plate, Penicillin$sample)
+
+cake = lme4::cake
+head(cake)
+dim(cake)
+table(cake$temperature, cake$recipe)
 ```
+
+
+
+
+
+
+
+
+
+
 ```{r, eval=FALSE}
 layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
 boxplot(time~poison+treat,rats, las=2)
@@ -322,12 +470,6 @@ plot(TukeyHSD(m2, conf.level=0.95))
 
 ```
 
-```{r, eval=TRUE, echo=TRUE, results="verbatim"}
-Penicillin = lme4::Penicillin
-head(Penicillin)
-dim(Penicillin)
-table(Penicillin$plate, Penicillin$sample)
-```
 ```{r, eval=FALSE}
 boxplot(diameter~plate+sample,Penicillin, las=2)
 m = lm(diameter~plate+sample,Penicillin)
@@ -336,12 +478,6 @@ anova(m)
 summary(m)
 ```
 
-```{r, eval=TRUE, echo=TRUE, results="verbatim"}
-cake = lme4::cake
-head(cake)
-dim(cake)
-table(cake$temperature, cake$recipe)
-```
 ```{r, eval=FALSE}
 m = lm(angle~temperature+recipe,cake)
 anova(m)
