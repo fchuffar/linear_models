@@ -42,8 +42,8 @@ L’ANOVA à 2 facteurs fonctionne aussi dans le cadre de plan qui ne sont ni co
 ```{r results="verbatim"}
 d = varfung
 df = as.data.frame(matrix(d$yield,nrow=3, byrow=TRUE))
-colnames(df) = levels(d$fungicide)
-rownames(df) = levels(d$variety)
+colnames(df) = unique(d$fungicide)
+rownames(df) = unique(d$variety)
 df
 
 df2 = df
@@ -111,8 +111,8 @@ Dans le cadre du plan complet equirépété :
 ```{r results="verbatim"}
 d = varfung
 df = as.data.frame(matrix(d$yield,nrow=3, byrow=TRUE))
-colnames(df) = levels(d$fungicide)
-rownames(df) = levels(d$variety)
+colnames(df) = unique(d$fungicide)
+rownames(df) = unique(d$variety)
 
 df2 = df
 yi = apply(df2, 1, mean)
@@ -163,8 +163,8 @@ $$ \forall j \sum_i e_{ij} = 0,  \forall i \sum_j e_{ij} = 0$$
 ```{r results="verbatim"}
 d = varfung
 df = as.data.frame(matrix(d$yield,nrow=3, byrow=TRUE))
-colnames(df) = levels(d$fungicide)
-rownames(df) = levels(d$variety)
+colnames(df) = unique(d$fungicide)
+rownames(df) = unique(d$variety)
 
 df2 = df
 yi = apply(df2, 1, mean)
@@ -213,8 +213,8 @@ $$R^2 =  \frac{SC_{tot} - SC_{res}}{SC_{tot}}$$
 ```{r results="verbatim"}
 d = varfung
 df = as.data.frame(matrix(d$yield,nrow=3, byrow=TRUE))
-colnames(df) = levels(d$fungicide)
-rownames(df) = levels(d$variety)
+colnames(df) = unique(d$fungicide)
+rownames(df) = unique(d$variety)
 
 df2 = df
 yi = apply(df2, 1, mean)
@@ -479,7 +479,118 @@ summary(m)
 ```
 
 ```{r, eval=FALSE}
-m = lm(angle~temperature+recipe,cake)
+m = lm (yield~variety+fungicide, varfung)
+anova(m)
+m = lm (yield~fungicide+variety, varfung)
+anova(m)
+
+d = state_us
+m = lm(Life.Exp ~ Murder + HS.Grad, d)
+anova(m)
+m = lm(Life.Exp ~ HS.Grad + Murder, d)
+anova(m)
+
+
+
+
+
+
+Y~A+B
+
+
+
+# equirépété
+df = data.frame(
+  A=c(0, 0, 1, 1, 2, 2, 0, 1, 2),
+  B=c(0, 1, 0, 1, 0, 1, 2, 2, 2)
+)
+table(df$A, df$B)
+plot(df$A, df$B)
+df
+
+df$Y = 6*df$A + 3*df$B + rnorm(nrow(df))
+df 
+
+m = lm(Y~A+B, df)
+anova(m)
+m = lm(Y~B+A, df)
+anova(m)
+
+
+# factors
+df$A = as.factor(df$A)
+df$B = as.factor(df$B)
+
+
+m = lm(Y~A+B, df)
+anova(m)
+m = lm(Y~B+A, df)
+anova(m)
+
+
+
+# pas equirépété (correlation entre A et B)
+df = data.frame(
+  A=c(0, 0, 1, 1, 2, 1, 2),
+  B=c(0, 1, 0, 1, 1, 2, 2)
+)
+table(df$A, df$B)
+plot(df$A, df$B, col=2)
+df
+
+df$Y = 6*df$A + 3*df$B + rnorm(nrow(df))
+df 
+
+m = lm(Y~A+B, df)
+anova(m)
+m = lm(Y~B+A, df)
+anova(m)
+
+
+
+
+
+
+
+
+
+
+
+
+# pas equilibré equirépété (correlation entre A et B)
+df = data.frame(
+  A=c(0, 1, 2, 0, 2),
+  B=c(0, 1, 0, 2, 2)
+)
+table(df$A, df$B)
+plot(df$A, df$B, col=2, pch=16, cex=3)
+df
+
+df$Y = 6*df$A + 3*df$B + rnorm(nrow(df))
+df 
+
+m = lm(Y~A+B, df)
+anova(m)
+m = lm(Y~B+A, df)
+anova(m)
+
+
+
+
+
+replicat
+df = rbind(df, df, df, df, df, df, df, df)
+set.seed(1)
+df$Y = 6*df$A+rnorm(nrow(df))+3*df$B*rnorm(nrow(df))
+
+# factors
+df$A = as.factor(df$A)
+df$B = as.factor(df$B)
+
+
+m = lm(Y~A+B, df)
+anova(m)
+m = lm(Y~B+A, df)
 anova(m)
 ```
 

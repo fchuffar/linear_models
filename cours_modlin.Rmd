@@ -68,7 +68,8 @@ https://github.com/fchuffar/linear_models
       - fin de semaine, 1 questionnaire par personne : https://chagrade.lri.fr
 
       
-  - ANOVA 
+  - ANOVA à un facteur
+  - ANOVA à deux facteurs sans répétition
   
 ---
 
