@@ -1,5 +1,5 @@
 ---
-title: "Modèles linéaires"
+title: "Modèles linéaires et GLM"
 subtitle: "M1 SSD"
 author: "Florent Chuffart & Magali Richard"
 date: "`r Sys.Date()`"
@@ -23,36 +23,30 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 
 ## Les plateformes
 
-1. __MATTERMOST__ Afin de faciliter les échanges, nous utiliserons la plateforme *mattermost*, un canal "Modèles Linéaires" a été créé, je vous invite à le rejoindre avec vos identifiants AGLAN :
-  https://im2ag-tchat.univ-grenoble-alpes.fr/signup_user_complete/?id=msa7add54jdi3qicp8n7e7pw5c
 
 
-2. __ZOOM__ Il a été montré :
-  - que donner une leçon devant un écran n'est pas un exercice facile,
-  - qu'il n'est pas facile d'activer la vidéo pour tout le monde (bande passante, intrusion, etc.),
-  - qu'un bon compromis est de mettre vos visages en photo de profil, alors je l'ai fait et je vous invite à le faire, cela nous permettra de faire connaissance avant de nous rencontrer.
-  
-3. __CHAGRADE__ Le cours est organisé autour d'un cours virtuel sur la plateforme chagrade. Vous serez donc évalué (contrôle continu) à la fin de chaque session par un court questionnaire. Je vous invite maintenant à créer un compte avec l'adresse mail sur laquelle vous avez reçu cet email (en minuscules impérativement) ici: https://chagrade.lri.fr, vous serez automatiquement redirigé vers le cours virtuel intitulé.
-
-4. __CODALAB__ Les TP seront organisés dès la première session autour de plusieurs data challenges sur la plateforme codalab, je vous invite à vous connecter ici maintenant pour gagner du temps
+1. __CODALAB__ Les TP seront organisés dès la première session autour de plusieurs data challenges sur la plateforme codalab, je vous invite à vous connecter ici maintenant pour gagner du temps
   https://competitions.codalab.org/competitions/28092?secret_key=6d097f54-b525-4fa7-849c-5f31e142f848
 
-5. __GITHUB__ Le cours est dés maintenant disponible sur github, il évoluera au fil des sessions, le dépot sera régulièrement mis à jour  
+2. __GITHUB__ Le cours est dés maintenant disponible sur github, il évoluera au fil des sessions, le dépot sera régulièrement mis à jour  
   https://github.com/fchuffar/linear_models
 
 
+3. __GOOGLEFORM__ Certaines évaluation de contrôle continu seront réalisées via des questionnaires Google.
 
+[Questionnaire Séance 1](https://forms.gle/tk5n2FZVba4iv28j7) : à rendre pour le dimanche 14
 
 
 ## Evaluations
 
- - Individuelle via un questionnaire à la fin de chaque séance.
- - En équipe lors d’un *data challenge* à la fin des 8 séances.
+ - Individuelle via un questionnaire à certaines séances.
+ - En équipe lors d’un *data challenge* séance 4 et séance 7.
 
 ## Pré-requis
  
  - R https://cran.r-project.org 
  - RStudio https://www.rstudio.com
+ - git and github https://r-pkgs.org/git.html & https://privefl.github.io/R-presentation/rstudio-git.html#1 
 
 ## Cours 
 
@@ -60,16 +54,18 @@ https://github.com/fchuffar/linear_models
 
 ## Organisation prévisionnelle
 
-  - Régression linéaire simple
-  - Régression linéaire multiple
-  - *data challenge 1* : 
+  - Régression linéaire simple (séance 1, Magali Richard)
+  - Régression linéaire multiple (séance 2, Florent Chuffart)
+  - ANOVA (séance 3, Florent Chuffart) 
+  - *data challenge 1* (séance 4, Magali Richard)
       - codalab : https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910
       - fin de séance, 1 compte rendu par équipe : https://github.com/fchuffar/starting_kit_expred3.0
-      - fin de semaine, 1 questionnaire par personne : https://chagrade.lri.fr
 
-      
-  - ANOVA à un facteur
-  - ANOVA à deux facteurs sans répétition
+     
+  - Introduction à la régression logistique (séance 5, Florent Chuffart) 
+  - GLM (séance 6, Magali Richard)
+   - *data challenge 2* (séance 7, Magali Richard)
+   - Regression de poisson (séance 8, Florent Chuffart)
   
 ---
 
@@ -88,7 +84,7 @@ https://github.com/fchuffar/linear_models
 ```{r child = "03_cours_modlin.Rmd", eval=TRUE}
 ```
 
-```{r child = "04_cours_modlin.Rmd", eval=TRUE}
+```{r child = "04_cours_modlin.Rmd", eval=FALSE}
 ```
 
 
