@@ -69,7 +69,7 @@ Les $n$ observations vont permettre :
 Remarques : 
 
   - On utilise un modèle linéaire Gaussien pour des observations pouvant être modélisées par une loi normales. Pour d’autres distributions (Poisson, Bernoulli...), on utilisera un modèle linéaire généralisé (GLM).
-  - La régression linéaire se caractérise par des variables explicatives **quantitatives** (*e.g.*, $poids~taille$). L’ANOVA se caractérise par des variables explicatives  **qualitatives** (*e.g.*, $poids~sexe$).
+  - La régression linéaire se caractérise par des variables explicatives **quantitatives** (*e.g.*, $poids \sim taille$). L’ANOVA se caractérise par des variables explicatives  **qualitatives** (*e.g.*, $poids \sim sexe$).
 
 ---
 
