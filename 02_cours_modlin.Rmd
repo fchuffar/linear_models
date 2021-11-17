@@ -518,7 +518,7 @@ Critère, la *p-valeur* est la probabilité d’observer la valeur de la statist
 
 Ainsi :
 
-  - si la p-valeur calculée est plus petite que notre risque $\alpha$ fixé, alors le test est significatif, H_0 est improbable, on rejete  $\mathcal{H}_0$ et on décide que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
+  - si la p-valeur calculée est plus petite que notre risque $\alpha$ fixé, alors le test est significatif, $\mathcal{H}_0$ est improbable, on rejete  $\mathcal{H}_0$ et on décide que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
 
   - si la p-valeur calculée est plus grande que notre risque $\alpha$ fixé, alors le test n’est pas significatif, on conserve $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
 
@@ -617,13 +617,11 @@ summary(m)
 anova(m)
 
 m = lm(Life.Exp ~ HS.Grad + Murder + Frost, d)
+summary(m)
 anova(m)
 
 anova(lm(Life.Exp ~ Illiteracy + Murder, d))
 anova(lm(Life.Exp ~ Murder + Illiteracy, d))
-
-m = lm(Life.Exp ~ Income + Illiteracy, d)
-
 ```
 
 ---
