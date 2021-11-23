@@ -84,7 +84,7 @@ https://github.com/fchuffar/linear_models
 ```{r child = "03_cours_modlin.Rmd", eval=TRUE}
 ```
 
-```{r child = "04_cours_modlin.Rmd", eval=FALSE}
+```{r child = "04_cours_modlin.Rmd", eval=TRUE}
 ```
 
 
