@@ -461,7 +461,7 @@ pval_methC
 ```
 
 
-````{r, eval=TRUE, echo=TRUE, results="verbatim"}
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
 library(lsmeans)
 d = auto.noise
 head(d)
