@@ -13,6 +13,8 @@ varfung = data.frame(
   fungicide=c("Y","Z","Y","Z","Y","Z"),
   yield=c(2,2,1,5,3,5)
 )
+varfung$variety = as.factor(varfung$variety)
+varfung$fungicide = as.factor(varfung$fungicide)
 varfung
 # m = lm (yield~variety+fungicide, d)
 # summary(m)
