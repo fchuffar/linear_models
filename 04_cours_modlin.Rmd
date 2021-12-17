@@ -490,6 +490,9 @@ bartlett.test(noise~I(d$size:d$type), d) # Attention !!
 
 anova(m)
 
+m = lm(noise~size*type, d)
+anova(m)
+
 ```
 
 
@@ -506,15 +509,15 @@ dim(d)
 table(d$poison, d$treat)
 layout(matrix(1:2,1), respect=TRUE)
 plot(time~poison+treat, d)
-
 ```
+
 ```{r, eval=TRUE, echo=TRUE, results="verbatim"}
 Penicillin = lme4::Penicillin
 head(Penicillin)
 dim(Penicillin)
 table(Penicillin$plate, Penicillin$sample)
-
 ```
+
 ```{r, eval=TRUE, echo=TRUE, results="verbatim"}
 cake = lme4::cake
 head(cake)

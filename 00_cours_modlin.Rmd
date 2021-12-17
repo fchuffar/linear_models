@@ -1,0 +1,30 @@
+# Mise à niveau sur l’utilisation des outils R/git/rmarkdown
+
+L’Objectif de cette section est de définir un ensemble d’outils et de concepts peremttant d’appréhender la suite du cours.
+
+## R et RStudio
+
+R est une calculatrice
+
+Le script R permet de rejouer un série d’intructions (traçabilité).
+
+RStudio est un environnement d etravail dédié à R regroupant entre autre :
+
+  - la console R (qui va executer les instructions)
+  - un éditeur de texte dédié à l’écriture de script R
+
+**Attention**, la console R est instanciée dans un répertoire donné, visible de la manière suivante : 
+
+```{r echo=TRUE, result="verbnatim"}
+getwd()
+```
+
+**Astuce**, pour être certain de vous trouver dans le bon répertoire : 
+
+- fermer RStudio
+- ouvrer votre script R depuis votre gestionnaire de fichier a avec RStudio.
+
+## git et github
+
+## rmarkdown et la programmation lettrée
+

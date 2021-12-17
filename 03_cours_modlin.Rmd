@@ -253,22 +253,32 @@ plot(
 
 ```{r eval=FALSE}
 # README RStudio config, uncheck: # preferences > R Markdown > show output inline for... 
-layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+data(CO2)
+d = CO2[CO2$Type=="Quebec" & CO2$Treatment=="chilled", ]
+head(CO2)
+d$conc_log = log(d$conc)
+d$conc_fact = as.factor(d$conc)
+m1 = lm(uptake~conc, d)
+m2 = lm(uptake~conc_log, d)
+layout(matrix(1:3, 1), respect=TRUE)
 plot(
   d$conc, 
   d$uptake, 
-  xlab="conc_fact", ylab="uptake", main=paste0("uptake~conc_fact R^2=", signif(summary(m1)$r.squared,3))
+  xlab="conct", ylab="uptake", main=paste0("uptake~conc R^2=", signif(summary(m1)$r.squared,3))
 )
-m = lm(uptake ~ conc, d)
-abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
-arrows(d$conc, d$uptake, d$conc, d$uptake-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
-legend("bottomright",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+abline(m1, col=2)
+plot(
+  d$conc_log, 
+  d$uptake, 
+  xlab="conc_log", ylab="uptake", main=paste0("uptake~conc_log R^2=", signif(summary(m2)$r.squared,3))
+)
+abline(m2, col=2)
 
-m2 = lm(uptake ~ conc_fact, d)
-summary(m2)$r.squared
-p = plot(d$conc_fact, d$uptake, las=2, main=paste0("uptake~conc_fact R^2=", signif(summary(m2)$r.squared,3)))
+m3 = lm(uptake ~ conc_fact, d)
+summary(m3)$r.squared
+p = plot(d$conc_fact, d$uptake, las=2, main=paste0("uptake~conc_fact R^2=", signif(summary(m3)$r.squared,3)))
 conc_fact = jitter(as.numeric(d$conc_fact))
-arrows(conc_fact, d$uptake, conc_fact, d$uptake-m2$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
+arrows(conc_fact, d$uptake, conc_fact, d$uptake-m3$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("bottomright","residuals", col=4, lty=1, cex=.8)
 ```
   
