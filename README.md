@@ -2,7 +2,7 @@ This repository embeds a set a supports dealing with *linear models*.
 
 It is intended to be processed by R.
 
-It needs somes R packages: 
+It needs some R packages: 
 
 ```
 pkgs= c(
