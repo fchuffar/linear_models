@@ -20,36 +20,29 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 
 
 
-## Les plateformes
-
-1. __GITHUB__ Le cours est dés maintenant disponible sur github, il évoluera au fil des sessions, le dépot sera régulièrement mis à jour  
-  https://github.com/fchuffar/linear_models
-
-2. __CODALAB__ Les TP seront organisés dès la première session autour de plusieurs data challenges sur la plateforme codalab, je vous invite à vous connecter ici maintenant pour gagner du temps
-  https://competitions.codalab.org/competitions/28092?secret_key=6d097f54-b525-4fa7-849c-5f31e142f848
-
-3. __GOOGLEFORM__ Certaines évaluation de contrôle continu seront réalisées via des questionnaires Google.
-
-[Questionnaire Séance 1](https://forms.gle/tk5n2FZVba4iv28j7)
-
-## Evaluations
-
- - Individuelle via un questionnaire à certaines séances.
- - En équipe lors d’un *data challenge* séance 4.
-
 ## Pré-requis
  
  - R https://cran.r-project.org 
  - RStudio https://www.rstudio.com
- - git and github https://r-pkgs.org/git.html & https://privefl.github.io/R-presentation/rstudio-git.html#1 
+ - git and github https://r-pkgs.org/git.html & https://privefl.github.io/R-presentation/rstudio-git.html
 
- ## Organisation prévisionnelle
 
-  - Séance 1 : Régression linéaire simple
+## Les plateformes
+
+1. __GitHub__ Le cours est dés maintenant disponible sur GitHub (https://github.com/fchuffar/linear_models), il évoluera au fil des sessions, le dépot sera régulièrement mis à jour.
+
+
+2. __CodaLab__ Un TP sera organisé lors de la quatrième session. Il prendra la forme d’un *data challenge*. Je vous invite à vous connecter sur [codala](https://competitions.codalab.org/competitions/28092?secret_key=6d097f54-b525-4fa7-849c-5f31e142f848) au plus tôt afin de gagner du temps.
+  
+
+## Organisation prévisionnelle
+
+  - Séance 1 : Rappels info/algo + Régression linéaire simple
   - Séance 2 : Régression linéaire multiple
   - Séance 3 : ANOVA 
-  - Séance 4 : [*Gene Expression Prediction Challenge 3.0 (expred3.0)*] (https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910) 
-      [Compte rendu de TP prérempli](https://github.com/fchuffar/starting_kit_expred3.0)
+  - Séance 4 : TP 
+    ([Gene Expression Prediction Challenge 3.0 (expred3.0)](https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910) - 
+    [Compte rendu de TP pré-rempli](https://github.com/fchuffar/starting_kit_expred3.0))
 
   
 ---
@@ -58,8 +51,12 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 
 
 
+```{r child = "00_cours_modlin.Rmd", eval=TRUE}
+```
+
 ```{r child = "01_cours_modlin.Rmd", eval=TRUE}
 ```
+
 
 ```{r child = "02_cours_modlin.Rmd", eval=TRUE}
 ```
@@ -95,7 +92,7 @@ Madsen H. and Thyregord, P (2011). *Introduction to General and Generalized Line
 Weisberg, S (2005). *Applied linear regression*. Vol. 528. **John Wiley & Sons**.
 
 
-Ce cours s’inspire des échanges avec les personnes et liens suivants : 
+Ce cours s’inspire des échanges avec les personnes  et liens suivants : 
 
 - Frédéric Bertrand & Myriam Maumy-Bertrand
 - Franck Picard
