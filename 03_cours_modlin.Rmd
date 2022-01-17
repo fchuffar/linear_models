@@ -150,7 +150,7 @@ La variance observée du groupe $j$ s’écrit :
 $$s_j^2(Y) = \frac{1}{|K|}\sum_{k \in K}(Y_{jk} -\overline Y_j)^2$$
 
 
-*Remarque* : Cette dernière formule exprime la variance non corrigée. Très souvent, dans les ouvrages ou les logiciels, c’est la variance corrigée qui est utilisée : au lieu d’être divisée par $|K|$, la somme est divisée par $|K| − 1$.
+*Remarque* : Cette dernière formule exprime la variance non corrigée. Très souvent, dans les ouvrages ou les logiciels, c’est la variance corrigée qui est utilisée : au lieu d’être divisée par $|K|$, la somme est divisée par $|K| - 1$.
 
 
 **Propriétés fondamentales**
@@ -324,8 +324,8 @@ Le test de l’ANOVA à 1 facteur (*one way ANOVA*), s’applique sous certaines
 
 l’ANOVA est un test de comparaison des moyennes des facteurs : 
 
-- hypothèse nulle $H_0, \mu_1 =\mu_2 =···=\mu_I$
-- hypothèse alternative $H_1, \text{les moyennes } \mu_i \text{ ne sont pas toutes égales.}$
+- hypothèse nulle $H_0,\mu_1=\mu_2=...=\mu_I$
+- hypothèse alternative $H_1, \text{les moyennes } \mu_i \text{ ne sont pas toutes égales.}$
 
 **Intuition du test** Si l’hypothèse nulle $H_0$ est vraie alors la quantité $SC_F$ (rouge) doit être petite par rapport à la quantité $SC_{res}$ (bleu).
 Par contre, si l’hypothèse alternative $H_1$ est vraie alors la quantité $SC_F$ doit être grande par rapport à la quantité $SC_{res}$.
@@ -367,7 +367,7 @@ Sa valeur observée sur l’échantillon est ainsi notée $CM_{res}$ ou $s_{res}
 
 Définissons la statistique de test :
 
-$$ F_{obs} = \frac{CM_F}{CM_{res}}$$
+$$F_{obs} = \frac{CM_F}{CM_{res}}$$
 
 Si les conditions d’aplications sont satisfaites et sous $H_0$ alors $F_{obs}$ est une réalisation d’une variable aléatoire $F$ qui suit une loi de Fisher à $|J|-1$ degrés de liberté au numérateur et $n-|J|$ degrés de liberté au dénominateur. Cette loi est notée  $\mathcal{F}_{|J|-1,n-|J|}$.
 
@@ -410,7 +410,7 @@ legend("topright",c("F_obs", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=
 
 
 
-*Remarque* : on peut aussi écrire ce test à l’qide d’une table disjonctif : 
+*Remarque* : on peut aussi écrire ce test à l’aide d’une table disjonctif : 
 
 ```{r echo=TRUE, results="verbatim"}
 d$A = 0
@@ -428,6 +428,35 @@ summary(m0)
 m00 = lm(count~A+B+C+D+E,d)
 summary(m00)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -468,7 +497,7 @@ points(jitter(as.numeric(d$spray)), d$count)
 On peut aussi réaliser plusieurs Test de Student et appliqué une correction
 
 La plus connues est la correction de **Bonferroni**. Cela consiste à diviser le seuil par le nombre de comparaisons. 
-Bonferroni a montré que cette procédure garantit un taux d’erreur global plus faible que le seuil initial (conservatif).  
+Bonferroni a montré que cette procédure garantit un taux d’erreur global plus faible que le seuil initial (conservatif).  
 
 
 ```{r echo=TRUE, results="verbatim"}
@@ -479,6 +508,11 @@ pairwise.t.test(d$count, d$spray, p.adjust.method="bon")
 
 
 Une autre méthode utilisée quand le nombre de tests multiples à réalisé est très grand est la procédure de contrôle du taux de fausses découverte (FDR) de **Benjamini-Hochberg** [Y. Benjamini, Y. Hochberg. *Controlling the false discovery rate : a practical and powerful approach to multiple testing*. Journal of the Royal Statistical Society, Series B (Methodological), 1995, p289-300.].
+
+
+
+
+
 
 
 

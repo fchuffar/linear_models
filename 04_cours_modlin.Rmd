@@ -198,10 +198,9 @@ $$y_{ij} - \overline y = (\overline y_{i.} - \overline y) + (\overline y_{.j} - 
 Dans le cadre du plan équirépétés : 
 
 \begin{eqnarray}
-
-\sum_i \sum_j (y_{ij} - \overline y)^2 &=& \sum_i J (\overline y_{i.} - \overline y)^2 &+& \sum_j I (\overline y_{.j} - \overline y)^2 &+& \sum_i \sum_j (y_{ij} - \widehat y_{ij})^2 \\
-                                       &=&  J \sum_i \widehat \alpha_i^2  &+& I \sum_j \widehat \beta_j^2 &+& \sum_i \sum_j e_ij^2 \\
-                              SC_{tot} &=&  SC_{F_1}                       &+&  SC_{F_2}                    &+& SC_{res} 
+\sum_i \sum_j (y_{ij} - \overline y)^2 &=& \sum_i J (\overline y_{i.} - \overline y)^2 + \sum_j I (\overline y_{.j} - \overline y)^2 + \sum_i \sum_j (y_{ij} - \widehat y_{ij})^2 \\
+                                       &=&  J \sum_i \widehat \alpha_i^2               + I \sum_j \widehat \beta_j^2                 + \sum_i \sum_j e_ij^2 \\
+                              SC_{tot} &=&  SC_{F_1}                                   +  SC_{F_2}                                   + SC_{res}
 \end{eqnarray}
 
 
@@ -380,6 +379,33 @@ polygon(c(t_obs_b2,t_obs_b2, 10, 10), c(-10, 10, 10, -10), col=adjustcolor("grey
 polygon(c(-t_obs_b2,-t_obs_b2, -10, -10), c(-10, 10, 10, -10), col=adjustcolor("grey", alpha.f=0.5))
 abline(v=c(-1, 1)*t_obs_b2, col=2)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

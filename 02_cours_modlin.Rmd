@@ -95,7 +95,7 @@ y_1\\
 \vdots\\
 y_n
 \end{array}\right) = \left(\begin{array}
-{rrr}
+{rrrr}
 1 & x_{1,1} & ... & x_{1,p}\\
 \vdots & \vdots & \vdots & \vdots \\
 1 & x_{n,1} & ... & x_{n,p}
@@ -159,7 +159,7 @@ Que se passe-t-il quand $n >> p$ ?
 
 comme ${}^t\widehat\beta{}^tXy$ est un scalaire, il est égal à sa transposée.
 
-La dérivée par rapport à $\beta$ est alors égale à : $−2{}^tXy+2{}^tXX\widehat\beta$.
+La dérivée par rapport à $\beta$ est alors égale à : $-2{}^tXy+2{}^tXX\widehat\beta$.
 
 
 
@@ -261,16 +261,14 @@ log\mathcal{L}_{\mathcal{M}, Y,X} &=& log(\mathbb{P}_\mathcal{M}(Y|X)) \\
 Dans le cadre de la régression  linéaire multiple (**normalité des résidus**), la vraisemblance vaut : 
 
 \begin{eqnarray}
-
- \mathcal{L}(Y,\beta,\sigma^2) &=& \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}\sum^n_{i=1}(y_i-x’_i\beta)^2\Big] \\
-                               &=& \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}||Y-X\beta||^2\Big] 
-
+\mathcal{L}(Y,\beta,\sigma^2) &=& \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}\sum^n_{i=1}(y_i-x_i\beta_i)^2\Big]\\
+                              &=& \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}||Y-X\beta||^2\Big]
 \end{eqnarray}
 
 
 D’où l’on déduit la log-vraisemblance
 
-$$ log\mathcal{L}(Y,\beta,\sigma^2) = \frac{n}{2}log(2\pi) -\frac{n}{2}log(\sigma^2) - \frac{1}{2\sigma^2}||Y-X\beta||^2 $$
+$$log\mathcal{L}(Y,\beta,\sigma^2) = \frac{n}{2}log(2\pi) -\frac{n}{2}log(\sigma^2) - \frac{1}{2\sigma^2}||Y-X\beta||^2$$
 
 Maximiser la log-vraisemblance revient à minimiser la quantité $||Y-X\beta||^2$, ce qui est l’objectif des *moindres carrés ordinaires*.
 

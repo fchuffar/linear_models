@@ -1,4 +1,4 @@
-# Mise à niveau sur l’utilisation des outils R/git/rmarkdown
+# Mise à niveau sur l’utilisation des outils R/git/rmarkdown
 
 L’objectif de cette section est de définir un ensemble d’**outils informatiques** et de **notions d’algorithmique** vous permettant d’appréhender la suite du cours dédiée aux **statistiques**.
 

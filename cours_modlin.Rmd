@@ -1,5 +1,5 @@
 ---
-title: "Modèles linéaires et GLM"
+title: "Modèles linéaires"
 author: "Florent Chuffart & Magali Richard"
 date: "`r Sys.Date()`"
 output: 
@@ -8,6 +8,7 @@ output:
     toc_float: true
     toc_depth: 3
     number_sections: true
+urlcolor: blue
 ---
 
 
@@ -32,7 +33,10 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 1. __GitHub__ Le cours est dés maintenant disponible sur GitHub (https://github.com/fchuffar/linear_models), il évoluera au fil des sessions, le dépot sera régulièrement mis à jour.
 
 
-2. __CodaLab__ Un TP sera organisé lors de la quatrième session. Il prendra la forme d’un *data challenge*. Je vous invite à vous connecter sur [codala](https://competitions.codalab.org/competitions/28092?secret_key=6d097f54-b525-4fa7-849c-5f31e142f848) au plus tôt afin de gagner du temps.
+2. __CodaLab__ Un TP sera organisé lors de la quatrième session. Il prendra la forme d’un *data challenge*. Je vous invite à vous connecter sur [codalab](https://competitions.codalab.org/competitions/28092?secret_key=6d097f54-b525-4fa7-849c-5f31e142f848) au plus tôt afin de gagner du temps.
+ 
+ 
+3. __Google Forms__ Un [formulaire en ligne](https://forms.gle/8Pp5S3Ze7jrRQcNe6) évaluant votre progression vous sera régulièrement proposé.
   
 
 ## Organisation prévisionnelle
@@ -60,7 +64,7 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 
 ```{r child = "02_cours_modlin.Rmd", eval=TRUE}
 ```
-```{r child = "02.1_cours_modlin.Rmd", eval=TRUE}
+```{r var_select, child = "02.1_cours_modlin.Rmd", eval=TRUE}
 ```
 
 ```{r child = "03_cours_modlin.Rmd", eval=TRUE}
@@ -81,9 +85,9 @@ Daudin Jean-Jacques, (2015).
 *Le modèle linéaire et ses extensions*, **ellipse**, France.
 http://moulon.inra.fr/modelstat/supports/ModeleLineaireEt_Extensions-compressed.pdf
 
-Cornillon, P.-A. et Matzner-Løber, E. (2011). *Régression avec R*, **Springer**, France.
+Cornillon, P.-A. et Matzner-Løber, E. (2011). *Régression avec R*, **Springer**, France.
 
-Cornillon, P.-A. et Matzner-Løber, E. (2007). *Régression. Théorie et applications*, **Springer**, France.
+Cornillon, P.-A. et Matzner-Løber, E. (2007). *Régression. Théorie et applications*, **Springer**, France.
 
 McCullagh, P. et Nelder, J.A. (1989). *Generalized Linear Models. Second Edition. Monographs on Statistics and Applied Probability* 37. **Chapman and Hall**.
 

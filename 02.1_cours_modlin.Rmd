@@ -196,7 +196,7 @@ life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
 
 ### Exemple complet `ISwR::cystfibr`
 
-Les données `ISwR::cystfibr` concernent la fonction respiratoire de patients atteints de fibrose kystique (mucoviscidose).
+Les données `ISwR::cystfibr` concernent la fonction respiratoire de patients atteints de fibrose kystique (mucoviscidose).
 
 On cherche à expliquer la variable `pemax` qui caracterise cette maladie.
 

@@ -1,5 +1,14 @@
 # Régression linéaire simple
 
+L’objectif de cette section est : 
+  - d’introduire la **régression linéaire** comme modèle statistique
+  - de définir les **tests de Student et de Fisher** comme des procédures permettant d’interoger le modèle.
+  
+---
+
+
+
+
 On cherche une relation entre la variable observée $Y$ et la variable explicative $x$. 
 
 $$ Y \sim x $$
@@ -124,7 +133,7 @@ plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille")
 m = lm(poids~taille, d)
 m$coefficients
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("E(Y)", "epsilon"), col=c(2,4), lty=1, cex=.8)
 ```
 
@@ -166,7 +175,7 @@ abline(v=d$taille[i], h=c(d$poids[i], d$poids[i]-m$residuals[i]), lty=2, col=2)
 axis(3, at=d$taille[i], "xi", las=2, col=2)
 axis(4, at=c(d$poids[i], d$poids[i]-m$residuals[i]), c("Yi", expression(hat("Yi"))), las=2, col=2)
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=1) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille[i], d$poids[i]-m$residuals[i], d$taille[i], d$poids[i], col=4, length=0.1, lwd=2))
+arrows(d$taille[i], d$poids[i]-m$residuals[i], d$taille[i], d$poids[i], col=4, length=0.1, lwd=2)
 text(d$taille[i], d$poids[i]-m$residuals[i]/2, "eps_i", col=4, las=2, pos=2, cex=2)
 ```
 
@@ -220,7 +229,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
 ```
 
 ```{r echo=TRUE}
@@ -231,7 +240,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
 
 beta_0 = -16
 beta_1 = 0.5
@@ -239,7 +248,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+arrows(d$taille[res!=0], d$poids[res!=0], d$taille[res!=0], (d$poids-res)[res!=0], length=0.1, col=adjustcolor(4, alpha.f=0.5))
 ```
 
 
@@ -264,7 +273,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+arrows(d$taille[res!=0], d$poids[res!=0], d$taille[res!=0], (d$poids-res)[res!=0], length=0.1, col=adjustcolor(4, alpha.f=0.5))
 ```
 
 
@@ -288,15 +297,16 @@ $$\frac{\delta EQM(\beta_0, \beta_1)}{\delta \beta_0} = -2 \sum (Y_i - \beta_0 -
 $$\frac{\delta EQM(\beta_0, \beta_1)}{\delta \beta_1} = -2 \sum x_i (Y_i - \beta_0 - \beta_1x_i)$$
 
 Les estimateurs $(\widehat\beta_0^{MCO},\widehat\beta_1^{MCO})$ sont les solutions du système d’équation :
-$$ \Bigg\{
-\begin{align}
--2 \sum (Y_i - \beta_0 - \beta_1x_i) = 0  \\ 
--2 \sum x_i (Y_i - \beta_0 - \beta_1x_i) = 0
-\end{align}
-$$
+
+\begin{equation}
+    \begin{cases}
+    -2 \sum (Y_i - \beta_0 - \beta_1x_i) = 0  \\
+    -2 \sum x_i (Y_i - \beta_0 - \beta_1x_i) = 0
+    \end{cases}\,.
+\end{equation}
 
 
-Soient les equations suivantes : 
+Soient les équations suivantes : 
 
 $$(1) \sum{Y}_i = n\widehat\beta_0 + \widehat\beta_1 \sum{x_i} $$
 
@@ -352,7 +362,7 @@ m$coefficients
 abline(a=m$coef[[1]], b=m$coef[[2]], col=2) # /!\ y = b.x + a
 # residuals
 # head(m$residuals)
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 ```
 
@@ -385,15 +395,11 @@ La méthode des moindres carrés, en considérant la somme des carrés de ces di
 
 
 \begin{eqnarray}
-
 \sum(Y_i - \overline{Y}_n)^2 &=& \sum((Y_i - \widehat Y_i) + (\widehat Y_i - \overline{Y}_n))^2 \\
 &=& \sum(Y_i - \widehat Y_i)^2 + \sum(\widehat Y_i - \overline{Y}_n)^2 + 2 \sum(Y_i - \widehat Y_i) (\widehat Y_i - \overline{Y}_n) \\
 &=& \sum(\widehat Y_i - \overline{Y}_n)^2 + \sum(Y_i - \widehat Y_i)^2
-
 \end{eqnarray}
 
-
-$$  $$
 
 Soit : 
 
@@ -427,13 +433,13 @@ layout(matrix(1:2, 1), respect=TRUE)
 m = lm(d$poids~d$taille)
 plot(d$taille, d$poids, main=paste0("poids~taille R^2=", signif(summary(m)$r.squared, 2)*100, "%"))
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
 m = lm(d$poids~d$age)
 plot(d$age, d$poids, main=paste0("poids~age R^2=", signif(summary(m)$r.squared, 2)*100, "%"))
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$age, d$poids, d$age, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$age, d$poids, d$age, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 ```
 
@@ -645,7 +651,7 @@ m = lm(poids~taille, d)
 ```{r}
 layout(matrix(1:2, 1), respect=TRUE)
 plot( d$taille, d$poids, main="poids ~ taille")
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
 abline(m, col=2)
@@ -740,7 +746,7 @@ Etudier le modèle le modèle $Hwt \sim Bwt$
 ```{r}
 layout(1, respect=TRUE)
 plot( d$Bwt, d$Hwt, xlab="Body weight", ylab="Heart weight", main="Heart weight ~ Body weight")
-suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 abline(m, col=2)
 ```
@@ -748,7 +754,7 @@ abline(m, col=2)
 ```{r eval=FALSE}
 layout(matrix(1:2, 1), respect=TRUE)
 plot( d$Bwt, d$Hwt, xlab="Body weight", ylab="Heart weight", main="Heart weight ~ Body weight")
-suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
 abline(m, col=2)
@@ -887,7 +893,7 @@ m = lm(poids~taille, d)
 ```{r}
 layout(matrix(1:2, 1), respect=TRUE)
 plot( d$taille, d$poids, main="poids ~ taille")
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
 abline(m, col=2)
@@ -977,7 +983,7 @@ Etudier le modèle le modèle $Hwt \sim Bwt$
 ```{r}
 layout(1, respect=TRUE)
 plot( d$Bwt, d$Hwt, xlab="Body weight", ylab="Heart weight", main="Heart weight ~ Body weight")
-suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 abline(m, col=2)
 ```
