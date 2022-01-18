@@ -48,7 +48,14 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
     ([Gene Expression Prediction Challenge 3.0 (expred3.0)](https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910) - 
     [Compte rendu de TP pré-rempli](https://github.com/fchuffar/starting_kit_expred3.0))
 
-  
+## Publicité
+
+Le RIS est le Réseau Interdisciplinaire autour de la Statistique (Mission pour les Initiatives Transverses et Interdisciplinaires, CNRS).
+
+N’hésitez pas à rejoindre le RIS, vous serez tenus informés des actions de formation et des journées thématiques du réseau :
+ https://ris.cnrs.fr/rejoindre-le-reseau/
+ 
+ 
 ---
 
 

@@ -273,7 +273,7 @@ La programmation lettrée est paradigme de programmation préconisée par Donald
 **R Markdown** est un langage de programmation lettrée dédié à R. Il permet de produire facilement des documents entremêlant les objectifs, le code R et l’interprétation des résultats. 
 
 
-## Exercices
+**Exercices**
 
 1. Télécharger en compilez [https://github.com/fchuffar/linear_models](le cours).
   
