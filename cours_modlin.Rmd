@@ -33,7 +33,7 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 1. __GitHub__ Le cours est dés maintenant disponible sur GitHub (https://github.com/fchuffar/linear_models), il évoluera au fil des sessions, le dépot sera régulièrement mis à jour.
 
 
-2. __CodaLab__ Un TP sera organisé lors de la quatrième session. Il prendra la forme d’un *data challenge*. Je vous invite à vous connecter sur [codalab](https://competitions.codalab.org/competitions/28092?secret_key=6d097f54-b525-4fa7-849c-5f31e142f848) au plus tôt afin de gagner du temps.
+2. __CodaLab__ Un TP sera organisé lors de la quatrième session. Il prendra la forme d’un *data challenge*. Je vous invite à vous connecter sur [codalab](https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910) au plus tôt afin de gagner du temps.
  
  
 3. __Google Forms__ Un [formulaire en ligne](https://forms.gle/8Pp5S3Ze7jrRQcNe6) évaluant votre progression vous sera régulièrement proposé.
