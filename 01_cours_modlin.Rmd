@@ -454,7 +454,7 @@ On s’intéresse uniquement aux plantes dont le `Type` est `Quebec`.
 - Tracer les nuages de points et les droites de regression correspondantes.
 - Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
 
-[correction_co2_linear_model.R](correction_co2_linear_model.R)
+[correction_co2_linear_model.R](./correction_co2_linear_model.R)
 
 **Jeu de données `anscombe`**
 
@@ -473,7 +473,7 @@ plot(anscombe$x4, anscombe$y4)
 - Calculer, comparer et commenter les coéficiants de chacun des modéles.
 - Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
 
-[correction_anscombe.R](correction_anscombe.R)
+[correction_anscombe.R](./correction_anscombe.R)
 
 
 
@@ -515,14 +515,19 @@ plot(anscombe$x4, anscombe$y4)
 
 ## Tests statistiques
 
-Il est important de noter que la construction du modèle de régression linéaire et l’estimation des paramètres par MCO **ne fait appel à aucune hypothèses sur la distribution des résidus**. Ce type d’hypothèses est essentiel lorsqu’il s’agit d’appliquer des tests sur les modèles.
+Il est important de noter que la construction du modèle de régression linéaire et l’estimation des paramètres par MCO **ne fait appel à aucune hypothèses sur la distribution des résidus**. Les hypothèses concerne l’application des tests sur les modèles.
+
+En effet, si le modéle existe indépendamment des tests, l’inverse n’est vrai.
 
 L’objectif d’un test statitsique est de :
 
-  1. valider (ou non) une hypothèses,
+  1. valider (ou non) une hypothèses en interrogeant le modèle ;
   2. quantifier le risque associé à cette décision.
   
 Souvent, on cherche à invalider l’hypothèse dîte *nulle* ($\mathcal{H}_0$) et donc valider l’hypothèse dîte *alternative* ($\mathcal{H}_1$) au risque de première espèce $\alpha$ de 5%.
+
+Cette procédure est une **démonstration par l’absurde** manipulant des **probabilités** : *Si $\mathcal{H}_0$ est vraie, alors les observations sont improbables, ainsi il est plus propable que $\mathcal{H}_1$ soit vraie*.
+
 
 
 ---
@@ -579,11 +584,12 @@ Le *risque de première espèce* ou risque $\alpha$ est le risque de rejeter l�
 
 On prend généralement $\alpha=0.05$.
 
+La *p-valeur* est la probabilité d’observer la valeur de la statistique de test sous $\mathcal{H}_0$.
+
 Notons que le risque de seconde espèce ou risque $\beta$ est le risque de conserver $\mathcal{H}_0$ alors que celle-ci est fausse. 
 Attention, le calcul du risque $\beta$ est plus compliqué. Souvent en minimisant $\alpha$ on augmente $\beta$. 
-Pour s’assurer que $\beta$ reste faible il faut généralement augmenter $n$.
+Pour s’assurer que $\beta$ reste faible il faut généralement augmenter $n$. On prle de *puissance* du test 
 
-La *p-valeur* est la probabilité d’observer la valeur de la statistique de test sous $\mathcal{H}_0$ en ayant préalablement vérifié les conditions d’application du test.
 
 **Décision et conclusion du test**
 
@@ -653,7 +659,7 @@ $$\mathcal{H}_0 : {\beta_1 = 0} \text{ et } \mathcal{H}_1 : {\beta_1 \neq 0}$$
 
 3. Statistique de test utilisée et conditions d’application
 
-Test de Student
+Test de Student, les residus sont gaussiens.
 
 4. Valeur de la statistique de test
 
@@ -672,6 +678,8 @@ La p-valeur est < 0.05, alors le test est significatif. Nous rejetons donc $\mat
 
 ```{r echo=TRUE, results="verbatim"}
 m = lm(poids~taille, d)
+# Shapiro test on residuals
+shapiro.test(m$residuals)
 # Student test
 summary(m)
 m$coefficient[[2]]
@@ -683,12 +691,6 @@ stat_t =  m$coefficient[[2]]/s_beta1
 stat_t
 pval = pt(-stat_t, n-2) + 1-pt(stat_t, n-2)
 pval
-```
-```{r eval=FALSE}
-x=seq(0,50, length.out=30)[-1]
-plot(x, dp(x, p-1,n-p), type="l")
-abline(v=stat_f, lty=2, col="grey")
-
 ```
 
 
@@ -722,7 +724,7 @@ legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 abline(m, col=2)
 ```
 
-[correction_cats_student.R](correction_cats_student.R)
+[correction_cats_student.R](./correction_cats_student.R)
 
 
 
@@ -862,7 +864,7 @@ $$\mathcal{H}_0 : {\beta_1 = 0} \text{ et } \mathcal{H}_1 : {\beta_1 \neq 0}$$
 
 3. Statistique de test utilisée et conditions d’application
 
-Test de Fisher
+Test de Fisher, les résidus sont gaussiens.
 
 4. Valeur de la statistique de test
 
@@ -882,6 +884,8 @@ La p-valeur est < 0.05, alors le test est significatif. Nous rejetons donc $\mat
 ```{r echo=TRUE, results="verbatim"}
 d = data_nutri_20
 m = lm(poids~taille, d)
+# Shapiro test on residuals
+shapiro.test(m$residuals)
 # Fisher test
 anova(m)
 # Sum Sq
@@ -939,6 +943,7 @@ abline(m, col=2)
 
 
 
+## Pour aller plus loin
 
 
 
@@ -946,28 +951,97 @@ abline(m, col=2)
 
 
 
-### Test de randomisation
+
+
+
+### Intervalle de confiance
+
+On peut construire les intervalles de confiance suivants
+
+$$IC_{1-\alpha}(\widehat\beta_1) = \Big]\widehat\beta_1 - t_{n-2;1-\alpha/2}*s_{\beta_1}; \widehat\beta_1 + t_{n-2;1-\alpha/2}*s_{\beta_1}\Big[$$
+
+$$IC_{1-\alpha}(\widehat\beta_0) = \Big]\widehat\beta_0 - t_{n-2;1-\alpha/2}*s_{\beta_0}; \widehat\beta_0 + t_{n-2;1-\alpha/2}*s_{\beta_0}\Big[$$
 
 
 ```{r echo=TRUE, results="verbatim"}
-d = data_nutri_20
-m = lm(poids~taille, d)
-beta_obs = m$coefficients[[2]]
-
-beta_rnds = sapply(1:1000, function(i){
-  d = data_nutri_20
-  set.seed(i)
-  d$poids = sample(d$poids)
-  m = lm(poids~taille, d)
-  beta_rnd = m$coefficients[[2]]
-  return(beta_rnd)
-})
-
-plot(density(beta_rnds))
-abline(v=beta_obs)
-pval = sum(abs(beta_rnds) > beta_obs) / length(beta_rnds)
-pval
+confint(m)
 ```
+
+Ainsi que l’intervalle de prédiction d’une valeur moyenne de $Y$, sachant que $x = x_0$. 
+
+L’estimation ponctuelle pour cette valeur de $x_0$ est alors égale a $\widehat Y_0 = \widehat\beta_0 + \widehat\beta_1x_0$
+
+$$IP_{1-\alpha}(Y) = \Big]\widehat Y_0 - t_{n-2;1-\alpha/2}\sqrt{\widehat\sigma^2_n\Big(\frac{1}{n}+\frac{(x_0-\overline{x}_n)^2}{(n-1)s^2_x}\Big)}; \widehat Y_0 + t_{n-2;1-\alpha/2}*\sqrt{\widehat\sigma^2_n\Big(\frac{1}{n}+\frac{(x_0-\overline{x}_n)^2}{(n-1)s^2_x}\Big)}\Big[$$
+
+
+```{r echo=TRUE, results="verbatim"}
+d = d_mass_cats_10
+m = lm(Hwt~Bwt, d)
+layout(1, respect=TRUE)
+plot(
+  d$Bwt, d$Hwt, 
+  xlab="Body weight", ylab="Heart weight", 
+  main="Heart weight ~ Body weight"
+)
+abline(m, col=2)
+
+x = seq(min(m$model$Bwt), max(m$model$Bwt), length.out=100)
+x = seq(2.5, 3, length.out=100)
+pred =  predict(m, interval="predict", level=0.95)
+head(pred)
+points(m$model$Bwt, pred[,2], col=2, pch=3)
+points(m$model$Bwt, pred[,3], col=2, pch=3)
+pred =  predict(m, interval="predict", level=0.99)
+points(m$model$Bwt, pred[,2], col=3, pch=3)
+points(m$model$Bwt, pred[,3], col=3, pch=3)
+pred =  predict(m, interval="predict", level=0.90)
+points(m$model$Bwt, pred[,2], col=4, pch=3)
+points(m$model$Bwt, pred[,3], col=4, pch=3)
+legend("topleft",c("95% ci", "99% ci", "90% ci"), col=2:4, pch=3)
+
+```
+
+**Travaux pratiques**
+
+
+- Tracer l’intervalle de prédiction du modèle obtenu sur la totalité des données `cats`.
+- Comparer la l’intervalle de prédiction obtenu avec ce modèle avec celui obtenu sur le modèle du cours (30 observations).
+
+```{r eval=FALSE}
+layout(1, respect=TRUE)
+m2 = lm(MASS::cats$Hwt~MASS::cats$Bwt)
+pred =  predict(m2, interval="predict")
+plot(
+  MASS::cats$Bwt, MASS::cats$Hwt, 
+  xlab="Body weight", ylab="Heart weight", 
+  main="Heart weight ~ Body weight"
+)
+abline(m2, col=2)
+head(pred)
+points(m2$model$Bwt, pred[,2], col=4, pch=3)
+points(m2$model$Bwt, pred[,3], col=4, pch=3)
+pred =  predict(m2, interval="predict")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1074,94 +1148,117 @@ abline(0, 1, col=2)
 
 
 
+### Test empirique
+
+Le test empirique repose sur la construction par échantillonage aléatoire (randomisation) d’une distribution empirique sous $\mathcal{H}_0$.
+
+Il pose la question de la siginificativité de la pente de la droite de régression, *compte tenu des données*.
 
 
+**Ecriture analytique du modèle**
+
+$$Y = \beta_0 + \beta_1 x + \epsilon$$
 
 
+**Hypothèse nulle et hypothèse alternative**
+
+On pose la question de la siginificativité de la pente de la droite de régression, compte tenu des données.
+
+$$\left  \lbrace
+\begin{array}{l}
+\mathcal{H}_0 : {\beta_1 = 0} \\
+\mathcal{H}_1 : {\beta_1 \neq 0} 
+\end{array}
+\right.$$
 
 
+**Principe** 
 
+Compte tenu des données, le modèle nous retourne une valeur pour la pente $\beta_{1,obs}$.
 
+Sous $\mathcal{H}_0$, $Y$ est indépendant des valeurs prises par $x$. 
+Si on réattribut les valeurs de $x$ à nos observations de façon aléatoire, la valeur de $\beta_{1,rnd}$ obtenue pour le modèle corespeondant à ces nouvelles observations ne doit statistiquement pas plus s’écarter de $0$ ($\mathcal{H}_0$).
 
+Si l’on réitére cette procédure $n_{rnd}$ fois, et que l’on dénombre $n_{sup}$ les cas où $\beta_{1,rnd}$ s’écarte plus de $0$ que $\beta_{1,obs}$ ($|\beta_{1,rnd}| > |\beta_{1,obs}|$), la *p-valeur empirique* $p=\frac{n_{sup}}{n_{rnd}}$ quantifie la probabilité d’observer par hasard $|\beta_1| > |\beta_{1,obs}| > 0$, i.e, la probabilité d’observer par hasard $\mathcal{H}_1$.
 
-
-
-
-
-### Intervalle de confiance
-
-On peut construire les intervalles de confiance suivants
-
-$$IC_{1-\alpha}(\widehat\beta_1) = \Big]\widehat\beta_1 - t_{n-2;1-\alpha/2}*s_{\beta_1}; \widehat\beta_1 + t_{n-2;1-\alpha/2}*s_{\beta_1}\Big[$$
-
-$$IC_{1-\alpha}(\widehat\beta_0) = \Big]\widehat\beta_0 - t_{n-2;1-\alpha/2}*s_{\beta_0}; \widehat\beta_0 + t_{n-2;1-\alpha/2}*s_{\beta_0}\Big[$$
-
+Notez que la p-valeur empirique ne peut pas être plus petite que $\frac{1}{n_{rnd}}$ et que sa précisions dépendra de $n_{rnd}$.
 
 ```{r echo=TRUE, results="verbatim"}
-confint(m)
-```
+d = data_nutri_20
+m = lm(poids~taille, d)
+beta_obs = m$coefficients[[2]]
 
-Ainsi que l’intervalle de prédiction d’une valeur moyenne de $Y$, sachant que $x = x_0$. 
+beta_rnds = sapply(1:1000, function(i){ # <=> for (i in 1:1000) ...
+  d = data_nutri_20
+  set.seed(i)
+  d$poids = sample(d$poids)
+  m = lm(poids~taille, d)
+  beta_rnd = m$coefficients[[2]]
+  return(beta_rnd)
+})
 
-L’estimation ponctuelle pour cette valeur de $x_0$ est alors égale a $\widehat Y_0 = \widehat\beta_0 + \widehat\beta_1x_0$
-
-$$IP_{1-\alpha}(Y) = \Big]\widehat Y_0 - t_{n-2;1-\alpha/2}\sqrt{\widehat\sigma^2_n\Big(\frac{1}{n}+\frac{(x_0-\overline{x}_n)^2}{(n-1)s^2_x}\Big)}; \widehat Y_0 + t_{n-2;1-\alpha/2}*\sqrt{\widehat\sigma^2_n\Big(\frac{1}{n}+\frac{(x_0-\overline{x}_n)^2}{(n-1)s^2_x}\Big)}\Big[$$
-
-
-```{r echo=TRUE, results="verbatim"}
-d = d_mass_cats_10
-m = lm(Hwt~Bwt, d)
 layout(1, respect=TRUE)
-plot(
-  d$Bwt, d$Hwt, 
-  xlab="Body weight", ylab="Heart weight", 
-  main="Heart weight ~ Body weight"
-)
-abline(m, col=2)
+hist(beta_rnds, freq=FALSE)
+lines(density(beta_rnds), col="grey")
+abline(v=beta_obs, col=2)
+legend("topleft",c("null distributions", "beta_obs"), col=c("grey","red"), lty=1)
 
-x = seq(min(m$model$Bwt), max(m$model$Bwt), length.out=100)
-x = seq(2.5, 3, length.out=100)
-pred =  predict(m, interval="predict", level=0.95)
-head(pred)
-points(m$model$Bwt, pred[,2], col=2, pch=3)
-points(m$model$Bwt, pred[,3], col=2, pch=3)
-pred =  predict(m, interval="predict", level=0.99)
-points(m$model$Bwt, pred[,2], col=3, pch=3)
-points(m$model$Bwt, pred[,3], col=3, pch=3)
-pred =  predict(m, interval="predict", level=0.90)
-points(m$model$Bwt, pred[,2], col=4, pch=3)
-points(m$model$Bwt, pred[,3], col=4, pch=3)
-legend("topleft",c("95% ci", "99% ci", "90% ci"), col=2:4, pch=3)
-
-```
-
-**Travaux pratiques**
-
-
-- Tracer l’intervalle de prédiction du modèle obtenu sur la totalité des données `cats`.
-- Comparer la l’intervalle de prédiction obtenu avec ce modèle avec celui obtenu sur le modèle du cours (30 observations).
-
-```{r eval=FALSE}
-layout(1, respect=TRUE)
-m2 = lm(MASS::cats$Hwt~MASS::cats$Bwt)
-pred =  predict(m2, interval="predict")
-plot(
-  MASS::cats$Bwt, MASS::cats$Hwt, 
-  xlab="Body weight", ylab="Heart weight", 
-  main="Heart weight ~ Body weight"
-)
-abline(m2, col=2)
-head(pred)
-points(m2$model$Bwt, pred[,2], col=4, pch=3)
-points(m2$model$Bwt, pred[,3], col=4, pch=3)
-pred =  predict(m2, interval="predict")
-
+pval = sum(abs(beta_rnds) > abs(beta_obs)) / length(beta_rnds)
+pval
 ```
 
 
 
 
-## Exercices
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Exercices
 
 
 **TP `ISwR::cystfibr`**

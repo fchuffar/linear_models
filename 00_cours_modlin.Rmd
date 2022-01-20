@@ -114,6 +114,12 @@ d[4,2] = "brown"
 print(d)
 d[3,2] = "bleu"
 print(d)
+d = data.frame(id=1:4, eyes=c("green", "blue", "brown", "green"))
+d$eyes
+d$eyes = factor(d$eyes, levels=c("blue", "brown", "green", "other"))
+d$eyes
+d[2,2] = "other"
+d$eyes
 ```
 
 
@@ -246,7 +252,7 @@ while (i!=n) {
 print(paste0("- Equal! You found ", n, " in ", nb_try, " moves."))
 ```
 
-[correction_thought_number.R](correction_thought_number.R)
+[correction_thought_number.R](./correction_thought_number.R)
 
 
 ### L'importation de données
@@ -275,7 +281,7 @@ La programmation lettrée est paradigme de programmation préconisée par Donald
 
 **Exercices**
 
-1. Télécharger en compilez [https://github.com/fchuffar/linear_models](le cours).
+1. Télécharger en compilez [le cours](https://github.com/fchuffar/linear_models).
   
 Depuis RStudio : 
 
@@ -295,7 +301,7 @@ Depuis un navigateur web :
 - dans la console R de Rstudio, vérifier votre répertoire de travail en tapant `getwd()` ;
 - dans la console R de Rstudio, lancer la compilation avec la commande `rmarkdown::render("cours_modlin.Rmd")` .
 
-2. Télécharger en compilez le [https://github.com/fchuffar/starting_kit_expred3.0](sujet de TP de la seance 4). 
+2. Télécharger en compilez le [sujet de TP de la seance 4](https://github.com/fchuffar/starting_kit_expred3.0). 
 
 
 

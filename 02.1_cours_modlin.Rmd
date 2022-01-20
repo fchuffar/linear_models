@@ -1,4 +1,6 @@
-## Exercices
+## Pour aller plus loin
+
+
 
 ### Sélection de variables
 
@@ -164,104 +166,6 @@ life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Exemple complet `ISwR::cystfibr`
-
-Les données `ISwR::cystfibr` concernent la fonction respiratoire de patients atteints de fibrose kystique (mucoviscidose).
-
-On cherche à expliquer la variable `pemax` qui caracterise cette maladie.
-
-```{r echo=TRUE, results="verbatim"}
-# ?ISwR::cystfibr
-d = ISwR::cystfibr
-head(d)
-dim(d)
-# removing sex
-d = d[,-2]
-```
-
-
-1) Etudier la corrélation des variables à l’aide du code suivant. Commenter les graphiques obtenus.
-
-```{r echo=TRUE, fig.width=9, fig.height=9, eval=TRUE}
-pairs(d, gap=0)
-lattice::levelplot((cor(d)))
-```
-
-2) Réaliser l’analyse en composante principale à l’aide du code suivant. Commenter les graphiques obtenus.
-
-```{r echo=TRUE, eval=TRUE, fig.height=5}
-# mat = x[,-9]
-mat = d
-pca = prcomp(mat, scale=TRUE)
-v = pca$sdev * pca$sdev
-p = v / sum(v) * 100
-
-# layout(matrix(1:6,2), respect=TRUE)
-layout(matrix(1:2,1), respect=TRUE)
-barplot(p)
-
-for (i in 1:5) {
-  j = i+1
-  plot(pca$x[,i], pca$x[,j], xlab=paste0("PC", i, "(", signif(p[i], 3), "%)"), ylab=paste0("PC", j, "(", signif(p[j], 3), "%)"), pch=16)  
-  scale_factor = min(abs(c(min(c(pca$x[,i], pca$x[,j])), max(c(pca$x[,i], pca$x[,j])))))  
-  # scale_factor = min(abs(c(max(min(pca$x[,i]), min(pca$x[,j])), min(max(pca$x[,i]), max(pca$x[,j])))))
-  plotrix::draw.ellipse(0,0,scale_factor,scale_factor, lty=2, border="grey")
-  arrows(0,0,pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, col="grey")
-  text(pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, rownames(pca$rotation))
-}
-
-m_lo = lm(pemax ~ 1, data=d)
-m_up = lm(pemax ~ ., data=d)
-m_step = step(m_lo, method="forward", scope=list(upper=m_up,lower=m_lo))
-
-m_step$anova
-summary(m_step)
-
-m_w = lm(pemax ~ weight, data=d)
-summary(m_w)
-m_wb = lm(pemax ~  weight + bmp, data=d)
-summary(m_wb)
-m_wbf = lm(pemax ~  weight + bmp + fev1 , data=d)
-summary(m_wbf)
-summary(m_w)
-
-```
-
-3) Proposer un modèle permettant d’expliquer la variable `pemax`. Détaillez votre méthodologie.
-
-4) Discuter et interpréter le modèle obtenue (point de vue statistique)
-
-5) Discuter et interpréter le modèle obtenue (point de vue métier, ici biologie, santé)
 
 
 
