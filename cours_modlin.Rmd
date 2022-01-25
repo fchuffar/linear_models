@@ -102,6 +102,8 @@ Madsen H. and Thyregord, P (2011). *Introduction to General and Generalized Line
 
 Weisberg, S (2005). *Applied linear regression*. Vol. 528. **John Wiley & Sons**.
 
+R markdown https://pkgs.rstudio.com/rmarkdown/articles/rmarkdown.html
+
 
 Ce cours s’inspire des échanges avec les personnes  et liens suivants : 
 

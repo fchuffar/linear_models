@@ -9,8 +9,8 @@ Ce chapitre est largement inspiré du cours "Analyse de variance à 2 facteurs" 
 ```{r results="verbatim"}
 varfung = data.frame(
   land=1:6,
-  variety=c("A","A","B","B","C","C"),
-  fungicide=c("Y","Z","Y","Z","Y","Z"),
+  variety=c("varA","varA","varB","varB","varC","varC"),
+  fungicide=c("funY","funZ","funY","funZ","funY","funZ"),
   yield=c(2,2,1,5,3,5)
 )
 varfung$variety = as.factor(varfung$variety)
@@ -24,6 +24,12 @@ Nous nous plaçons ici dans le cadre d’un plan
 
   - complet (toutes les combinaisons de facteurs sont présentent) 
   - équirépété (même nombre de répétition pour chaque combinaison). 
+
+
+```{r echo=TRUE, results="verbatim"}
+table(varfung$fungicide, varfung$variety)
+```
+
 
 Ce type de plan à de bonnes propriétés : 
  
@@ -39,7 +45,7 @@ L’ANOVA à 2 facteurs fonctionne aussi dans le cadre de plan qui ne sont ni co
   - $\overline y_{.j}$ la moyenne des rendements pour le fongicide $j$ 
   - $\overline y_{..}$ la moyenne des rendements
 
-**Travaux pratiques** : calculez $\overline y_{i.}$, $\overline y_{.j}$ et $\overline y$.
+**Dans notre exemple** : calculons $\overline y_{i.}$, $\overline y_{.j}$ et $\overline y$.
 
 ```{r results="verbatim"}
 d = varfung
@@ -108,7 +114,7 @@ Dans le cadre du plan complet equirépété :
   - $\widehat \beta_j = \overline y_{.j} - \overline y_{..}$
 
 
-**Travaux pratiques** : calculez $\widehat \mu$, $\widehat \alpha_i$, et $\widehat \beta_j$
+**Dans notre exemple** : calculons $\widehat \mu$, $\widehat \alpha_i$, et $\widehat \beta_j$
 
 ```{r results="verbatim"}
 d = varfung
@@ -160,7 +166,7 @@ Avec (propriété) :
 
 $$ \forall j \sum_i e_{ij} = 0,  \forall i \sum_j e_{ij} = 0$$
 
-**Travaux pratiques** : calculez les $e_{ij}$.
+**Dans notre exemple** : calculons les $e_{ij}$.
 
 ```{r results="verbatim"}
 d = varfung
@@ -208,7 +214,7 @@ Dans le cadre du plan équirépétés :
  
 $$R^2 =  \frac{SC_{tot} - SC_{res}}{SC_{tot}}$$
 
-**Travaux pratiques** : calculez $SC_{F_1}$, $SC_{F_2}$, $SC_{res}$, $SC_{tot}$ et $R^2$.
+**Dans notre exemple** : calculons $SC_{F_1}$, $SC_{F_2}$, $SC_{res}$, $SC_{tot}$ et $R^2$.
 
 
 ```{r results="verbatim"}
