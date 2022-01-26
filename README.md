@@ -1,3 +1,5 @@
+# Linear Models
+
 This repository embeds a set a supports dealing with *linear models*.
 
 It is intended to be processed by R.
