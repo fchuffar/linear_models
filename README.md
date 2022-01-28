@@ -18,7 +18,8 @@ pkgs= c(
   "car",
   "faraway",
   "multcomp",
-  "lsmeans"
+  "lsmeans",
+  "memoise"
 )
 install.packages(pkgs)
 ```
