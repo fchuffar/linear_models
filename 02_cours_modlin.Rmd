@@ -1,5 +1,12 @@
 # Régression linéaire multiple
 
+L’objectif de cette section est : 
+
+  - de généraliser les concepts vus avec la regression linéaire simple dans un cadre **multivarié**
+  - mettre en perspective les modèles linéaires et l’analyse de données (**ACP**)
+  - différencier le test de Student du test de Fisher
+  
+---
 
 La regression linéaire multiple characterise la relation entre une variable **quantitatives** observée $Y$ et plusieurs variables **quantitatives** explicatives $X_1, ..., X_p$. 
 
@@ -8,22 +15,27 @@ $$ Y \sim X_1 +  ... + X_p $$
 
 ## Présentation du modèle
 
-Y est expliquée (modélisée) par  les variables explicatives $X_1, ..., X_p$. 
-
-On applique alors le modèle linéaire suivant :
+Y est expliquée (modélisée) par  les variables explicatives $X_1, ..., X_p$, la formulation aanlytique de la régression linéaire simple se généraliser ainsi :
 
 $$Y  = \beta_0 + \beta_1X_1 + ... + \beta_pX_p + \epsilon  $$
 
 En pratique, dans un échantillon de $n$ individus, nous mesurons $y_i, x_{i,1},...,x_{i,p}$ pour $i=1,...,n$.
-Les variables $x_{i,j}$ sont fixes, tandis que les variables $y_i$ sont aléatoires.
 
 ---
 
 **Exemple**
 
-$$Life.Exp = \beta_0 + \beta_{Murder} Murder + + \beta_{HS.Grad} HS.Grad + \beta_{Frost} Frost + \epsilon$$
-
 Le jeu de données `Life.Exp` comprend les mesures **quantitaves** suivantes prisent sur 50 états des Etats-Unis.
+
+- **Life.Exp** : espérance de vie moyenne (1969-1971)
+- Murder :  taux d’homicide pour 100 000 individus (1976)
+- HS Grad :  pourcentage de diplômés niveau baccalauréat --high-school graduates-- (1970)
+- Frost : nombre de jours moyens avec des températures inférieures à 0$^o$C dans les grandes villes (1931-1960)
+- Population : population estimée au 1er juillet 1975
+- Income : revenu par individu (1974)
+- Illiteracy : illettrisme (1970, pourcentage de la population)
+
+
 
 ```{r echo=TRUE, results="verbatim"}
 data(state)
@@ -32,26 +44,23 @@ head(d)
 dim(d)
 ```
 
-- **Life.Exp** : espérance de vie moyenne (1969-1971)
-- Population : population estimée au 1er juillet 1975
-- Income : revenu par individu (1974)
-- Illiteracy : illettrisme (1970, pourcentage de la population)
-- Murder :  taux d’homicide pour 100 000 individus (1976)
-- HS Grad :  pourcentage de diplômés niveau baccalauréat --high-school graduates-- (1970)
-- Frost : nombre de jours moyens avec des températures inférieures à 0$^o$C dans les grandes villes (1931-1960)
-
-
-On cherchera par exemples à expliquer la variables *Life.Exp* par les variables *Murder*, *HS.Grad* et *Frost*
-
+On étudie la variables *Life.Exp* en fonction des variables *Murder*, *HS.Grad* et *Frost*
 
 $$Life.Exp \sim Murder + HS.Grad + Frost$$
 
 
+La formulation analytique du modèle est :
 
-```{r fig.height=9}
-d = state_us
+$$Life.Exp = \beta_0 + \beta_{Murder} Murder + \beta_{HS.Grad} HS.Grad + \beta_{Frost} Frost + \epsilon$$
+
+
+
+
+
+```{r fig.width=6, eval=FALSE}
+# Voyons comment ces variables sont corrélées entre elles :
 layout(1, respect=TRUE)
-pairs(d)
+pairs(d[,1:4])
 ```
 
 ---
@@ -77,12 +86,29 @@ pairs(d)
 ### Méthode des moindres carrés
 
 
-Pour l’instant, la droite de régression est inconnue.
-Tout le problème est d’estimer les paramètres $\beta_0, ..., \beta_p$ du modèle de regression, à partir d’un échantillon de données.
+On cherche à estimer les paramètres $\beta_0, ..., \beta_p$ du modèle de regression, à partir des observations.
 
-Utiliser les **moindres carrés** revient à minimiser la quantité suivante :
+On généralise en $p$ dimensions la méthode des moindres carrés vu dans le cadre de la régression linéaire simple.
 
-$$min_{\beta_0, ...,\beta_p}\sum^n_{i=1}\Big(y_i -(\beta_0+ \beta_1X_1 + ... + \beta_pX_p)\Big)^2$$
+Ceci revient à minimiser la quantité suivante :
+
+\begin{eqnarray}
+min_{\beta_0, ...,\beta_p}\sum^n_{i=1} \epsilon_i ^2
+  &=&min_{\beta_0, ...,\beta_p}\sum^n_{i=1}\Big(y_i -\widehat y_i \Big)^2 \\
+  &=&min_{\beta_0, ...,\beta_p}\sum^n_{i=1}\Big(y_i -(\beta_0+ \beta_1X_1 + ... + \beta_pX_p)\Big)^2
+\end{eqnarray}
+
+
+**Mise en oeuvre sous R**
+
+Dans notre exemple `Life.Exp` : 
+
+```{r echo=TRUE, results="verbatim"}
+d = state_us
+m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
+m$coef
+```
+
 
 
 **La formulation matricielle du problème**
@@ -95,7 +121,7 @@ y_1\\
 \vdots\\
 y_n
 \end{array}\right) = \left(\begin{array}
-{rrr}
+{rrrr}
 1 & x_{1,1} & ... & x_{1,p}\\
 \vdots & \vdots & \vdots & \vdots \\
 1 & x_{n,1} & ... & x_{n,p}
@@ -123,19 +149,10 @@ La **méthode des moindres carrés ordinaires** consiste à trouver le vecteur $
 
 La formulation matricielle du problème montre qu’idéalement $n > p$ et la matice des résidus est inversible.
  
-Dans notre **exemple** `Life.Exp` : 
-
-```{r echo=TRUE, results="verbatim"}
-m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
-m$coef
-```
-
 Qu’est-ce qui pourrait rendre la matrice non inversible ?
-
 
 Si $p >> n$, il faudra mettre en oeuvre des statégies de **sélection de variables** et/ou de **réduction de dimensions** et par conséquent contrôler la surinterprétation (surapprentisage, *overfitting*).
 
-Que se passe-t-il quand $n >> p$ ?
 
 ---
 
@@ -159,7 +176,7 @@ Que se passe-t-il quand $n >> p$ ?
 
 comme ${}^t\widehat\beta{}^tXy$ est un scalaire, il est égal à sa transposée.
 
-La dérivée par rapport à $\beta$ est alors égale à : $−2{}^tXy+2{}^tXX\widehat\beta$.
+La dérivée par rapport à $\beta$ est alors égale à : $-2{}^tXy+2{}^tXX\widehat\beta$.
 
 
 
@@ -233,6 +250,7 @@ $$
 
 ### Maximum de vraisemblance
 
+On peut également trouver les paramètres $\beta$ qui maximisent la vraisemblance.
 
 La vraisemblance est la **Probabilité** d’observer l’évènement $Y$, sachant les observations $X$, en considérant le modèle $\mathcal{M}$
 
@@ -261,16 +279,14 @@ log\mathcal{L}_{\mathcal{M}, Y,X} &=& log(\mathbb{P}_\mathcal{M}(Y|X)) \\
 Dans le cadre de la régression  linéaire multiple (**normalité des résidus**), la vraisemblance vaut : 
 
 \begin{eqnarray}
-
- \mathcal{L}(Y,\beta,\sigma^2) &=& \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}\sum^n_{i=1}(y_i-x’_i\beta)^2\Big] \\
-                               &=& \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}||Y-X\beta||^2\Big] 
-
+\mathcal{L}(Y,\beta,\sigma^2) &=& \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}\sum^n_{i=1}(y_i-x_i\beta_i)^2\Big]\\
+                              &=& \Big(\frac{1}{\sqrt{2\pi\sigma^2}}\Big)^nexp\Big[\frac{1}{2\sigma^2}||Y-X\beta||^2\Big]
 \end{eqnarray}
 
 
 D’où l’on déduit la log-vraisemblance
 
-$$ log\mathcal{L}(Y,\beta,\sigma^2) = \frac{n}{2}log(2\pi) -\frac{n}{2}log(\sigma^2) - \frac{1}{2\sigma^2}||Y-X\beta||^2 $$
+$$log\mathcal{L}(Y,\beta,\sigma^2) = \frac{n}{2}log(2\pi) -\frac{n}{2}log(\sigma^2) - \frac{1}{2\sigma^2}||Y-X\beta||^2$$
 
 Maximiser la log-vraisemblance revient à minimiser la quantité $||Y-X\beta||^2$, ce qui est l’objectif des *moindres carrés ordinaires*.
 
@@ -279,21 +295,18 @@ Maximiser la log-vraisemblance revient à minimiser la quantité $||Y-X\beta||^2
 
 
 
-La vraisemblance est une **probabilité**, elle quantifie l’information contenue dans les observations, sous les hypothèses du modèle.
-
 ---
 
-**Exercice** 
+**Mise en oauvre sous R** 
 
-Illustrer graphiquement le concept de vraisemblance.
 
 ```{r ex1, echo=TRUE, results="verbatim"}
 d = state_us
 m = lm(Life.Exp ~ Murder + HS.Grad + Frost, d)
 logLik(m)
-# LLR rapport des vraisemblance ~ Chi2
-anova(m, lm(Life.Exp ~ 1, d), test="Chisq")
 
+# LLR rapport des vraisemblances ~ Chi2
+anova(m, lm(Life.Exp ~ 1, d), test="Chisq")
 ```
 
 ---
@@ -343,7 +356,8 @@ La mesure du pourcentage de la variation totale expliquée par le modèle se fai
 
 $$ R^2 = \frac{SC_{reg}}{SC_{tot}}$$
 
-**Attention**, l’ajout de variables explicatives augmente systématiquement le pourcentage de variance expliquée.
+
+**Attention**, l’ajout de variables explicatives augmente systématiquement le pourcentage de variance expliquée. Le $R^2$ s’en trouve systématiquement augmenté san pour autant que le modèle qui en résulte soit pertinent. 
 
 
 **Exemple**
@@ -353,20 +367,14 @@ On calcule chacun des modèles de regression linéaire univariés permettant d�
 Pour chacun des modèles, on calculer le $R^2$. Que peut-on dire ?
 
 
-```{r}
-m_Population = lm(Life.Exp ~ Population, d)
-m_Income     = lm(Life.Exp ~ Income    , d)
-m_Illiteracy = lm(Life.Exp ~ Illiteracy, d)
-m_Murder     = lm(Life.Exp ~ Murder    , d)
-m_HS.Grad    = lm(Life.Exp ~ HS.Grad   , d)
-m_Frost      = lm(Life.Exp ~ Frost     , d)
-layout(matrix(1:6, 2, byrow=TRUE), respect=TRUE)
-plot(d$Population , d$Life.Exp, main=paste0("Life.Exp~Population", ", R^2=", signif(summary(m_Population)$r.squared, 3))); abline(m_Population, col=2)
-plot(d$Income     , d$Life.Exp, main=paste0("Life.Exp~Income"    , ", R^2=", signif(summary(m_Income    )$r.squared, 3))); abline(m_Income    , col=2)
-plot(d$Illiteracy , d$Life.Exp, main=paste0("Life.Exp~Illiteracy", ", R^2=", signif(summary(m_Illiteracy)$r.squared, 3))); abline(m_Illiteracy, col=2)
-plot(d$Murder     , d$Life.Exp, main=paste0("Life.Exp~Murder"    , ", R^2=", signif(summary(m_Murder    )$r.squared, 3))); abline(m_Murder    , col=2)
-plot(d$HS.Grad    , d$Life.Exp, main=paste0("Life.Exp~HS.Grad"   , ", R^2=", signif(summary(m_HS.Grad   )$r.squared, 3))); abline(m_HS.Grad   , col=2)
-plot(d$Frost      , d$Life.Exp, main=paste0("Life.Exp~Frost"     , ", R^2=", signif(summary(m_Frost     )$r.squared, 3))); abline(m_Frost     , col=2)
+```{r fig.height=3}
+m_Murder     = lm(Life.Exp ~ Murder , d)
+m_HS.Grad    = lm(Life.Exp ~ HS.Grad, d)
+m_Frost      = lm(Life.Exp ~ Frost  , d)
+layout(matrix(1:3, 1, byrow=TRUE), respect=TRUE)
+plot(d$Murder , d$Life.Exp, main=paste0("Life.Exp~Murder" , ", R^2=", signif(summary(m_Murder )$r.squared, 3))); abline(m_Murder , col=2)
+plot(d$HS.Grad, d$Life.Exp, main=paste0("Life.Exp~HS.Grad", ", R^2=", signif(summary(m_HS.Grad)$r.squared, 3))); abline(m_HS.Grad, col=2)
+plot(d$Frost  , d$Life.Exp, main=paste0("Life.Exp~Frost"  , ", R^2=", signif(summary(m_Frost  )$r.squared, 3))); abline(m_Frost  , col=2)
 ```
 
 On calcule ensuite les modèles de regression linéaire ci-après. Que peut-on dire ?
@@ -376,6 +384,7 @@ summary(lm(Life.Exp ~ Murder                  , d))$r.squared
 summary(lm(Life.Exp ~ Murder + HS.Grad        , d))$r.squared
 summary(lm(Life.Exp ~ Murder + HS.Grad + Frost, d))$r.squared
 ```
+
 
 
 ```{r et_pairs, echo=FALSE, fig.height=9}
@@ -401,27 +410,33 @@ et_pairs = function (...)
 }
 
 layout(1, respect=TRUE)
-et_pairs(d)
+et_pairs(d[,1:4])
 ```
+
+**Décomposition de variance et analyse en composante principale.**
+
+Les graphiques suivants présentent les résultats de l’analyse en composante principale pour notre jeu de données.
+
+Que voit-on ?
 
 ```{r echo=FALSE, eval=TRUE}
 d = state_us
-pca = prcomp(d, scale=TRUE)
+pca = prcomp(d[,1:4], scale=TRUE)
 v = pca$sdev * pca$sdev
 p = v / sum(v) * 100
 
-layout(matrix(1:6,2), respect=TRUE)
-# layout(matrix(1:2,1), respect=TRUE)
-barplot(p)
-
-for (i in 1:5) {
-  j = i+1
-  plot(pca$x[,i], pca$x[,j], xlab=paste0("PC", i, "(", signif(p[i], 3), "%)"), ylab=paste0("PC", j, "(", signif(p[j], 3), "%)"), pch=16, col="grey")  
-  scale_factor = min(abs(c(min(c(pca$x[,i], pca$x[,j])), max(c(pca$x[,i], pca$x[,j])))))  
-  plotrix::draw.ellipse(0,0,scale_factor,scale_factor, lty=2, border="grey")
-  arrows(0,0,pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, length=.1)
-  text(pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, rownames(pca$rotation), col=2)
-}
+layout(matrix(1:2,1), respect=TRUE)
+barplot(p, ylab="% of explained variance", xlab="PCs")
+i = 1
+j = i+1
+scale_factor = min(abs(c(min(c(pca$x[,i], pca$x[,j])), max(c(pca$x[,i], pca$x[,j])))))  
+plot(pca$x[,i], pca$x[,j], xlab=paste0("PC", i, "(", signif(p[i], 3), "%)"), ylab=paste0("PC", j, "(", signif(p[j], 3), "%)"), pch=16, col="grey", 
+  xlim=c(min(c(-scale_factor, pca$x[,i])), max(c(scale_factor, pca$x[,i]))),
+  ylim=c(min(c(-scale_factor, pca$x[,j])), max(c(scale_factor, pca$x[,j])))
+)  
+# plotrix::draw.ellipse(0,0,scale_factor,scale_factor, lty=2, border="grey")
+arrows(0,0,pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, length=.1)
+text(pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, rownames(pca$rotation), col=2)
 
 ```
 
@@ -474,7 +489,7 @@ for (i in 1:5) {
 ### Test de Student
 
 
-Le test de Student dans le cadre de la regression linéaire multiple teste un des coéfficients du modèle de régression (*e.g* le *k*-ième).
+Le test de Student dans le cadre de la regression linéaire multiple teste un des coéfficients du modèle de régression (*e.g.* le *k*-ième).
 
 Il pose la question de l’effet de la variables $X_k$ sur $Y$.
 
@@ -488,7 +503,12 @@ $$Y = \beta_0 + \beta_1 X_1 + ... + \beta_k X_k + ... + \beta_p X_p + \epsilon$$
 
 On se pose la question de l’effet de la variable $X_k$ :
 
-$\mathcal{H}_0 : {\beta_k = 0}$ contre $\mathcal{H}_1 : {\beta_k \neq 0}$
+$$\left  \lbrace
+\begin{array}{l}
+\mathcal{H}_0 : {\beta_k = 0} \\
+\mathcal{H}_1 : {\beta_k \neq 0} 
+\end{array}
+\right.$$
 
 
 
@@ -518,7 +538,7 @@ Critère, la *p-valeur* est la probabilité d’observer la valeur de la statist
 
 Ainsi :
 
-  - si la p-valeur calculée est plus petite que notre risque $\alpha$ fixé, alors le test est significatif, H_0 est improbable, on rejete  $\mathcal{H}_0$ et on décide que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
+  - si la p-valeur calculée est plus petite que notre risque $\alpha$ fixé, alors le test est significatif, $\mathcal{H}_0$ est improbable, on rejete  $\mathcal{H}_0$ et on décide que $\mathcal{H}_1$ est vraie avec un risque d’erreur de première espèce $\alpha$.
 
   - si la p-valeur calculée est plus grande que notre risque $\alpha$ fixé, alors le test n’est pas significatif, on conserve $\mathcal{H}_0$ avec un risque d’erreur de deuxième espèce $\beta$ à évaluer. 
 
@@ -538,9 +558,28 @@ summary(m)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### Test de Fisher
 
-Le test de Fisher repose sur cette décomposition de la variance.
+Le test de Fisher repose sur la décomposition de la variance.
 
 Il pose la question de l’effet **des** variables $X$.
 
@@ -552,11 +591,15 @@ $$Y = \beta_0 + \beta_1 X_1 + ... + \beta_k X_k + ... + \beta_p X_p + \epsilon$$
 
 **Hypothèses nulle et hypothèse alternative**
 
-$\mathcal{H}_0 : {\beta_1 = ... = \beta_p = 0}$
 
-contre 
 
-$\mathcal{H}_1 : \exists$ au moins un $j$ tel que ${\beta_j \neq 0}$ où $j$ varie de $1$ à $p$.
+$$\left  \lbrace
+\begin{array}{l}
+\mathcal{H}_0 : {\beta_1 = ... = \beta_p = 0}\\
+\mathcal{H}_1 : \exists j \in 1..p \text{ tel que } \beta_j \neq 0
+\end{array}
+\right.$$
+
 
 *Remarque* : Si l’hypothèse nulle est vérifiée, alors $y_i = \beta_0 + \epsilon_i$
 
@@ -617,16 +660,111 @@ summary(m)
 anova(m)
 
 m = lm(Life.Exp ~ HS.Grad + Murder + Frost, d)
+summary(m)
 anova(m)
 
 anova(lm(Life.Exp ~ Illiteracy + Murder, d))
 anova(lm(Life.Exp ~ Murder + Illiteracy, d))
-
-m = lm(Life.Exp ~ Income + Illiteracy, d)
-
 ```
 
 ---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**TP `ISwR::cystfibr`**
+
+Les données `ISwR::cystfibr` concernent la fonction respiratoire de patients atteints de fibrose kystique (mucoviscidose).
+
+On cherche à expliquer la variable `pemax` qui caracterise cette maladie.
+
+```{r echo=TRUE, results="verbatim"}
+# ?ISwR::cystfibr
+d = ISwR::cystfibr
+head(d)
+dim(d)
+# removing sex
+d = d[,-2]
+```
+
+
+1) On étudie la corrélation des variables à l’aide du code suivant. Que peut-on dire ?
+
+```{r echo=TRUE, fig.width=9, fig.height=9, eval=TRUE}
+pairs(d, gap=0)
+```
+
+2) Le ciode suivant réaliser l’analyse en composante principale du tableau de données. Commenter le graphique obtenu.
+
+```{r echo=TRUE, eval=TRUE, fig.height=5}
+# mat = x[,-9]
+mat = d
+pca = prcomp(mat, scale=TRUE)
+v = pca$sdev * pca$sdev
+p = v / sum(v) * 100
+
+# layout(matrix(1:6,2), respect=TRUE)
+layout(matrix(1:2,1), respect=TRUE)
+barplot(p)
+
+for (i in 1:5) {
+  j = i+1
+  plot(pca$x[,i], pca$x[,j], xlab=paste0("PC", i, "(", signif(p[i], 3), "%)"), ylab=paste0("PC", j, "(", signif(p[j], 3), "%)"), pch=16)  
+  scale_factor = min(abs(c(min(c(pca$x[,i], pca$x[,j])), max(c(pca$x[,i], pca$x[,j])))))  
+  # scale_factor = min(abs(c(max(min(pca$x[,i]), min(pca$x[,j])), min(max(pca$x[,i]), max(pca$x[,j])))))
+  arrows(0,0,pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, col="grey")
+  text(pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, rownames(pca$rotation))
+}
+```
+
+3) Compléter le code suivant afin de proposer un modèle expliquant la variable `pemax`. Détaillez votre méthodologie. Discuter et interpréter le modèle obtenue d’un point de vue statistique et du point de vue biologique.
+
+```{r echo=TRUE, results="verbatim"}
+d = ISwR::cystfibr
+model_formula = formula(paste0("pemax~", "weight"))
+print(model_formula)
+m = lm(model_formula, d)
+summary(m)
+anova(m)
+```
+
+Vous pouvez par exemple construire différents modèles en ajoutant les variables une à une et en suivant l’évolution du $R^2$ au fur et à mesure de la construction du modèle.
+
+4) Le code suivant execute une procédure qui réalise automatiquement la selection des variables d’intéret. Commenter la procédure.
+
+```{r echo=TRUE, results="verbatim"}
+m_lo = lm(pemax ~ 1, data=d)
+m_up = lm(pemax ~ ., data=d)
+m_step = step(m_lo, method="forward", scope=list(upper=m_up,lower=m_lo))
+
+m_step$anova
+summary(m_step)
+
+m_w = lm(pemax ~ weight, data=d)
+summary(m_w)
+m_wb = lm(pemax ~  weight + bmp, data=d)
+summary(m_wb)
+m_wbf = lm(pemax ~  weight + bmp + fev1 , data=d)
+summary(m_wbf)
+summary(m_w)
+```
+
+
+
+
+
 
 
 

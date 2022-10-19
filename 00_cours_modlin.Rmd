@@ -1,0 +1,308 @@
+# Mise à niveau sur l’utilisation des outils R/git/rmarkdown
+
+L’objectif de cette section est de définir un ensemble d’**outils informatiques** et de **notions d’algorithmique** vous permettant d’appréhender la suite du cours dédiée aux **statistiques**.
+
+## R et RStudio
+
+**R est un logiciel** libre sous licecnce [GPL](https://en.wikipedia.org/wiki/Free_software#Definition_and_the_Four_Essential_Freedoms_of_Free_Software).
+
+Pragmatiquement, R est une calculatrice plutôt complète.
+
+Le script R permet de rejouer un série d’intructions (traçabilité, reproductibilité).
+
+RStudio est un environnement de travail dédié à R regroupant entre autre :
+
+  - la console R (qui va executer les instructions) ; 
+  - un éditeur de texte dédié à l’écriture de scripts R.
+
+**Attention**, la console R est instanciée dans un répertoire donné, visible de la manière suivante : 
+
+```{r echo=TRUE, results="verbatim"}
+getwd()
+```
+
+**Astuce**, pour être certain de vous trouver dans le bon répertoire : 
+
+- fermer RStudio ; 
+- ouvrir votre script R depuis votre gestionnaire de fichier avec RStudio.
+
+## Le language R
+
+**R est aussi un langage de programation** dédié aux statistiques. 
+A ce titre on peut dire que R est un DSL (*domain-specific language*). 
+Ce n’est le cas de Java, C ou encore python qui sont des langages géneralistes. 
+
+
+### Variable et affectation
+
+Une **variable** peut–être vu comme une boite dans laquelles on met une valeur. 
+
+L’**affectation** consiste ainsi à mettre une valeur dans une variable.
+
+```{r echo=TRUE, results="verbatim"}
+a = 1
+print(a)
+b <- a
+print(b)
+2 -> a
+print(a)
+print(b)
+```
+
+### Le type des données
+
+Le langage R manipule différents **types** dont voici les principaux :  
+
+```{r echo=TRUE, results="verbatim"}
+typeof(1)
+typeof("a")
+typeof(a)
+typeof(TRUE)
+```
+
+### Les structures de données
+
+|    | Homogène    | Hétérogène    |
+|----|-------------|---------------|
+| 1D |  `vector`   | `list`        |
+| 2D |  `matrix`   | `data.frame`  |
+
+
+En statistique les données sont souvent représentées sous forme de tableaux : 
+
+- 1 ligne par observation/individu ;
+- 1 colonne par facteur/caractéristique/mesure.
+
+Ainsi, la `data.frame` est une structure de données clef pour les statistiques.
+
+Elle est un pilier du langage R.
+
+Elle structure la manière de penser et d’écrire les modèles statistiques sous R.
+
+Elle s’apparente à une `list` de `vectors` (les colonnes). Cela implique que les colonnes sont de type homogéne.
+
+On retrouve ce concept en python : `pandas.DataFrame`.
+
+
+```{r echo=TRUE, results="verbatim"}
+v = 1:3
+typeof(v)
+print(v)
+v[4] = "quatre"
+typeof(v)
+print(v) # casting
+
+l = list(1,2,3)
+typeof(l)
+l[[4]] = "quatre"
+typeof(l)
+print(l)
+
+m = matrix(1:9, 3)
+typeof(m)
+print(m)
+m[1,1] = "un"
+typeof(m)
+print(m)
+
+d = data.frame(id=1:4, eyes=c("green", "blue", "brown", "green"))
+print(d)
+print(d$eyes)
+is.factor(d$eyes)
+typeof(d$eyes)
+d[4,2] = "brown"
+print(d)
+d[3,2] = "bleu"
+print(d)
+d = data.frame(id=1:4, eyes=c("green", "blue", "brown", "green"))
+d$eyes
+d$eyes = factor(d$eyes, levels=c("blue", "brown", "green", "other"))
+d$eyes
+d[2,2] = "other"
+d$eyes
+```
+
+
+### Les fonctions
+
+Une fonction est un **block d’instructions**.
+
+```{r echo=TRUE, results="verbatim"}
+var
+```
+
+En R, les fonctions prennent en argument et retournent des **valeurs**.
+
+
+
+```{r echo=TRUE, results="verbatim"}
+mysum = function(arg1, arg2) {
+ returned = arg1 + arg2
+ return(returned)
+}
+
+a = 1
+b = 2
+
+c = mysum(a,b)
+print(c)
+try(print(returned))
+```
+
+En R, les variables du **contexte** global sont accessibles depuis le contexte d’une function. Il n’est pas recommander d’appeller les variables du contexte global dans une fonction (effet de bord). Il convient de passer les valeurs de ces variables en argument de la fonction.
+
+```{r echo=TRUE, results="verbatim"}
+add_b = function(arg1) {
+ returned = arg1 + b
+ return(returned)
+}
+
+a = 1
+b = 2
+
+c = add_b(a)
+print(c)
+```
+
+En R, la manipulation d’une variable du contexte global dans une fontion n’impacte pas sa valeur dans le context global.
+
+```{r echo=TRUE, results="verbatim"}
+add_b_and_1 = function(arg1) {
+  print(paste("b before: ", b))
+  b = b+1
+  d <<- "not_recommanded_trick"
+  print(paste("b after: ", b))
+  returned = arg1 + b
+  return(returned)
+}
+
+a = 1
+b = 2
+
+c = add_b_and_1(a)
+print(b)
+print(d)
+```
+
+
+
+### Algorithme et structures de contrôle
+
+Un **algorithme** est la description d’une suite d’étapes permettant d’obtenir un résultat à partir d’éléments fournis en entrée. 
+Cette définition de l’algorithme implique sa terminaison.
+
+**Exemple**, le jeu du nombres pensé.
+
+```{r echo=TRUE, results="verbatim"}
+n_max = 10
+set.seed(1)
+n = sample(1:10, 1)
+print(paste0("- I think to an integer between 1 and ", n_max, "..."))
+
+nb_try = 0
+for (i in 1:10) {
+  print(paste0("- Is it ", i, "?"))  
+  nb_try = nb_try + 1
+  if (n>i) {
+    print("- Larger.")
+  } else if (n<i) {
+    print("- Smaller.")
+  } else {
+    print(paste0("- Yes! You found it in ", nb_try, " moves."))
+    break    
+  }
+}
+```
+
+Complexité moyenne : `n_max / 2`
+
+Pire des cas : `n_max`
+
+Meilleurs des cas : `1`
+
+
+
+**Exercice** (5 minutes)
+
+- Compléter le code suivant pour définir un algorithme plus rapide.
+- Calculer sa complexité moyenne.
+
+```{r echo=TRUE, eval=FALSE}
+n_max = 10
+set.seed(1)
+n = sample(1:10, 1)
+print(paste0("- I think to an integer between 1 and ", n_max, "..."))
+
+lower_bnd = 1
+upper_bnd = n_max
+i = round((lower_bnd + upper_bnd)/2)
+print(paste0("- Is it smaller, larger or equal to ", i, "?"))
+nb_try = 1
+while (i!=n) {
+  if (n>i) {
+    print("- Larger.")
+    # ADD YOUR CODE HERE
+  } else if (n<i) {
+    print("- Smaller.")
+    # ADD YOUR CODE HERE
+  }
+  print(paste0("- Is it smaller, larger or equal to ", i, "?"))
+  nb_try = nb_try + 1
+}
+print(paste0("- Equal! You found ", n, " in ", nb_try, " moves."))
+```
+
+[correction_thought_number.R](./correction_thought_number.R)
+
+
+### L'importation de données
+
+Une fonction essentielle pour importer des données sous R est la fonction `read.table`.
+
+```{r echo=TRUE, results="verbatim"}
+data_nutri = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names = 1)
+head(data_nutri)
+dim(data_nutri)
+```
+
+
+## Git, GitHub et la gestion des versions
+
+**Git** est un logiciel de gestion de versions décentralisé. Il permet de stocker un ensemble de fichiers en conservant la chronologie de toutes les modifications qui ont été effectuées dessus (traçabilité, reproductibilité).
+
+**GitHub** est un service web d’hébergement et de gestion de développement de logiciels, utilisant Git.
+
+## R Markdown et la programmation lettrée
+
+La programmation lettrée est paradigme de programmation préconisée par Donald Knuth [1984, [*Literate Programming*](http://www.literateprogramming.com/knuthweb.pdf)] qui permet de diviser les programmes en petits morceaux (*chunks*). Chaque morceau est suffisamment court pour être complètement et clairement documenté.
+
+**R Markdown** est un langage de programmation lettrée dédié à R. Il permet de produire facilement des documents entremêlant les objectifs, le code R et l’interprétation des résultats. 
+
+
+**Exercices**
+
+1. Télécharger en compilez [le cours](https://github.com/fchuffar/linear_models).
+  
+Depuis RStudio : 
+
+- aller à *File* > *New Project...* ;
+- selectionner *Version control* > *Git* ;
+- remplir le champs *Repository URL: https://github.com/fchuffar/linear_models.git* ;
+- appuyer sur le bonton *Create Project* ;
+- dans la console R de Rstudio, vérifier votre répertoire de travail en tapant `getwd()` ;
+- dans la console R de Rstudio, lancer la compilation avec la commande `rmarkdown::render("cours_modlin.Rmd")` .
+
+Depuis un navigateur web : 
+
+- aller à l’adresse *https://github.com/fchuffar/linear_models* ;
+- cliquer sur *Code* > *Download zip* ;
+- enregistrer et **Décompresser** l’archive `.zip` sur votre machine ;
+- configurer le repertoire de travail de RStudio en cliquant sur *Session* > *Set Working Directory* > *Choose directory...*    ;
+- dans la console R de Rstudio, vérifier votre répertoire de travail en tapant `getwd()` ;
+- dans la console R de Rstudio, lancer la compilation avec la commande `rmarkdown::render("cours_modlin.Rmd")` .
+
+2. Télécharger en compilez le [sujet de TP de la seance 4](https://github.com/fchuffar/starting_kit_expred3.0). 
+
+
+
+

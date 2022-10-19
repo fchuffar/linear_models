@@ -9,10 +9,12 @@ Ce chapitre est largement inspiré du cours "Analyse de variance à 2 facteurs" 
 ```{r results="verbatim"}
 varfung = data.frame(
   land=1:6,
-  variety=c("A","A","B","B","C","C"),
-  fungicide=c("Y","Z","Y","Z","Y","Z"),
+  variety=c("varA","varA","varB","varB","varC","varC"),
+  fungicide=c("funY","funZ","funY","funZ","funY","funZ"),
   yield=c(2,2,1,5,3,5)
 )
+varfung$variety = as.factor(varfung$variety)
+varfung$fungicide = as.factor(varfung$fungicide)
 varfung
 # m = lm (yield~variety+fungicide, d)
 # summary(m)
@@ -22,6 +24,12 @@ Nous nous plaçons ici dans le cadre d’un plan
 
   - complet (toutes les combinaisons de facteurs sont présentent) 
   - équirépété (même nombre de répétition pour chaque combinaison). 
+
+
+```{r echo=TRUE, results="verbatim"}
+table(varfung$fungicide, varfung$variety)
+```
+
 
 Ce type de plan à de bonnes propriétés : 
  
@@ -37,7 +45,7 @@ L’ANOVA à 2 facteurs fonctionne aussi dans le cadre de plan qui ne sont ni co
   - $\overline y_{.j}$ la moyenne des rendements pour le fongicide $j$ 
   - $\overline y_{..}$ la moyenne des rendements
 
-**Travaux pratiques** : calculez $\overline y_{i.}$, $\overline y_{.j}$ et $\overline y$.
+**Dans notre exemple** : calculons $\overline y_{i.}$, $\overline y_{.j}$ et $\overline y$.
 
 ```{r results="verbatim"}
 d = varfung
@@ -106,7 +114,7 @@ Dans le cadre du plan complet equirépété :
   - $\widehat \beta_j = \overline y_{.j} - \overline y_{..}$
 
 
-**Travaux pratiques** : calculez $\widehat \mu$, $\widehat \alpha_i$, et $\widehat \beta_j$
+**Dans notre exemple** : calculons $\widehat \mu$, $\widehat \alpha_i$, et $\widehat \beta_j$
 
 ```{r results="verbatim"}
 d = varfung
@@ -158,7 +166,7 @@ Avec (propriété) :
 
 $$ \forall j \sum_i e_{ij} = 0,  \forall i \sum_j e_{ij} = 0$$
 
-**Travaux pratiques** : calculez les $e_{ij}$.
+**Dans notre exemple** : calculons les $e_{ij}$.
 
 ```{r results="verbatim"}
 d = varfung
@@ -196,10 +204,9 @@ $$y_{ij} - \overline y = (\overline y_{i.} - \overline y) + (\overline y_{.j} - 
 Dans le cadre du plan équirépétés : 
 
 \begin{eqnarray}
-
-\sum_i \sum_j (y_{ij} - \overline y)^2 &=& \sum_i J (\overline y_{i.} - \overline y)^2 &+& \sum_j I (\overline y_{.j} - \overline y)^2 &+& \sum_i \sum_j (y_{ij} - \widehat y_{ij})^2 \\
-                                       &=&  J \sum_i \widehat \alpha_i^2  &+& I \sum_j \widehat \beta_j^2 &+& \sum_i \sum_j e_ij^2 \\
-                              SC_{tot} &=&  SC_{F_1}                       &+&  SC_{F_2}                    &+& SC_{res} 
+\sum_i \sum_j (y_{ij} - \overline y)^2 &=& \sum_i J (\overline y_{i.} - \overline y)^2 + \sum_j I (\overline y_{.j} - \overline y)^2 + \sum_i \sum_j (y_{ij} - \widehat y_{ij})^2 \\
+                                       &=&  J \sum_i \widehat \alpha_i^2               + I \sum_j \widehat \beta_j^2                 + \sum_i \sum_j e_ij^2 \\
+                              SC_{tot} &=&  SC_{F_1}                                   +  SC_{F_2}                                   + SC_{res}
 \end{eqnarray}
 
 
@@ -207,7 +214,7 @@ Dans le cadre du plan équirépétés :
  
 $$R^2 =  \frac{SC_{tot} - SC_{res}}{SC_{tot}}$$
 
-**Travaux pratiques** : calculez $SC_{F_1}$, $SC_{F_2}$, $SC_{res}$, $SC_{tot}$ et $R^2$.
+**Dans notre exemple** : calculons $SC_{F_1}$, $SC_{F_2}$, $SC_{res}$, $SC_{tot}$ et $R^2$.
 
 
 ```{r results="verbatim"}
@@ -381,6 +388,33 @@ abline(v=c(-1, 1)*t_obs_b2, col=2)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Exercices
 
 Etudier les jeux de données suivants : 
@@ -410,56 +444,13 @@ layout(matrix(1:2,1), respect=TRUE)
 plot(volume~method+subject, d)
 
 ```
-```{r eval=FALSE}
-# 1. vol_ij = vol_basal + meth_i + sub_j + e_ij
-# 2.0 H_0: meth_i = 0 pour tout i.
-#     H_1: il existe i tel que meth_i != 0 
-# 2.1 H_0: meth_a = 0
-#     H_1: meth_a != 0 
-# 2.2 H_0: meth_b = 0
-#     H_1: meth_b != 0 
-# 2.3 H_0: meth_c = 0
-#     H_1: meth_c != 0 
 
-# 3. res. gaussiens : 
-d = ISwR::lung
-m = lm(volume~method+subject,d)
-shapiro.test(m$residuals) # distrib. normale pour les res.
+[correction_anova_lung.R](./correction_anova_lung.R)
 
 
-# 4.0 Fisher
-anova(m)
-layout(matrix(1:2,1), respect=TRUE)
-plot(TukeyHSD(aov(volume~method+subject,d), conf.level=0.95), las = 2)
-
-# 4.1 Student
-summary(m)
-meth_A = m$coefficient[2]
-meth_A
-meth_C = -sum(m$coefficient[2:3])
-meth_C
-
-err_meth = summary(m)$coefficients[2,2]
-err_meth
-
-F_obsA = meth_A / err_meth
-F_obsA
-F_obsC = meth_C / err_meth
-F_obsC
-
-pval_methA = 2*(1 - pt(abs(F_obsA),10))
-pval_methA
-pval_methC = 2*(1 - pt(abs(F_obsC),10))
-pval_methC
 
 
-# df = nb_obs - nb_param_libre
-# df = nb_obs - (nb_param - nb_contraintes)
-18 - ((1 + 6 + 3) - 1 - 1)
-```
-
-
-````{r, eval=TRUE, echo=TRUE, results="verbatim"}
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
 library(lsmeans)
 d = auto.noise
 head(d)
@@ -470,25 +461,9 @@ plot(noise~size+type, d)
 
 ```
 
-```{r eval=FALSE}
-d = auto.noise
-m = lm(noise~size+type, d)
 
-shapiro.test(m$residuals) # Attention !!
-bartlett.test(noise~I(d$size:d$type), d) # Attention !!
-# d$comb = factor(paste(d$size,d$type, sep="_"))
-# bartlett.test(noise~d$comb, d)
-# d$comb = factor(paste(d$size,d$type, sep="_"))
-# bartlett.test(noise~d$comb, d)
-# m = lm(noise~comb, d)
-# shapiro.test(m$residuals)
-#
-# m = lm(noise~size+type+side, d)
-# shapiro.test(m$residuals)
+[correction_anova_auto.noise.R](./correction_anova_auto.noise.R)
 
-anova(m)
-
-```
 
 
 
@@ -504,15 +479,26 @@ dim(d)
 table(d$poison, d$treat)
 layout(matrix(1:2,1), respect=TRUE)
 plot(time~poison+treat, d)
-
 ```
+
+
+
+[correction_anova_rats.R](./correction_anova_rats.R)
+
+
+
+
+
+
+
+
 ```{r, eval=TRUE, echo=TRUE, results="verbatim"}
 Penicillin = lme4::Penicillin
 head(Penicillin)
 dim(Penicillin)
 table(Penicillin$plate, Penicillin$sample)
-
 ```
+
 ```{r, eval=TRUE, echo=TRUE, results="verbatim"}
 cake = lme4::cake
 head(cake)
@@ -529,31 +515,6 @@ table(cake$temperature, cake$recipe)
 
 
 
-```{r, eval=FALSE}
-layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-boxplot(time~poison+treat,rats, las=2)
-boxplot(log(time)~poison+treat,rats, las=2)
-# homosedacticity
-bartlett.test(time~I(poison:treat), rats)
-bartlett.test(log(time)~I(poison:treat), rats)
-
-# normality
-rats = faraway::rats
-m = lm(log(time)~poison+treat,rats)
-shapiro.test(m$residuals)
-
-# Fisher
-anova(m)
-# Student
-summary(m)
-
-# TukeyHSD
-layout(matrix(1:3, 1, byrow=TRUE), respect=TRUE)
-boxplot(log(time)~poison+treat,rats, las=2)
-m2 = aov(log(time)~poison+treat,rats)
-plot(TukeyHSD(m2, conf.level=0.95))
-
-```
 
 ```{r, eval=FALSE}
 boxplot(diameter~plate+sample,Penicillin, las=2)

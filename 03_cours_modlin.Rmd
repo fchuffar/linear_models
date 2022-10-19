@@ -1,5 +1,12 @@
 # ANOVA à un facteur
 
+L’objectif de cette section est : 
+
+  - d’introduire l’ANOVA comme **modèle statistique** (formulation, paramètres, adéquation aux données)
+  - d’interroger le modèles grace au **tests statistiques** (Fisher et Tuckey)
+
+---
+  
 Dans le cadre de l’analyse de la variance (**ANOVA**) on cherche une relation entre la variable observée $Y$ quantitative et la variable explicative $X$ qualitative, appellée aussi facteur. 
 
 $$Y \sim X$$
@@ -11,13 +18,13 @@ Comme pour la regression linéaire, l’ANOVA est à la fois :
 
 Ex : le poids moyen de différents groupes d’individus.
 
-L’analyse de la variance est un outil statistique largement utilisé  en analyse de données.
-  
+L’analyse de la variance est un outil statistique très largement utilisé.
+
 
 ## Présentation du modèle
 
 
-Y est la variable aléatoire expliquée (modélisée) par  la variables explicatives $X$. 
+$Y$ est la variable aléatoire expliquée (modélisée) par la variables explicatives $X$. 
 
 Le modèle s’écrit :
 
@@ -32,7 +39,7 @@ avec :
 
 On note : 
   
-  - $\beta$ un vecteur de  $p$ (le nombre de niveaux du facteur X) correspondant à la moyenne des observation pour chaque niveau du facteur moins la moyenne générale.
+  - $\beta$ un vecteur de taille $p$ (le nombre de niveaux du facteur $X$) correspondant à la moyenne des observations pour chaque niveau du facteur moins la moyenne générale.
   - $I_X$ la *matrice d’incidence* (tableau disjonctif ?) de taille $n$ x $p$, ne comportant que des 0 et des 1 et permettant d’associer chaque observation à son niveau de facteur $X$.   
 
 **Exemple *InsectSprays* **
@@ -150,7 +157,7 @@ La variance observée du groupe $j$ s’écrit :
 $$s_j^2(Y) = \frac{1}{|K|}\sum_{k \in K}(Y_{jk} -\overline Y_j)^2$$
 
 
-*Remarque* : Cette dernière formule exprime la variance non corrigée. Très souvent, dans les ouvrages ou les logiciels, c’est la variance corrigée qui est utilisée : au lieu d’être divisée par $|K|$, la somme est divisée par $|K| − 1$.
+*Remarque* : Cette dernière formule exprime la variance non corrigée. Très souvent, dans les ouvrages ou les logiciels, c’est la variance corrigée qui est utilisée : au lieu d’être divisée par $|K|$, la somme est divisée par $|K| - 1$.
 
 
 **Propriétés fondamentales**
@@ -224,54 +231,24 @@ legend("top", c("Y_ij", "SC_F", "SC_res"), pch=c(1,5,5), col=c(1,2,4))
 
 ```{r echo=TRUE, results="verbatim"}
 data(CO2)
-d = CO2[CO2$Type=="Quebec" & CO2$Treatment=="chilled", ]
-head(CO2)
-d$conc_log = log(d$conc)
+d = CO2[CO2$Type=="Quebec", ]
+d$conc_log = log10(d$conc)
 d$conc_fact = as.factor(d$conc)
+print(d$conc_fact)
 m1 = lm(uptake~conc, d)
 m2 = lm(uptake~conc_log, d)
+# m3 = lm(uptake~...
 layout(matrix(1:3, 1), respect=TRUE)
-plot(
-  d$conc, 
-  d$uptake, 
-  xlab="conct", ylab="uptake", main=paste0("uptake~conc R^2=", signif(summary(m1)$r.squared,3))
-)
+plot(d$conc, d$uptake, main=paste0("uptake~conc R^2=", signif(summary(m1)$r.squared, 2)*100, "%"))
 abline(m1, col=2)
-plot(
-  d$conc_log, 
-  d$uptake, 
-  xlab="conc_log", ylab="uptake", main=paste0("uptake~conc_log R^2=", signif(summary(m2)$r.squared,3))
-)
+plot(d$conc_log, d$uptake, main=paste0("uptake~conc_log R^2=", signif(summary(m2)$r.squared, 2)*100, "%"))
 abline(m2, col=2)
-plot(
-  d$conc_fact, 
-  d$uptake, 
-  xlab="log(conc_fact)", ylab="uptake", main=paste0("uptake~conc_fact")
-)
+plot(d$conc_fact, d$uptake, main=paste0("uptake~conc_fact R^2=", "??", "%"))
 ```
 
 
-```{r eval=FALSE}
-# README RStudio config, uncheck: # preferences > R Markdown > show output inline for... 
-layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-plot(
-  d$conc, 
-  d$uptake, 
-  xlab="conc_fact", ylab="uptake", main=paste0("uptake~conc_fact R^2=", signif(summary(m1)$r.squared,3))
-)
-m = lm(uptake ~ conc, d)
-abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
-arrows(d$conc, d$uptake, d$conc, d$uptake-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
-legend("bottomright",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+[correction_co2_anova.R](./correction_co2_anova.R)  
 
-m2 = lm(uptake ~ conc_fact, d)
-summary(m2)$r.squared
-p = plot(d$conc_fact, d$uptake, las=2, main=paste0("uptake~conc_fact R^2=", signif(summary(m2)$r.squared,3)))
-conc_fact = jitter(as.numeric(d$conc_fact))
-arrows(conc_fact, d$uptake, conc_fact, d$uptake-m2$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
-legend("bottomright","residuals", col=4, lty=1, cex=.8)
-```
-  
 ---
 
 
@@ -314,11 +291,15 @@ Le test de l’ANOVA à 1 facteur (*one way ANOVA*), s’applique sous certaines
 
 l’ANOVA est un test de comparaison des moyennes des facteurs : 
 
-- hypothèse nulle $H_0, \mu_1 =\mu_2 =···=\mu_I$
-- hypothèse alternative $H_1, \text{les moyennes } \mu_i \text{ ne sont pas toutes égales.}$
 
-**Intuition du test** Si l’hypothèse nulle $H_0$ est vraie alors la quantité $SC_F$ (rouge) doit être petite par rapport à la quantité $SC_{res}$ (bleu).
-Par contre, si l’hypothèse alternative $H_1$ est vraie alors la quantité $SC_F$ doit être grande par rapport à la quantité $SC_{res}$.
+$$\left  \lbrace
+\begin{array}{l}
+H_0,\mu_1=\mu_2=...=\mu_I \\
+H_1, \text{les moyennes } \mu_i \text{ ne sont pas toutes égales.}
+\end{array}
+\right.$$
+
+
 
 
 ```{r}
@@ -357,7 +338,7 @@ Sa valeur observée sur l’échantillon est ainsi notée $CM_{res}$ ou $s_{res}
 
 Définissons la statistique de test :
 
-$$ F_{obs} = \frac{CM_F}{CM_{res}}$$
+$$F_{obs} = \frac{CM_F}{CM_{res}}$$
 
 Si les conditions d’aplications sont satisfaites et sous $H_0$ alors $F_{obs}$ est une réalisation d’une variable aléatoire $F$ qui suit une loi de Fisher à $|J|-1$ degrés de liberté au numérateur et $n-|J|$ degrés de liberté au dénominateur. Cette loi est notée  $\mathcal{F}_{|J|-1,n-|J|}$.
 
@@ -400,7 +381,7 @@ legend("topright",c("F_obs", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=
 
 
 
-*Remarque* : on peut aussi écrire ce test à l’qide d’une table disjonctif : 
+*Remarque* : on peut aussi écrire ce test à l’aide d’une table disjonctif : 
 
 ```{r echo=TRUE, results="verbatim"}
 d$A = 0
@@ -418,6 +399,35 @@ summary(m0)
 m00 = lm(count~A+B+C+D+E,d)
 summary(m00)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -458,7 +468,7 @@ points(jitter(as.numeric(d$spray)), d$count)
 On peut aussi réaliser plusieurs Test de Student et appliqué une correction
 
 La plus connues est la correction de **Bonferroni**. Cela consiste à diviser le seuil par le nombre de comparaisons. 
-Bonferroni a montré que cette procédure garantit un taux d’erreur global plus faible que le seuil initial (conservatif).  
+Bonferroni a montré que cette procédure garantit un taux d’erreur global plus faible que le seuil initial (conservatif).  
 
 
 ```{r echo=TRUE, results="verbatim"}
@@ -469,6 +479,11 @@ pairwise.t.test(d$count, d$spray, p.adjust.method="bon")
 
 
 Une autre méthode utilisée quand le nombre de tests multiples à réalisé est très grand est la procédure de contrôle du taux de fausses découverte (FDR) de **Benjamini-Hochberg** [Y. Benjamini, Y. Hochberg. *Controlling the false discovery rate : a practical and powerful approach to multiple testing*. Journal of the Royal Statistical Society, Series B (Methodological), 1995, p289-300.].
+
+
+
+
+
 
 
 
@@ -538,56 +553,8 @@ plot(d$diet, d$coag, main="coag~diet", xlab="diet", ylab="coag", border="grey")
 points(jitter(as.numeric(d$diet)), d$coag)
 ```
 
-```{r eval=FALSE}
-d = faraway::coagulation
-# Test hypothesis
-m = lm(coag~diet, d)
 
-
-## normality
-m$residuals
-shapiro.test(m$residuals)
-# H_0 normality
-# H_1 not normality
-# pval = 0.86 > 0.05, we keep H_0, residuals are normal
-
-## homoscedasticity
-bartlett.test(coag~diet, d)
-# H_0 homoscedasticity
-# H_1 not homoscedasticity
-# pval = 0.6441 > 0.05, we keep H_0, variance of groups are equal
-
-anova(m)
-
-## ANOVA
-# H_0 means of each group are equals
-# H_1 means of each group  are not equals
-# alpha = 5%
-# pval = 4.6e-05 < 5% we reject H_0 and accept H_1 at threshold of 5%, means are not equals.
-
-layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
-plot(d$diet, d$coag, main="coag~diet", xlab="diet", ylab="coag", border="grey")
-points(jitter(as.numeric(d$diet)), d$coag)
-plot(TukeyHSD(aov(coag~diet, d), conf.level=0.95))
-
-pairwise.t.test(d$coag, d$diet, p.adjust.method="none") 
-pairwise.t.test(d$coag, d$diet, p.adjust.method="bon") 
-pairwise.t.test(d$coag, d$diet, p.adjust.method="BH") 
-
-pairwise.t.test(d$coag, d$diet, p.adjust.method="none", pool.sd=FALSE) 
-
-anova(lm(coag~diet, d[d$diet %in% c("C", "B"),]))
-t.test(d[d$diet == "A",]$coag, d[d$diet == "B",]$coag)
-t.test(d[d$diet == "B",]$coag, d[d$diet == "C",]$coag)
-t.test(d[d$diet == "B",]$coag, d[d$diet == "B",]$coag)
-t.test(d[d$diet == "A",]$coag, d[d$diet == "D",]$coag)
-t.test(d[d$diet == "B",]$coag, d[d$diet == "B",]$coag)
-t.test(d[d$diet == "B",]$coag, d[d$diet == "B",]$coag)
-
-```
-
-
-
+[correction_coagulation.R](./correction_coagulation.R)
 
 
 
@@ -616,30 +583,6 @@ d$delta = d$Postwt - d$Prewt
 layout(matrix(1:2,1), respect=TRUE)
 plot(d$Postwt, d$Prewt)
 plot(delta~Treat, d)
-
-d = ISwR::lung
-head(d)
-dim(d)
-table(d$method, d$subject)
-layout(matrix(1:2,1), respect=TRUE)
-plot(volume~method+subject, d)
-
-library(lsmeans)
-d = auto.noise
-head(d)
-dim(d)
-table(d$size, d$type)
-layout(matrix(1:2,1), respect=TRUE)
-plot(noise~size+type, d)
-
-d = faraway::rats
-head(d)
-dim(d)
-table(d$poison, d$treat)
-layout(matrix(1:2,1), respect=TRUE)
-plot(time~poison+treat, d)
-
-
 ```
 
 

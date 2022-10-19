@@ -1,0 +1,111 @@
+---
+title: "Modèles linéaires et GLM"
+subtitle: "M1 SSD"
+author: "Florent Chuffart & Magali Richard"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_sections: true
+---
+
+
+```{r, echo=FALSE, eval=TRUE}
+knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, eval=TRUE, echo=FALSE, results="hide")
+# README RStudio config, uncheck: # preferences > R Markdown > show output inline for... 
+```
+
+# Avant Propos
+
+
+
+## Les plateformes
+
+
+
+1. __CODALAB__ Les TP seront organisés dès la première session autour de plusieurs data challenges sur la plateforme codalab, je vous invite à vous connecter ici maintenant pour gagner du temps
+  https://competitions.codalab.org/competitions/28092?secret_key=6d097f54-b525-4fa7-849c-5f31e142f848
+
+2. __GITHUB__ Le cours est dés maintenant disponible sur github, il évoluera au fil des sessions, le dépot sera régulièrement mis à jour  
+  https://github.com/fchuffar/linear_models
+
+
+3. __GOOGLEFORM__ Certaines évaluation de contrôle continu seront réalisées via des questionnaires Google.
+
+[Questionnaire Séance 1](https://forms.gle/tk5n2FZVba4iv28j7) : à rendre pour le dimanche 14
+
+
+## Evaluations
+
+ - Individuelle via un questionnaire à certaines séances.
+ - En équipe lors d’un *data challenge* séance 4 et séance 7.
+
+## Pré-requis
+ 
+ - R https://cran.r-project.org 
+ - RStudio https://www.rstudio.com
+ - git and github https://r-pkgs.org/git.html & https://privefl.github.io/R-presentation/rstudio-git.html#1 
+
+## Cours 
+
+https://github.com/fchuffar/linear_models
+
+## Organisation prévisionnelle
+
+  - Régression linéaire simple (séance 1, Magali Richard)
+  - Régression linéaire multiple (séance 2, Florent Chuffart)
+  - ANOVA (séance 3, Florent Chuffart) 
+  - *data challenge 1* (séance 4, Magali Richard)
+      - codalab : https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910
+      - fin de séance, 1 compte rendu par équipe : https://github.com/fchuffar/starting_kit_expred3.0
+
+     
+  - Introduction à la régression logistique (séance 5, Florent Chuffart) 
+  - GLM (séance 6, Magali Richard)
+   - *data challenge 2* (séance 7, Magali Richard)
+   - Regression de poisson (séance 8, Florent Chuffart)
+  
+---
+
+
+
+
+
+```{r child = "01_cours_modlin.Rmd", eval=TRUE}
+```
+
+```{r child = "02_cours_modlin.Rmd", eval=TRUE}
+```
+```{r child = "02.1_cours_modlin.Rmd", eval=TRUE}
+```
+
+```{r child = "03_cours_modlin.Rmd", eval=TRUE}
+```
+
+```{r child = "04_cours_modlin.Rmd", eval=TRUE}
+```
+
+
+---
+
+# Notes
+
+Ce cours s’inspire des références suivantes :
+
+- Frédéric Bertrand & Myriam Maumy-Bertrand
+- Franck Picard
+- Olivier François
+- http://math.agrocampus-ouest.fr (janvier 2020)
+- https://delladata.fr/introduction-puissance-statistique (décembre 2020)
+- https://andrewlauactuary.com/2019/06/04/shiny-app-showing-statistical-power (juin 2019)
+
+---
+
+```{r, results="verbatim"}
+sessionInfo()
+```
+
+
+

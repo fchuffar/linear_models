@@ -1,4 +1,6 @@
-## Exercices
+## Pour aller plus loin
+
+
 
 ### Sélection de variables
 
@@ -21,14 +23,16 @@ Il est donc nécesaire de réduire le nombre de variables explicatives d’un mo
 Pour sélectionner les variables d’intérêt, il existe classiquement plusieurs : 
  
 - critères de choix : 
-  -- Critère du $R^2$ 
-  -- Critère d’information d’Akaike (AIC)
-  -- Critère d’information bayesien (BIC)
+
+  - Critère du $R^2$ 
+  - Critère d’information d’Akaike (AIC)
+  - Critère d’information bayesien (BIC)
 
 - procédure :
--- Forward (ou pas à pas ascendante)
--- Backward (ou pas à pas descendante)
--- Stepwise
+
+  - Forward (ou pas à pas ascendante)
+  - Backward (ou pas à pas descendante)
+  - Stepwise
 
 ---
 
@@ -60,9 +64,9 @@ avec :
  
 Pour l’AIC et le BIC : 
 
-- le critère s’applique aux modèles estimés par une méthode du **maximum de vraisemblance**
-- le meilleur modèle est celui qui minimise le critère
-- le nombre de paramètres du modèle ($p$) vient donc pénaliser le modèle.
+  - le critère s’applique aux modèles estimés par une méthode du **maximum de vraisemblance**
+  - le meilleur modèle est celui qui minimise le critère
+  - le nombre de paramètres du modèle ($p$) vient donc pénaliser le modèle.
 
 Par définition le BIC est plus parcimonieux que l’AIC.
 
@@ -123,7 +127,7 @@ life.lm = lm(Life.Exp ~ Murder + HS.Grad + Frost + Population, data=state_us)
 R peut faire ce raisonnement de manière automatisée. Il suffit d’appliquer 
 
 ```{r echo=TRUE, results="verbatim"}
-life.lm = step(lm(Life.Exp ~ ., data=state_us), method="bakward")
+life.lm = step(lm(Life.Exp ~ ., data=state_us), method="backward")
 ```
 
 Le critère choisi par défaut est alors l’AIC. Il est également possible de choisir les méthodes "forward" et "both". Ensuite on peut résumer les différentes étapes de la façon suivante :
@@ -145,28 +149,11 @@ On peut également utiliser les fonctions add1 et drop1, non détaillées ici.
 - Réaliser l’étude complète du modèle obtenu dur le jeu de données réduit
 
 
-```{r ex2, echo=TRUE, eval=FALSE}
+```{r ex2, echo=TRUE, results="verbatim"}
 m_lo = lm(Life.Exp ~ 1, data=state_us)
 m_up = lm(Life.Exp ~ ., data=state_us)
 life.lm = step(m_lo, method="forward", scope=list(upper=m_up,lower=m_lo))
 life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
-
-set.seed(1)
-d_train = d[sample(1:nrow(d), 25),]
-m_lo = lm(Life.Exp ~ 1, data=d_train)
-m_up = lm(Life.Exp ~ ., data=d_train)
-life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
-
-d_train = d[sample(1:nrow(d), 10),]
-m_lo = lm(Life.Exp ~ 1, data=d_train)
-m_up = lm(Life.Exp ~ ., data=d_train)
-life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
-
-d_train = d[sample(1:nrow(d), 10),]
-m_lo = lm(Life.Exp ~ 1, data=d_train)
-m_up = lm(Life.Exp ~ ., data=d_train)
-life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
-
 ```
 
 ---
@@ -179,104 +166,6 @@ life.lm = step(m_lo, method="both", scope=list(upper=m_up,lower=m_lo))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Exemple complet `ISwR::cystfibr`
-
-Les données `ISwR::cystfibr` concernent la fonction respiratoire de patients atteints de fibrose kystique (mucoviscidose).
-
-On cherche à expliquer la variable `pemax` qui caracterise cette maladie.
-
-```{r echo=TRUE, results="verbatim"}
-# ?ISwR::cystfibr
-d = ISwR::cystfibr
-head(d)
-dim(d)
-# removing sex
-d = d[,-2]
-```
-
-
-2.1) Etudier la corrélation des variables à l’aide du code suivant. Commenter les graphiques obtenus.
-
-```{r echo=TRUE, fig.width=9, fig.height=9, eval=TRUE}
-pairs(d, gap=0)
-lattice::levelplot((cor(d)))
-```
-
-2.2) Réaliser l’analyse en composante principale à l’aide du code suivant. Commenter les graphiques obtenus.
-
-```{r echo=TRUE, eval=TRUE, fig.height=12}
-# mat = x[,-9]
-mat = d
-pca = prcomp(mat, scale=TRUE)
-v = pca$sdev * pca$sdev
-p = v / sum(v) * 100
-
-# layout(matrix(1:6,2), respect=TRUE)
-layout(matrix(1:2,1), respect=TRUE)
-barplot(p)
-
-for (i in 1:5) {
-  j = i+1
-  plot(pca$x[,i], pca$x[,j], xlab=paste0("PC", i, "(", signif(p[i], 3), "%)"), ylab=paste0("PC", j, "(", signif(p[j], 3), "%)"), pch=16)  
-  scale_factor = min(abs(c(min(c(pca$x[,i], pca$x[,j])), max(c(pca$x[,i], pca$x[,j])))))  
-  # scale_factor = min(abs(c(max(min(pca$x[,i]), min(pca$x[,j])), min(max(pca$x[,i]), max(pca$x[,j])))))
-  plotrix::draw.ellipse(0,0,scale_factor,scale_factor, lty=2, border="grey")
-  arrows(0,0,pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, col="grey")
-  text(pca$rotation[,i]*scale_factor, pca$rotation[,j]*scale_factor, rownames(pca$rotation))
-}
-
-m_lo = lm(pemax ~ 1, data=d)
-m_up = lm(pemax ~ ., data=d)
-m_step = step(m_lo, method="forward", scope=list(upper=m_up,lower=m_lo))
-
-m_step$anova
-summary(m_step)
-
-m_w = lm(pemax ~ weight, data=d)
-summary(m_w)
-m_wb = lm(pemax ~  weight + bmp, data=d)
-summary(m_wb)
-m_wbf = lm(pemax ~  weight + bmp + fev1 , data=d)
-summary(m_wbf)
-summary(m_w)
-
-```
-
-2.3) Proposer un modèle permettant d’expliquer la variable `pemax`. Détaillez votre méthodologie.
-
-4) Discuter et interpréter le modèle obtenue (point de vue statistique)
-
-5) Discuter et interpréter le modèle obtenue (point de vue métier, ici biologie, santé)
 
 
 
@@ -656,90 +545,6 @@ car::vif(m)
 ```
 
 Les valeurs des VIF (Variance Inflation Factors) étant inférieures à 10, les variables ne présentent pas de forte colinéarité.
-
----
-
-
-
-
-
-
-
-
-### Test de Fisher
-
-Le test de Fisher repose sur cette décomposition de la variance.
-
-Il pose la question de l’effet des variables $X$.
-
-
-
-**Hypothèses nulle et hypothèse alternative**
-
-$\mathcal{H}_0 : {\beta_1 = ... = \beta_p = 0}$
-
-contre 
-
-$\mathcal{H}_1 : \exists$ au moins un $j$ tel que ${\beta_j \neq 0}$ où $j$ varie de $1$ à $p$.
-
-*Remarque*: Si l’hypothèse nulle est vérifiée, alors $y_i = \beta_0 + \epsilon_i$
-
-
-
-
-**Conditions d’applications du test**
-
-- Les observations sont indépendantes
-- La variance des erreurs est homogène $\sigma^2$
-- La loi des erreurs est une loi normale $\mathcal{N}(0, \sigma^2)$
-
-
-
-**Risque de première espèce $\alpha$**
-
-Le risque de première espèce ou risque $\alpha$ est le risque de rejeter l’hypothèse nulle $\mathcal{H}_0$ alors que celle-ci est vraie.
-
-Généralement on fixe $\alpha=.05$.
-
-
-
-
-**Statistique du test** 
-
-
-La statistique de test *F* est obtenue à partri de tableau de l’analyse de la variance : 
-
-| Source de variation   | sc        | ddl  |  cm  | $F_{obs}$
-| :-------------------- | :-------: | :--: | :--: | ---:
-| Régression            | $sc_{reg} = \sum^n_{i=1}(\widehat{y}_i - \overline{y})^2$    | p-1  | $\frac{sc_{reg}}{p-1}$ | $\frac{cm_{reg}}{cm_{res}}$
-| Résiduelle            | $sc_{res} = \sum^n_{i=1}(y_i - \widehat{y})^2$    | n-p  | $\frac{sc_{res}}{n-p}$ 
-| Totale            | $sc_{tot} = \sum^n_{i=1}(y_i - \overline{y})^2$    | n-1  
-
-
-1) Calculer la statistique
-$$F_{obs} = \frac{CM_{reg}} {CM_{res}}$$
-
-2) Lire la valeur critique $F_{1−\alpha,p−1,n−p}$ où $F_{1−\alpha,p−1,n−p}$ est le $(1 − \alpha)$-quantile d’une loi de Fisher avec $(p − 1)$ et $(n − p)$ degrés de liberté, car si l’hypothèse nulle $\mathcal{H}_0$ est vraie, alors $F_{obs}$ suit une loi de Fisher avec $(p − 1)$ et $(n − p)$ degrés de liberté.
-
-3) Comparer la statistique c’est-à-dire la valeur observée à la valeur critique.
-
-
-
-
-
-**Décision et conclusion du test**: 
-
-La valeur critique du test, notée $c_\alpha$ est lue dans une table de la loi de Fisher.
-
-Nous décidons de rejeter l’hypothèse nulle  $\mathcal{H}_0$ et d’accepter l’hypothèse alternative  $\mathcal{H}_1$, au seuil $\alpha = 5\%$, si
-$$|F_{obs}| \geq F_{1−\alpha,p−1,n−p}$$
-
-Nous décidons de ne pas rejeter l’hypothèse nulle $\mathcal{H}_0$ et
-donc de l’accepter si
-$$|F_{obs}| < F_{1−\alpha,p−1,n−p}$$
-
-
-
 
 ---
 
