@@ -1,0 +1,124 @@
+---
+title: "Modèles linéaires"
+author: "Florent Chuffart & Magali Richard"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_sections: true
+urlcolor: blue
+---
+
+
+```{r, echo=FALSE, eval=TRUE}
+knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, eval=TRUE, echo=FALSE, results="hide")
+# README RStudio config, uncheck: # preferences > R Markdown > show output inline for... 
+```
+
+# Avant Propos
+
+
+
+## Pré-requis
+ 
+ - R https://cran.r-project.org 
+ - RStudio https://www.rstudio.com
+ - git and github https://r-pkgs.org/git.html & https://privefl.github.io/R-presentation/rstudio-git.html
+
+
+## Les plateformes
+
+1. __GitHub__ Le cours est dés maintenant disponible sur GitHub (https://github.com/fchuffar/linear_models), il évoluera au fil des sessions, le dépot sera régulièrement mis à jour.
+
+
+2. __CodaLab__ Un TP sera organisé lors de la quatrième session. Il prendra la forme d’un *data challenge*. Je vous invite à vous connecter sur [codalab](https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910) au plus tôt afin de gagner du temps.
+ 
+ 
+3. __Google Forms__ Un [formulaire en ligne](https://forms.gle/8Pp5S3Ze7jrRQcNe6) évaluant votre progression vous sera régulièrement proposé.
+  
+
+## Organisation prévisionnelle
+
+  - Séance 1 : Rappels info/algo + Régression linéaire simple
+  - Séance 2 : Régression linéaire multiple
+  - Séance 3 : ANOVA 
+  - Séance 4 : TP 
+    ([Gene Expression Prediction Challenge 3.0 (expred3.0)](https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910) - 
+    [Compte rendu de TP pré-rempli](https://github.com/fchuffar/starting_kit_expred3.0))
+
+## Publicité
+
+Le RIS est le Réseau Interdisciplinaire autour de la Statistique (Mission pour les Initiatives Transverses et Interdisciplinaires, CNRS).
+
+N’hésitez pas à rejoindre le RIS, vous serez tenus informés des actions de formation et des journées thématiques du réseau :
+ https://ris.cnrs.fr/rejoindre-le-reseau/
+ 
+ 
+---
+
+
+
+
+
+```{r child = "00_cours_modlin.Rmd", eval=TRUE}
+```
+
+```{r child = "01_cours_modlin.Rmd", eval=TRUE}
+```
+
+
+```{r child = "02_cours_modlin.Rmd", eval=TRUE}
+```
+```{r var_select, child = "02.1_cours_modlin.Rmd", eval=TRUE}
+```
+
+```{r child = "03_cours_modlin.Rmd", eval=TRUE}
+```
+
+```{r child = "04_cours_modlin.Rmd", eval=TRUE}
+```
+
+
+---
+
+# Références et notes
+
+François Rebaudo, (2021).
+*R pour les scientifiques*, **Dunod**, France.
+
+Daudin Jean-Jacques, (2015).
+*Le modèle linéaire et ses extensions*, **ellipse**, France.
+http://moulon.inra.fr/modelstat/supports/ModeleLineaireEt_Extensions-compressed.pdf
+
+Cornillon, P.-A. et Matzner-Løber, E. (2011). *Régression avec R*, **Springer**, France.
+
+Cornillon, P.-A. et Matzner-Løber, E. (2007). *Régression. Théorie et applications*, **Springer**, France.
+
+McCullagh, P. et Nelder, J.A. (1989). *Generalized Linear Models. Second Edition. Monographs on Statistics and Applied Probability* 37. **Chapman and Hall**.
+
+Madsen H. and Thyregord, P (2011). *Introduction to General and Generalized Linear Models*, **CRC Press**, Taylor and Francis Group, Boca Raton, Florida, USA.
+
+Weisberg, S (2005). *Applied linear regression*. Vol. 528. **John Wiley & Sons**.
+
+R markdown https://pkgs.rstudio.com/rmarkdown/articles/rmarkdown.html
+
+
+Ce cours s’inspire des échanges avec les personnes  et liens suivants : 
+
+- Frédéric Bertrand & Myriam Maumy-Bertrand
+- Franck Picard
+- Olivier François
+- http://math.agrocampus-ouest.fr (janvier 2020)
+- https://delladata.fr/introduction-puissance-statistique (décembre 2020)
+- https://andrewlauactuary.com/2019/06/04/shiny-app-showing-statistical-power (juin 2019)
+
+---
+
+```{r, results="verbatim"}
+sessionInfo()
+```
+
+
+

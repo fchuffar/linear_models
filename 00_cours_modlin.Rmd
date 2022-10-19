@@ -2,7 +2,7 @@
 
 L’objectif de cette section est de définir un ensemble d’**outils informatiques** et de **notions d’algorithmique** vous permettant d’appréhender la suite du cours dédiée aux **statistiques**.
 
-## R et RStudio
+## Les logiciels R et RStudio
 
 **R est un logiciel** libre sous licecnce [GPL](https://en.wikipedia.org/wiki/Free_software#Definition_and_the_Four_Essential_Freedoms_of_Free_Software).
 
@@ -24,13 +24,86 @@ getwd()
 **Astuce**, pour être certain de vous trouver dans le bon répertoire : 
 
 - fermer RStudio ; 
-- ouvrir votre script R depuis votre gestionnaire de fichier avec RStudio.
+- ouvrir votre script R depuis votre gestionnaire de fichiers avec RStudio.
+
+
+
+
+
+
+
+
+
+## Git, GitHub et la gestion des versions
+
+**Git** est un logiciel de gestion de versions décentralisé. Il permet de stocker un ensemble de fichiers en conservant la chronologie de toutes les modifications qui ont été effectuées dessus (traçabilité, reproductibilité).
+
+**GitHub** est un service web d’hébergement et de gestion de développement de logiciels, utilisant Git.
+
+## R Markdown et la programmation lettrée
+
+La programmation lettrée est paradigme de programmation préconisée par Donald Knuth [1984, [*Literate Programming*](http://www.literateprogramming.com/knuthweb.pdf)] qui permet de diviser les programmes en petits morceaux (*chunks*). Chaque morceau est suffisamment court pour être complètement et clairement documenté.
+
+**R Markdown** est un langage de programmation lettrée dédié à R. Il permet de produire facilement des documents entremêlant les objectifs, le code R et l’interprétation des résultats. 
+
+
+**Exercices**
+
+1. Télécharger en compilez [le cours](https://github.com/fchuffar/linear_models).
+  
+Depuis RStudio : 
+
+- aller à *File* > *New Project...* ;
+- selectionner *Version control* > *Git* ;
+- remplir le champs *Repository URL: https://github.com/fchuffar/linear_models.git* ;
+- appuyer sur le bonton *Create Project* ;
+- dans la console R de Rstudio, vérifier votre répertoire de travail en tapant `getwd()` ;
+- dans la console R de Rstudio, lancer la compilation avec la commande `rmarkdown::render("cours_modlin.Rmd")` .
+
+Depuis un navigateur web : 
+
+- aller à l’adresse *https://github.com/fchuffar/linear_models* ;
+- cliquer sur *Code* > *Download zip* ;
+- enregistrer et **Décompresser** l’archive `.zip` sur votre machine ;
+- configurer le repertoire de travail de RStudio en cliquant sur *Session* > *Set Working Directory* > *Choose directory...*    ;
+- dans la console R de Rstudio, vérifier votre répertoire de travail en tapant `getwd()` ;
+- dans la console R de Rstudio, lancer la compilation avec la commande `rmarkdown::render("cours_modlin.Rmd")` .
+
+2. Télécharger en compilez le [sujet de TP de la seance 4](https://github.com/fchuffar/starting_kit_expred3.0). 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Le language R
 
 **R est aussi un langage de programation** dédié aux statistiques. 
 A ce titre on peut dire que R est un DSL (*domain-specific language*). 
-Ce n’est le cas de Java, C ou encore python qui sont des langages géneralistes. 
+Ce n’est pas le cas de Java, C ou encore python qui sont des langages géneralistes. 
 
 
 ### Variable et affectation
@@ -191,7 +264,7 @@ print(d)
 Un **algorithme** est la description d’une suite d’étapes permettant d’obtenir un résultat à partir d’éléments fournis en entrée. 
 Cette définition de l’algorithme implique sa terminaison.
 
-**Exemple**, le jeu du nombres pensé.
+**Exemple**, le jeu du nombre pensé.
 
 ```{r echo=TRUE, results="verbatim"}
 n_max = 10
@@ -264,45 +337,5 @@ data_nutri = read.table("data/data_nutri.csv", header=TRUE, sep=",", row.names =
 head(data_nutri)
 dim(data_nutri)
 ```
-
-
-## Git, GitHub et la gestion des versions
-
-**Git** est un logiciel de gestion de versions décentralisé. Il permet de stocker un ensemble de fichiers en conservant la chronologie de toutes les modifications qui ont été effectuées dessus (traçabilité, reproductibilité).
-
-**GitHub** est un service web d’hébergement et de gestion de développement de logiciels, utilisant Git.
-
-## R Markdown et la programmation lettrée
-
-La programmation lettrée est paradigme de programmation préconisée par Donald Knuth [1984, [*Literate Programming*](http://www.literateprogramming.com/knuthweb.pdf)] qui permet de diviser les programmes en petits morceaux (*chunks*). Chaque morceau est suffisamment court pour être complètement et clairement documenté.
-
-**R Markdown** est un langage de programmation lettrée dédié à R. Il permet de produire facilement des documents entremêlant les objectifs, le code R et l’interprétation des résultats. 
-
-
-**Exercices**
-
-1. Télécharger en compilez [le cours](https://github.com/fchuffar/linear_models).
-  
-Depuis RStudio : 
-
-- aller à *File* > *New Project...* ;
-- selectionner *Version control* > *Git* ;
-- remplir le champs *Repository URL: https://github.com/fchuffar/linear_models.git* ;
-- appuyer sur le bonton *Create Project* ;
-- dans la console R de Rstudio, vérifier votre répertoire de travail en tapant `getwd()` ;
-- dans la console R de Rstudio, lancer la compilation avec la commande `rmarkdown::render("cours_modlin.Rmd")` .
-
-Depuis un navigateur web : 
-
-- aller à l’adresse *https://github.com/fchuffar/linear_models* ;
-- cliquer sur *Code* > *Download zip* ;
-- enregistrer et **Décompresser** l’archive `.zip` sur votre machine ;
-- configurer le repertoire de travail de RStudio en cliquant sur *Session* > *Set Working Directory* > *Choose directory...*    ;
-- dans la console R de Rstudio, vérifier votre répertoire de travail en tapant `getwd()` ;
-- dans la console R de Rstudio, lancer la compilation avec la commande `rmarkdown::render("cours_modlin.Rmd")` .
-
-2. Télécharger en compilez le [sujet de TP de la seance 4](https://github.com/fchuffar/starting_kit_expred3.0). 
-
-
 
 
