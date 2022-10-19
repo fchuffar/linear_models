@@ -1,26 +1,35 @@
 # Régression linéaire simple
 
+L’objectif de cette section est : 
+
+  - d’introduire la régression linéaire comme **modèle statistique** (formulation, paramètres, adéquation aux données)
+  - d’interroger le modèles grace à des **tests statistiques** (Student, Fisher)
+  
+---
+
+
+
+
 On cherche une relation entre la variable observée $Y$ et la variable explicative $x$. 
 
 $$ Y \sim x $$
 
-Les objectifs peuvent être :
+Les motivations peuvent être :
 
-  * modèle explicatif
-
-  * modèles de prédiction
-
+  - modèle explicatif
+  - modèle prédictif
+  
 Domaines d’application : chimie, astronomie, sismologie, économie, démographie, épidémiologie, géographie, écologie, géologie, physique, médecine...
 
-Historiquement, le modèle linéaire a été développé par Fisher, avec applications en génétique et en agronomie.
+Historiquement, le modèle linéaire a été développé par Ronald Aylmer Fisher, avec applications en génétique et en agronomie.
 
 ---
 
 ## Présentation du modèle
 
-Considérons $x$ et $Y$ deux variables. Y est expliquée (modélisée) par  la variable explicative $x$. 
+Considérons $x$ et $Y$ deux variables. $Y$ est la variable expliquée (modélisée) par la variable $x$. 
 
-**Important**, dans le cadre des modèles linéaire Y est quantitatives (Ex : taille, poids, age...).
+**Important**, dans le cadre des modèles linéaire Y est *quantitatives* (Ex : age, poids, taille...).
 
 Dans le cas de la regression linéaire simple, $x$ est également quantitatives et la relation entre $Y$ et $x$ est une fonction **affine** (ou **linéaire**) de $x$ (Cf. programme du brevet des collèges).
 
@@ -44,12 +53,14 @@ layout(matrix(1:2, 1), respect=TRUE)
 plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille")
 m = lm(poids~taille, d)
 m$coefficients
+legend("topleft", c("observations", "regression line"), pch=c(1, NA), col=1:2, lty=0:1)
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
 plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille", xlim=c(0,max(d$taille)), ylim=c(m$coefficients[[1]]-20, max(d$poids)))
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
 # points(0,m$coefficients[[1]], pch=16)
 abline(h=m$coefficients[[1]], v=0, lty=2)
 axis(2, at=m$coefficients[[1]], "beta_0", las=2)
+
 
 segments(50, predict(m, data.frame(taille=50)), 100, predict(m, data.frame(taille=50)), lty=2)
 segments(100, predict(m, data.frame(taille=50)), 100, predict(m, data.frame(taille=100)), lty=2)
@@ -124,7 +135,7 @@ plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille")
 m = lm(poids~taille, d)
 m$coefficients
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("E(Y)", "epsilon"), col=c(2,4), lty=1, cex=.8)
 ```
 
@@ -142,16 +153,26 @@ legend("topleft",c("E(Y)", "epsilon"), col=c(2,4), lty=1, cex=.8)
 
 **Droite de regression, estimation et résidus**
 
-En analyse de régression linéaire, pour un individu $i$ :
 
-- $x_i$ est la valeur de la varible explicative
-- $Y_i$ est la valeur observée de la variable aléatoire
-- la composante aléatoire de $Y_i$ est le $\epsilon_i$ correspondant
-- la valeur de $Y_i$ estimée par le modèle est $\widehat Y_i$.
 
-Ainsi : 
+Pour un individu $i$, on a :
 
-$$Y_i = \widehat Y_i + \epsilon_i$$
+$$Y_i=\beta_0+ \beta_1 x_i + \epsilon_i$$
+ 
+$$Y_i=\widehat{\beta}_0+ \widehat{\beta}_1x_i + e_i$$
+
+$$\widehat Y_i=\widehat{\beta}_0+ \widehat{\beta}_1x_i$$
+
+$$Y_i = \widehat Y_i + e_i$$
+
+- $x_i$ est la valeur de la varible explicative , $Y_i$ est la valeur observée de la variable aléatoire
+- $\beta_0$ et $\beta_1$ sont les paramètre du modèle, ils sont inobservable (il faudrait avoir accès a l’exhaustivité de la population de référence)
+- $\widehat{\beta}_0$ et $\widehat{\beta}_1$ sont des estimnateur de ces parametres (estimés à partir d’un échantillon de la population de référence)
+- la composante aléatoire de $Y_i$ est $\epsilon_i$ (inobservable) estimé par $e_i$ (les **résidus du modèle**.)
+- la valeur de $Y_i$ prédite par le modèle est $\widehat Y_i$.
+
+La plupart des méthodes d’estimation cherchent à définir une droite qui minimise une fonction de résidus, la plus connue : **la méthode des moindres carrés ordinaires** (MCO).
+
 
 
 ```{r echo=FALSE}
@@ -166,23 +187,9 @@ abline(v=d$taille[i], h=c(d$poids[i], d$poids[i]-m$residuals[i]), lty=2, col=2)
 axis(3, at=d$taille[i], "xi", las=2, col=2)
 axis(4, at=c(d$poids[i], d$poids[i]-m$residuals[i]), c("Yi", expression(hat("Yi"))), las=2, col=2)
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=1) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille[i], d$poids[i]-m$residuals[i], d$taille[i], d$poids[i], col=4, length=0.1, lwd=2))
-text(d$taille[i], d$poids[i]-m$residuals[i]/2, "eps_i", col=4, las=2, pos=2, cex=2)
+arrows(d$taille[i], d$poids[i]-m$residuals[i], d$taille[i], d$poids[i], col=4, length=0.1, lwd=2)
+text(d$taille[i], d$poids[i]-m$residuals[i]/2, "e_i", col=4, las=2, pos=2, cex=2)
 ```
-
-Lorsque $x = x_i$, alors $\widehat Y(x_i) = \widehat Y_i$ , c’est-à-dire :
-
-$$ \widehat Y_i=\widehat{\beta}_0+ \widehat{\beta}_1x_i $$
-$\widehat Y_i$ est appelée la valeur estimée par le modèle.
-
-Les quantités inobservables :
-$$\epsilon_i = Y_i - \beta_0 - \beta_1x_i$$ 
-sont estimées par les quantités observables :
-$$ e_i= Y_i-\widehat Y_i$$ 
-
-- Les quantités $e_i$ sont appelées les **résidus du modèle**.
-- La plupart des méthodes d’estimation cherchent à définir une droite qui minimise une fonction de résidus.
-- La plus connue : **la méthode des moindres carrés ordinaires** (MCO).
 
 ---
 
@@ -190,29 +197,22 @@ $$ e_i= Y_i-\widehat Y_i$$
 
 
 Pour l’instant, la droite de régression est inconnue.
-Tout le problème est d’estimer $\beta_0$ et $\beta_1$ à partir d’un échantillon de données.
+Le problème est d’estimer $\beta_0$ et $\beta_1$ à partir d’un échantillon de données.
 
 On essaie de déterminer la **droite de regression** qui approche le mieux les données : 
 
-$$\mathbb{E} (Y|x)) =  \widehat Y(x) = \widehat{\beta}_0 + \widehat{\beta}_1x$$
+$$\widehat Y_{\beta_0, \beta_1}(x) = \widehat{\beta}_0 + \widehat{\beta}_1x$$
 
-Avec $\widehat Y(x)$ un estimateur de la moyenne théorique $\mu_Y(x)$ ($\widehat Y(x)$ correspond à la moyenne de $Y$ mésurée sur tous les individus pour lesquels $x$ prend une valeur donnée). 
+On définit l’erreur quadratique moyenne (EQM) comme la moyenne du carré des résidus $EQM_{\beta_0, \beta_1} = \frac{1}{n}\sum^n_{i=1} e_{i,\beta_0, \beta_1}^2$ avec :
 
-$\mu_Y(x)$ n’est ni observable, ni calculable (il faudrait alors recenser **tous** les individus de la population).
-
-Remarque : la moyenne empirique de $Y$, définie par $\overline{Y}_n(x) = \frac{1}{n}\sum^n_{i=1}Y_i(x)$ est un autre estimateur de $\mu_Y(x)$ . Si le modèle est bon, $\widehat Y(x)$ est plus précis que $\overline{Y}_n(x)$ qui lui correspondrait au modèle *nul*, *i.e*, $Y$ ne depend pas de $x$.
+$$e_{i,\beta_0, \beta_1} = Y_i - \widehat Y_{\beta_0, \beta_1}(x_i)$$
 
 
+Remarque : en première instance on peut estimer $\beta_0$ par la moyenne des $Y$ observés, *i.e.* $\overline{Y} = \frac{1}{n}\sum^n_{i=1}Y_i$. On obtient ainsi un premier modèle avec $\beta_0 = \overline{Y}$ et $\beta_1 = 0$. Ce modèle correspond au modèle dit *nul*, *i.e*, le modèle pour lequel $Y$ ne depend pas de $x$ ($\beta_1 = 0$), $\widehat Y_{nul}(x)=\overline{Y}$
 
-```{r}
-d = data_nutri_20
-head(d)
-dim(d)
-layout(matrix(1:2, 1), respect=TRUE)
-plot(d$taille, d$poids, main="poids~taille", ylab="poids", xlab="taille")
-```
 
 ```{r echo=TRUE}
+d = data_nutri_20
 layout(1, respect=TRUE)
 beta_0 = mean(d$poids)
 beta_1 = 0
@@ -220,7 +220,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids~taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
 ```
 
 ```{r echo=TRUE}
@@ -231,7 +231,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5))
 
 beta_0 = -16
 beta_1 = 0.5
@@ -239,7 +239,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+arrows(d$taille[res!=0], d$poids[res!=0], d$taille[res!=0], (d$poids-res)[res!=0], length=0.1, col=adjustcolor(4, alpha.f=0.5))
 ```
 
 
@@ -264,7 +264,7 @@ res =  d$poids - (beta_0 + beta_1*d$taille)
 eqm = sum(res^2) / length(res)
 plot(d$taille, d$poids, main=paste0("poids=", signif(beta_0, 3), "+", signif(beta_1, 3), " taille, EQM=", round(eqm)), ylab="poids", xlab="taille")
 abline(a=beta_0, b=beta_1, col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-res, length=0.1, col=adjustcolor(4, alpha.f=0.5)))
+arrows(d$taille[res!=0], d$poids[res!=0], d$taille[res!=0], (d$poids-res)[res!=0], length=0.1, col=adjustcolor(4, alpha.f=0.5))
 ```
 
 
@@ -288,15 +288,16 @@ $$\frac{\delta EQM(\beta_0, \beta_1)}{\delta \beta_0} = -2 \sum (Y_i - \beta_0 -
 $$\frac{\delta EQM(\beta_0, \beta_1)}{\delta \beta_1} = -2 \sum x_i (Y_i - \beta_0 - \beta_1x_i)$$
 
 Les estimateurs $(\widehat\beta_0^{MCO},\widehat\beta_1^{MCO})$ sont les solutions du système d’équation :
-$$ \Bigg\{
-\begin{align}
--2 \sum (Y_i - \beta_0 - \beta_1x_i) = 0  \\ 
--2 \sum x_i (Y_i - \beta_0 - \beta_1x_i) = 0
-\end{align}
-$$
+
+\begin{equation}
+    \begin{cases}
+    -2 \sum (Y_i - \beta_0 - \beta_1x_i) = 0  \\
+    -2 \sum x_i (Y_i - \beta_0 - \beta_1x_i) = 0
+    \end{cases}\,.
+\end{equation}
 
 
-Soient les equations suivantes : 
+Soient les équations suivantes : 
 
 $$(1) \sum{Y}_i = n\widehat\beta_0 + \widehat\beta_1 \sum{x_i} $$
 
@@ -329,15 +330,16 @@ Nous obtenons ainsi une estimation de la droite de régression, appelée la droi
 
 $$\widehat Y(x) = \widehat\beta_0 + \widehat\beta_1x$$
 
----
-
-**Exemple**
 
 $\widehat\beta_0$ correspond à l’ordonnée à l’origine. Ce paramètre n’est pas toujours interprétable (il dépend de la signifaction de $X$ et du fait que $X$ soit centré ou non).
 
 $\widehat\beta_1$ correspond à la pente.
 
 Attention, la technique des MCO crée des estimateurs sensibles aux valeurs atypiques.
+
+---
+
+**Mise en oeuvre sour R**
 
 ```{r echo=TRUE, results="verbatim"}
 layout(1, respect=TRUE)
@@ -352,7 +354,7 @@ m$coefficients
 abline(a=m$coef[[1]], b=m$coef[[2]], col=2) # /!\ y = b.x + a
 # residuals
 # head(m$residuals)
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 ```
 
@@ -381,19 +383,13 @@ Y_i - \overline{Y}_n &=& Y_i - \widehat Y_i + \widehat Y_i - \overline{Y}_n \\
 
 avec $\widehat Y_i - \overline{Y}_n$ la différence expliquée par le modèle et $Y_i - \widehat Y_i$ la différence inexpliquée (ou résiduelle).
 
-La méthode des moindres carrés, en considérant la somme des carrés de ces différences, nous assure la décomposition de la variance totale en variance expliquée et variance résiduelle : 
-
+Si l’on considèrere la somme des carrés de cette différence on obtient : 
 
 \begin{eqnarray}
-
 \sum(Y_i - \overline{Y}_n)^2 &=& \sum((Y_i - \widehat Y_i) + (\widehat Y_i - \overline{Y}_n))^2 \\
 &=& \sum(Y_i - \widehat Y_i)^2 + \sum(\widehat Y_i - \overline{Y}_n)^2 + 2 \sum(Y_i - \widehat Y_i) (\widehat Y_i - \overline{Y}_n) \\
 &=& \sum(\widehat Y_i - \overline{Y}_n)^2 + \sum(Y_i - \widehat Y_i)^2
-
 \end{eqnarray}
-
-
-$$  $$
 
 Soit : 
 
@@ -401,24 +397,22 @@ $$ SC_{tot} = SC_{reg} + SC_{res}$$
 
 Avec $SC_{tot}$ la somme des carrés totale,  $SC_{reg}$ la somme des carrés due à la régression et  $SC_{res}$ la somme des carrés des résidus.
 
-Notons que $2 \sum(Y_i - \widehat Y_i) (\widehat Y_i - \overline{Y}_n)=0$ en raison des moindres carrés [[demo](https://www.unine.ch/files/live/sites/statistics/files/shared/documents/cours_modeles_regression.pdf)].
+La variance totale se décompose en variance expliquée et variance résiduelle.
+
+Notons que $2 \sum(Y_i - \widehat Y_i) (\widehat Y_i - \overline{Y}_n)=0$ est une propriété des moindres carrés [[Théorème 1.2 +  demo](https://www.unine.ch/files/live/sites/statistics/files/shared/documents/cours_modeles_regression.pdf)].
 
 
 ### $R^2$
 
-**Coefficient de determination $R^2$**
-
-
-
-La mesure du pourcentage de la variation totale expliquée par le modèle se fait par le **coefficient de détermination**.
+Le **coefficient de determination $R^2$** mesure le pourcentage de la variation totale expliquée par le modèle.
 
 $$ R^2 = \frac{SC_{reg}}{SC_{tot}}$$
 
 - $R^2$ est compris entre 0 et 1.
-- $R^2 = 1$ : cas où les données sont parfaitement alignées
+- $R^2 = 1$ : cas où les points sont parfaitement alignées
 (comme c’est le cas pour un modèle déterministe).
-- $R^2 = 0$ : cas où la variation de $Y$ n’est pas due à la variation de $X$. Les données ne sont pas du tout alignées.
-- Plus $R^2$  est proche de 1, plus les données sont alignées sur la droite de régression.
+- $R^2 = 0$ : cas où la variation de $Y$ n’est pas due à la variation de $X$.
+- Plus $R^2$  est proche de 1, plus les points sont prochesde la droite de régression.
 
 
 
@@ -427,13 +421,13 @@ layout(matrix(1:2, 1), respect=TRUE)
 m = lm(d$poids~d$taille)
 plot(d$taille, d$poids, main=paste0("poids~taille R^2=", signif(summary(m)$r.squared, 2)*100, "%"))
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
 m = lm(d$poids~d$age)
 plot(d$age, d$poids, main=paste0("poids~age R^2=", signif(summary(m)$r.squared, 2)*100, "%"))
 abline(a=m$coefficients[[1]], b=m$coefficients[[2]], col=2) # /!\ y = b.x + a
-suppressWarnings(arrows(d$age, d$poids, d$age, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$age, d$poids, d$age, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 ```
 
@@ -447,58 +441,26 @@ legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
 ```{r echo=TRUE, results="verbatim"}
 data(CO2)
-head(CO2)
+d = CO2[CO2$Type=="Quebec", ]
+head(d)
 layout(matrix(1:2, 1), respect=TRUE)
-plot(
-  CO2[CO2$Type=="Quebec", ]$conc, 
-  CO2[CO2$Type=="Quebec", ]$uptake, 
-  xlab="food", ylab="growth", main="growth~food"
-)
-plot(
-  log10(CO2[CO2$Type=="Quebec", ]$conc), 
-  CO2[CO2$Type=="Quebec", ]$uptake, 
-  xlab="log(food)", ylab="growth", main="growth~log(food)"
-)
-```
-
-```{r eval=FALSE}
-m1 = lm(CO2[CO2$Type=="Quebec", ]$uptake~CO2[CO2$Type=="Quebec", ]$conc)
-m2 = lm(CO2[CO2$Type=="Quebec", ]$uptake~log(CO2[CO2$Type=="Quebec", ]$conc))
-layout(matrix(1:2, 1), respect=TRUE)
-plot(
-  CO2[CO2$Type=="Quebec", ]$conc, 
-  CO2[CO2$Type=="Quebec", ]$uptake, 
-  xlab="food", ylab="growth", 
-  main=paste0("growth~food R^2=", signif(summary(m1)$r.squared, 2)*100, "%")
-)
-abline(m1, col=2)
-plot(
-  log10(CO2[CO2$Type=="Quebec", ]$conc), 
-  CO2[CO2$Type=="Quebec", ]$uptake, 
-  xlab="log(food)", ylab="growth", 
-  main=paste0("growth~log(food) R^2=", signif(summary(m2)$r.squared, 2)*100, "%")
-)
-abline(m2, col=2)
-summary(m1)
-summary(m2)
+plot(d$conc, d$uptake, main="uptake~conc")
+plot(log10(d$conc), d$uptake, main="uptake~log10(conc)")
 ```
 
 On s’intéresse uniquement aux plantes dont le `Type` est `Quebec`.
  
-- Calculer les modèles de regression linéaire `m1: growth~food` et `m2: growth~log(food)`
+- Calculer les modèles de regression linéaire `m1: uptake~conc` et `m2: uptake~log10(conc)`
 - Tracer les nuages de points et les droites de regression correspondantes.
 - Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
-- Comparer les coéficiants de chacun des modéles.
 
-
-
+[correction_co2_linear_model.R](./correction_co2_linear_model.R)
 
 **Jeu de données `anscombe`**
 
 ```{r echo=TRUE, results="verbatim"}
 data(anscombe)
 print(anscombe)
-
 layout(matrix(1:4,2), respect=TRUE)
 plot(anscombe$x1, anscombe$y1)
 plot(anscombe$x2, anscombe$y2)
@@ -511,45 +473,61 @@ plot(anscombe$x4, anscombe$y4)
 - Calculer, comparer et commenter les coéficiants de chacun des modéles.
 - Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
 
-```{r eval=FALSE, echo=FALSE, results="hide"}
-# create models
-m1 = lm(anscombe$y1~anscombe$x1)
-m2 = lm(anscombe$y2~anscombe$x2)
-m3 = lm(anscombe$y3~anscombe$x3)
-m4 = lm(anscombe$y4~anscombe$x4)
-
-# model details
-summary(m1)
-summary(m2)
-summary(m3)
-summary(m4)
-
-# plot
-layout(matrix(1:4,2), respect=TRUE)
-plot(anscombe$x1,anscombe$y1, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m1 R^2=", signif(summary(m1)$r.squared, 2)*100, "%, y=", signif(m1$coefficients[1], 3), "+", signif(m1$coefficients[2], 3), "x")) ; abline(m1, col=2)
-plot(anscombe$x2,anscombe$y2, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m2 R^2=", signif(summary(m2)$r.squared, 2)*100, "%, y=", signif(m2$coefficients[1], 3), "+", signif(m2$coefficients[2], 3), "x")) ; abline(m2, col=2)
-plot(anscombe$x3,anscombe$y3, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m3 R^2=", signif(summary(m3)$r.squared, 2)*100, "%, y=", signif(m3$coefficients[1], 3), "+", signif(m3$coefficients[2], 3), "x")) ; abline(m3, col=2)
-plot(anscombe$x4,anscombe$y4, xlim = c(3, 19), ylim = c(3, 13), main=paste0("m4 R^2=", signif(summary(m4)$r.squared, 2)*100, "%, y=", signif(m4$coefficients[1], 3), "+", signif(m4$coefficients[2], 3), "x")) ; abline(m4, col=2)
-```
-
+[correction_anscombe.R](./correction_anscombe.R)
 
 
 
 
 ---
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Tests statistiques
 
-Il est important de noter que la **construction du modèle de régression** et l’estimation des paramètres par MCO **ne fait pas appel aux hypothèses de distribution**.
+Il est important de noter que la construction du modèle de régression linéaire et l’estimation des paramètres par MCO **ne fait appel à aucune hypothèses sur la distribution des résidus**. Les hypothèses concerne l’application des tests sur les modèles.
 
-Les hypothèses de distribution sont essentielles lorsqu’il s’agit de construire des tests et des intervalles de confiance et de prédiction.
+En effet, si le modéle existe indépendamment des tests, l’inverse n’est vrai.
 
-Pour rappel, l’objectif d’un test statitsique est de :
+L’objectif d’un test statitsique est de :
 
-  1. valider (ou non) une hypothèses,
+  1. valider (ou non) une hypothèses en interrogeant le modèle ;
   2. quantifier le risque associé à cette décision.
   
 Souvent, on cherche à invalider l’hypothèse dîte *nulle* ($\mathcal{H}_0$) et donc valider l’hypothèse dîte *alternative* ($\mathcal{H}_1$) au risque de première espèce $\alpha$ de 5%.
+
+Cette procédure est une **démonstration par l’absurde** manipulant des **probabilités** : *Si $\mathcal{H}_0$ est vraie, alors les observations sont improbables, ainsi il est plus propable que $\mathcal{H}_1$ soit vraie*.
+
 
 
 ---
@@ -559,7 +537,7 @@ Souvent, on cherche à invalider l’hypothèse dîte *nulle* ($\mathcal{H}_0$) 
 
 Le test de Student dans le cadre de la regression linéaire simple teste le coéfficient de la droite régression.
 
-Il pose la question de l’effet de la variables $x$.
+Il pose la question de l’effet de la variables $x$ sur $Y$.
 
 
 **Ecriture analytique du modèle**
@@ -569,11 +547,14 @@ $$Y = \beta_0 + \beta_1 x + \epsilon$$
 
 **Hypothèse nulle et hypothèse alternative**
 
-On se pose la question de l’effet de la variable $x$ :
+On se pose la question de l’effet de la variable $x$ sur la variable $Y$, *i.e.* :
 
-$\mathcal{H}_0 : {\beta_1 = 0}$ contre $\mathcal{H}_1 : {\beta_1 \neq 0}$
-
-
+$$\left  \lbrace
+\begin{array}{l}
+\mathcal{H}_0 : {\beta_1 = 0} \\
+\mathcal{H}_1 : {\beta_1 \neq 0} 
+\end{array}
+\right.$$
 
 **Conditions d’application du test**
 
@@ -603,11 +584,12 @@ Le *risque de première espèce* ou risque $\alpha$ est le risque de rejeter l�
 
 On prend généralement $\alpha=0.05$.
 
+La *p-valeur* est la probabilité d’observer la valeur de la statistique de test sous $\mathcal{H}_0$.
+
 Notons que le risque de seconde espèce ou risque $\beta$ est le risque de conserver $\mathcal{H}_0$ alors que celle-ci est fausse. 
 Attention, le calcul du risque $\beta$ est plus compliqué. Souvent en minimisant $\alpha$ on augmente $\beta$. 
-Pour s’assurer que $\beta$ reste faible il faut généralement augmenter $n$.
+Pour s’assurer que $\beta$ reste faible il faut généralement augmenter $n$. On prle de *puissance* du test 
 
-La *p-valeur* est la probabilité d’observer la valeur de la statistique de test sous $\mathcal{H}_0$ en ayant préalablement vérifié les conditions d’application du test.
 
 **Décision et conclusion du test**
 
@@ -625,9 +607,9 @@ Ainsi :
 
 **Mais alors pourquoi ?** 
 
-Si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, *i.e*. $\beta_1=0$, 
-alors la variable aléatoire $t_{\widehat\beta_1,n-2} = \frac{\widehat\beta_1}{s_{\widehat\beta_1}}$, *i.e*, l’effet de la variable $x$ estimé à partir des observations *"réduit"* de la *"variabilité"* observée sur cet estimateur, 
-suit une la loi de Student à $n-2$ dégrés de liberté notée $\mathcal{T}_{n-2}$ **en raison des conditions d’application du test**.
+En raison des conditions d’application du test.
+En effet, si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, *i.e*. $\beta_1=0$, 
+alors la variable aléatoire $t_{\widehat\beta_1,n-2} = \frac{\widehat\beta_1}{s_{\widehat\beta_1}}$, *i.e*, l’effet de la variable $x$ estimé à partir des observations *"réduit"* de la *"variabilité"* observée sur cet estimateur, ne s’écarte pas trop de 0.
 
 
 
@@ -645,7 +627,7 @@ m = lm(poids~taille, d)
 ```{r}
 layout(matrix(1:2, 1), respect=TRUE)
 plot( d$taille, d$poids, main="poids ~ taille")
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
 abline(m, col=2)
@@ -677,15 +659,15 @@ $$\mathcal{H}_0 : {\beta_1 = 0} \text{ et } \mathcal{H}_1 : {\beta_1 \neq 0}$$
 
 3. Statistique de test utilisée et conditions d’application
 
-Test de Student
+Test de Student, les residus sont gaussiens.
 
 4. Valeur de la statistique de test
 
-`r summary(m)$coefficients[2,3]`
+`r signif(summary(m)$coefficients[2,3],3)`
 
 5. P-valeur associée
 
-`r summary(m)$coefficients[2,4]`
+`r signif(summary(m)$coefficients[2,4],3)`
 
 6. Conclusion du test
 
@@ -696,22 +678,19 @@ La p-valeur est < 0.05, alors le test est significatif. Nous rejetons donc $\mat
 
 ```{r echo=TRUE, results="verbatim"}
 m = lm(poids~taille, d)
+# Shapiro test on residuals
+shapiro.test(m$residuals)
 # Student test
 summary(m)
+m$coefficient[[2]]
 n = length(m$residuals)
 xi = m$model$taille
 s_beta1 = sqrt( sum(m$residuals^2)/(n-2) / sum((xi-mean(xi))^2))
 s_beta1
-stat_t =  m$coefficient[2]/s_beta1
+stat_t =  m$coefficient[[2]]/s_beta1
 stat_t
 pval = pt(-stat_t, n-2) + 1-pt(stat_t, n-2)
 pval
-```
-```{r eval=FALSE}
-x=seq(0,50, length.out=30)[-1]
-plot(x, dp(x, p-1,n-p), type="l")
-abline(v=stat_f, lty=2, col="grey")
-
 ```
 
 
@@ -740,46 +719,12 @@ Etudier le modèle le modèle $Hwt \sim Bwt$
 ```{r}
 layout(1, respect=TRUE)
 plot( d$Bwt, d$Hwt, xlab="Body weight", ylab="Heart weight", main="Heart weight ~ Body weight")
-suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 abline(m, col=2)
 ```
 
-```{r eval=FALSE}
-layout(matrix(1:2, 1), respect=TRUE)
-plot( d$Bwt, d$Hwt, xlab="Body weight", ylab="Heart weight", main="Heart weight ~ Body weight")
-suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
-legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
-
-abline(m, col=2)
-x=seq(-7,7, length.out=200)
-plot(x, dt(x, m$df.residual), type="l", xlab="t", ylab="", main=paste0("Distibution de Student, ", m$df.residual," ddl."))
-abline(v=c(-1,1) * summary(m)$coefficients[2,3], lty=2, col=4)
-abline(v=c(-1,1) * qt(0.025, m$df.residual), lty=2, col=2)
-x = seq(-7,qt(0.025, m$df.residual), length.out=100)
-polygon(c(-7, x, qt(0.025, m$df.residual)), c(0, dt(x, m$df.residual), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
-x = seq(7,qt(0.975, m$df.residual), length.out=100)
-polygon(c(7, x, qt(0.975, m$df.residual)), c(0, dt(x, m$df.residual), 0), col=adjustcolor(2, alpha.f=.5), border=2, lwd=3)
-x = seq(-7,-summary(m)$coefficients[2,3], length.out=100)
-polygon(c(-7, x, -summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
-x = seq(7,summary(m)$coefficients[2,3], length.out=100)
-polygon(c(7, x, summary(m)$coefficients[2,3]), c(0, dt(x, m$df.residual), 0), col=adjustcolor(4, alpha.f=.5), border=4, lwd=3)
-legend("topleft",c("t_beta1", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=c(2,2,1,1), lwd=c(1,1,3,3), cex=.8)
-
-d = d_mass_cats_10
-m = lm(Hwt~Bwt, d)
-# Student test
-summary(m)
-n = length(m$residuals)
-xi = m$model$Bwt
-s_beta1 = sqrt( sum(m$residuals^2)/(n-2) / sum((xi-mean(xi))^2))
-s_beta1
-stat_t =  m$coefficient[2]/s_beta1
-stat_t
-pval = pt(-stat_t, n-2) + 1-pt(stat_t, n-2)
-pval
-```
-
+[correction_cats_student.R](./correction_cats_student.R)
 
 
 
@@ -802,7 +747,7 @@ pval
 
 Le test de Fisher repose sur la décomposition de la variance.
 
-Il pose la question de l’effet de la variables $x$.
+Il pose la question de la part de variance expliquée par la variables $x$.
 
 
 **Ecriture analytique du modèle**
@@ -812,10 +757,14 @@ $$Y = \beta_0 + \beta_1 x + \epsilon$$
 
 **Hypothèse nulle et hypothèse alternative**
 
-On se pose la question de l’effet de la variable $x$ :
+On se pose la question de la quantité de variable expliquée par la variable $x$ :
 
-$\mathcal{H}_0 : {\beta_1 = 0}$ contre $\mathcal{H}_1 : {\beta_1 \neq 0}$
-
+$$\left  \lbrace
+\begin{array}{l}
+\mathcal{H}_0 : {\beta_1 = 0} \\
+\mathcal{H}_1 : {\beta_1 \neq 0} 
+\end{array}
+\right.$$
 
 
 **Conditions d’application du test**
@@ -864,10 +813,11 @@ Ainsi :
 
 **Mais alors pourquoi ?** 
 
-Si l’hypothèse nulle $\mathcal{H}_0$ est vérifiée, *i.e*. $\beta_1=0$,  $CM_{reg}$, *i.e* la part de variabilité expliquée par le modèle doit être petite (proche de 0).
-Ainsi, la variable aléatoire $F_{obs} = \frac{CM_{reg}} {CM_{res}}$, doit être petite également.
+En raison des conditions d’application du test.
 
-Par ailleurs, en raison des conditions d’application du test, $F_{obs}$ suit une la loi de Fisher à $p-1$ et $n-p$ dégrés de liberté notée $\mathcal{F}_{p-1,n-p}$.
+En effet, sous l’hypothèse nulle $\mathcal{H}_0$ $\beta_1=0$, donc $SC_{reg}$ (l’écart entre la droite de régression et la moyenne globales des Y) doit être petite (proche de 0) et $SC_{res}$ procher $SC_tot$.
+Ainsi, la statistique de test $F_{obs} = \frac{CM_{reg}} {CM_{res}}$ ne doit pas trop s’écarter de 0.
+
 
 
 
@@ -887,7 +837,7 @@ m = lm(poids~taille, d)
 ```{r}
 layout(matrix(1:2, 1), respect=TRUE)
 plot( d$taille, d$poids, main="poids ~ taille")
-suppressWarnings(arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$taille, d$poids, d$taille, d$poids-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
 abline(m, col=2)
@@ -914,15 +864,15 @@ $$\mathcal{H}_0 : {\beta_1 = 0} \text{ et } \mathcal{H}_1 : {\beta_1 \neq 0}$$
 
 3. Statistique de test utilisée et conditions d’application
 
-Test de Fisher
+Test de Fisher, les résidus sont gaussiens.
 
 4. Valeur de la statistique de test
 
-`r anova(m)[1,4]`
+`r signif(anova(m)[1,4],3)`
 
 5. P-valeur associée
 
-`r anova(m)[1,5]`
+`r signif(anova(m)[1,5],3)`
 
 6. Conclusion du test
 
@@ -934,6 +884,8 @@ La p-valeur est < 0.05, alors le test est significatif. Nous rejetons donc $\mat
 ```{r echo=TRUE, results="verbatim"}
 d = data_nutri_20
 m = lm(poids~taille, d)
+# Shapiro test on residuals
+shapiro.test(m$residuals)
 # Fisher test
 anova(m)
 # Sum Sq
@@ -977,9 +929,99 @@ Etudier le modèle le modèle $Hwt \sim Bwt$
 ```{r}
 layout(1, respect=TRUE)
 plot( d$Bwt, d$Hwt, xlab="Body weight", ylab="Heart weight", main="Heart weight ~ Body weight")
-suppressWarnings(arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1))
+arrows(d$Bwt, d$Hwt, d$Bwt, d$Hwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
 legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 abline(m, col=2)
+```
+
+
+
+
+
+
+
+
+
+
+## Pour aller plus loin
+
+
+
+
+
+
+
+
+
+
+### Intervalle de confiance
+
+On peut construire les intervalles de confiance suivants
+
+$$IC_{1-\alpha}(\widehat\beta_1) = \Big]\widehat\beta_1 - t_{n-2;1-\alpha/2}*s_{\beta_1}; \widehat\beta_1 + t_{n-2;1-\alpha/2}*s_{\beta_1}\Big[$$
+
+$$IC_{1-\alpha}(\widehat\beta_0) = \Big]\widehat\beta_0 - t_{n-2;1-\alpha/2}*s_{\beta_0}; \widehat\beta_0 + t_{n-2;1-\alpha/2}*s_{\beta_0}\Big[$$
+
+
+```{r echo=TRUE, results="verbatim"}
+confint(m)
+```
+
+Ainsi que l’intervalle de prédiction d’une valeur moyenne de $Y$, sachant que $x = x_0$. 
+
+L’estimation ponctuelle pour cette valeur de $x_0$ est alors égale a $\widehat Y_0 = \widehat\beta_0 + \widehat\beta_1x_0$
+
+$$IP_{1-\alpha}(Y) = \Big]\widehat Y_0 - t_{n-2;1-\alpha/2}\sqrt{\widehat\sigma^2_n\Big(\frac{1}{n}+\frac{(x_0-\overline{x}_n)^2}{(n-1)s^2_x}\Big)}; \widehat Y_0 + t_{n-2;1-\alpha/2}*\sqrt{\widehat\sigma^2_n\Big(\frac{1}{n}+\frac{(x_0-\overline{x}_n)^2}{(n-1)s^2_x}\Big)}\Big[$$
+
+
+```{r echo=TRUE, results="verbatim"}
+d = d_mass_cats_10
+m = lm(Hwt~Bwt, d)
+layout(1, respect=TRUE)
+plot(
+  d$Bwt, d$Hwt, 
+  xlab="Body weight", ylab="Heart weight", 
+  main="Heart weight ~ Body weight"
+)
+abline(m, col=2)
+
+x = seq(min(m$model$Bwt), max(m$model$Bwt), length.out=100)
+x = seq(2.5, 3, length.out=100)
+pred =  predict(m, interval="predict", level=0.95)
+head(pred)
+points(m$model$Bwt, pred[,2], col=2, pch=3)
+points(m$model$Bwt, pred[,3], col=2, pch=3)
+pred =  predict(m, interval="predict", level=0.99)
+points(m$model$Bwt, pred[,2], col=3, pch=3)
+points(m$model$Bwt, pred[,3], col=3, pch=3)
+pred =  predict(m, interval="predict", level=0.90)
+points(m$model$Bwt, pred[,2], col=4, pch=3)
+points(m$model$Bwt, pred[,3], col=4, pch=3)
+legend("topleft",c("95% ci", "99% ci", "90% ci"), col=2:4, pch=3)
+
+```
+
+**Travaux pratiques**
+
+
+- Tracer l’intervalle de prédiction du modèle obtenu sur la totalité des données `cats`.
+- Comparer la l’intervalle de prédiction obtenu avec ce modèle avec celui obtenu sur le modèle du cours (30 observations).
+
+```{r eval=FALSE}
+layout(1, respect=TRUE)
+m2 = lm(MASS::cats$Hwt~MASS::cats$Bwt)
+pred =  predict(m2, interval="predict")
+plot(
+  MASS::cats$Bwt, MASS::cats$Hwt, 
+  xlab="Body weight", ylab="Heart weight", 
+  main="Heart weight ~ Body weight"
+)
+abline(m2, col=2)
+head(pred)
+points(m2$model$Bwt, pred[,2], col=4, pch=3)
+points(m2$model$Bwt, pred[,3], col=4, pch=3)
+pred =  predict(m2, interval="predict")
+
 ```
 
 
@@ -1106,121 +1148,117 @@ abline(0, 1, col=2)
 
 
 
+### Test empirique
+
+Le test empirique repose sur la construction par échantillonage aléatoire (randomisation) d’une distribution empirique sous $\mathcal{H}_0$.
+
+Il pose la question de la siginificativité de la pente de la droite de régression, *compte tenu des données*.
 
 
+**Ecriture analytique du modèle**
+
+$$Y = \beta_0 + \beta_1 x + \epsilon$$
 
 
+**Hypothèse nulle et hypothèse alternative**
+
+On pose la question de la siginificativité de la pente de la droite de régression, compte tenu des données.
+
+$$\left  \lbrace
+\begin{array}{l}
+\mathcal{H}_0 : {\beta_1 = 0} \\
+\mathcal{H}_1 : {\beta_1 \neq 0} 
+\end{array}
+\right.$$
 
 
+**Principe** 
 
+Compte tenu des données, le modèle nous retourne une valeur pour la pente $\beta_{1,obs}$.
 
+Sous $\mathcal{H}_0$, $Y$ est indépendant des valeurs prises par $x$. 
+Si on réattribut les valeurs de $x$ à nos observations de façon aléatoire, la valeur de $\beta_{1,rnd}$ obtenue pour le modèle corespeondant à ces nouvelles observations ne doit statistiquement pas plus s’écarter de $0$ ($\mathcal{H}_0$).
 
+Si l’on réitére cette procédure $n_{rnd}$ fois, et que l’on dénombre $n_{sup}$ les cas où $\beta_{1,rnd}$ s’écarte plus de $0$ que $\beta_{1,obs}$ ($|\beta_{1,rnd}| > |\beta_{1,obs}|$), la *p-valeur empirique* $p=\frac{n_{sup}}{n_{rnd}}$ quantifie la probabilité d’observer par hasard $|\beta_1| > |\beta_{1,obs}| > 0$, i.e, la probabilité d’observer par hasard $\mathcal{H}_1$.
 
-
-
-
-
-### Intervalle de confiance
-
-On peut construire les intervalles de confiance suivants
-
-$$IC_{1-\alpha}(\widehat\beta_1) = \Big]\widehat\beta_1 - t_{n-2;1-\alpha/2}*s_{\beta_1}; \widehat\beta_1 + t_{n-2;1-\alpha/2}*s_{\beta_1}\Big[$$
-
-$$IC_{1-\alpha}(\widehat\beta_0) = \Big]\widehat\beta_0 - t_{n-2;1-\alpha/2}*s_{\beta_0}; \widehat\beta_0 + t_{n-2;1-\alpha/2}*s_{\beta_0}\Big[$$
-
+Notez que la p-valeur empirique ne peut pas être plus petite que $\frac{1}{n_{rnd}}$ et que sa précisions dépendra de $n_{rnd}$.
 
 ```{r echo=TRUE, results="verbatim"}
-confint(m)
-```
+d = data_nutri_20
+m = lm(poids~taille, d)
+beta_obs = m$coefficients[[2]]
 
-Ainsi que l’intervalle de prédiction d’une valeur moyenne de $Y$, sachant que $x = x_0$. 
+beta_rnds = sapply(1:1000, function(i){ # <=> for (i in 1:1000) ...
+  d = data_nutri_20
+  set.seed(i)
+  d$poids = sample(d$poids)
+  m = lm(poids~taille, d)
+  beta_rnd = m$coefficients[[2]]
+  return(beta_rnd)
+})
 
-L’estimation ponctuelle pour cette valeur de $x_0$ est alors égale a $\widehat Y_0 = \widehat\beta_0 + \widehat\beta_1x_0$
-
-$$IP_{1-\alpha}(Y) = \Big]\widehat Y_0 - t_{n-2;1-\alpha/2}\sqrt{\widehat\sigma^2_n\Big(\frac{1}{n}+\frac{(x_0-\overline{x}_n)^2}{(n-1)s^2_x}\Big)}; \widehat Y_0 + t_{n-2;1-\alpha/2}*\sqrt{\widehat\sigma^2_n\Big(\frac{1}{n}+\frac{(x_0-\overline{x}_n)^2}{(n-1)s^2_x}\Big)}\Big[$$
-
-
-```{r echo=TRUE, results="verbatim"}
 layout(1, respect=TRUE)
-plot(
-  d$Bwt, d$Hwt, 
-  xlab="Body weight", ylab="Heart weight", 
-  main="Heart weight ~ Body weight"
-)
-abline(m, col=2)
+hist(beta_rnds, freq=FALSE)
+lines(density(beta_rnds), col="grey")
+abline(v=beta_obs, col=2)
+legend("topleft",c("null distributions", "beta_obs"), col=c("grey","red"), lty=1)
 
-x = seq(min(m$model$Bwt), max(m$model$Bwt), length.out=100)
-x = seq(2.5, 3, length.out=100)
-pred =  predict(m, interval="predict", level=0.95)
-head(pred)
-points(m$model$Bwt, pred[,2], col=2, pch=3)
-points(m$model$Bwt, pred[,3], col=2, pch=3)
-pred =  predict(m, interval="predict", level=0.99)
-points(m$model$Bwt, pred[,2], col=3, pch=3)
-points(m$model$Bwt, pred[,3], col=3, pch=3)
-pred =  predict(m, interval="predict", level=0.90)
-points(m$model$Bwt, pred[,2], col=4, pch=3)
-points(m$model$Bwt, pred[,3], col=4, pch=3)
-legend("topleft",c("95% ci", "99% ci", "90% ci"), col=2:4, pch=3)
-
-```
-
-**Travaux pratiques**
-
-
-- Tracer l’intervalle de prédiction du modèle obtenu sur la totalité des données `cats`.
-- Comparer la l’intervalle de prédiction obtenu avec ce modèle avec celui obtenu sur le modèle du cours (30 observations).
-
-```{r eval=FALSE}
-layout(1, respect=TRUE)
-m2 = lm(MASS::cats$Hwt~MASS::cats$Bwt)
-pred =  predict(m2, interval="predict")
-plot(
-  MASS::cats$Bwt, MASS::cats$Hwt, 
-  xlab="Body weight", ylab="Heart weight", 
-  main="Heart weight ~ Body weight"
-)
-abline(m2, col=2)
-head(pred)
-points(m2$model$Bwt, pred[,2], col=4, pch=3)
-points(m2$model$Bwt, pred[,3], col=4, pch=3)
-pred =  predict(m2, interval="predict")
-
+pval = sum(abs(beta_rnds) > abs(beta_obs)) / length(beta_rnds)
+pval
 ```
 
 
 
 
-## Exercices
 
 
 
 
 
-**TP `ISwR::cystfibr`**
 
 
-```{r echo=TRUE}
-d = ISwR::cystfibr
-m = lm(pemax~weight, d)
-```
-
-Etudier le modèle le modèle $pemax \sim weight$
-
-1. Ecriture analytique du modèle
-2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$
-3. Statistique de test utilisée et conditions d’application
-4. Valeur de la statistique de test
-5. P-valeur associée
-6. Conclusion du test
-7. Commenter le pourcentage de variance expliqué ($R^2$)
 
 
-```{r}
-layout(1, respect=TRUE)
-plot( d$weight, d$pemax, xlab="weight (kg)", ylab="maximum expiratory pressure", main="Hpemax ~ weight")
-abline(m, col=2)
-```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Exercices
 
 
 **TP `ISwR::cystfibr`**
