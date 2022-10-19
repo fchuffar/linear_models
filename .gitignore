@@ -37,3 +37,9 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# html documents
+*.html
+
+# R proj
+linear_models.Rproj
