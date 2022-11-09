@@ -102,17 +102,20 @@ Madsen H. and Thyregord, P (2011). *Introduction to General and Generalized Line
 
 Weisberg, S (2005). *Applied linear regression*. Vol. 528. **John Wiley & Sons**.
 
-R markdown https://pkgs.rstudio.com/rmarkdown/articles/rmarkdown.html
 
 
-Ce cours s’inspire des échanges avec les personnes  et liens suivants : 
+Ce cours s’appuie également sur les échanges avec les personnes suivantes : 
 
 - Frédéric Bertrand & Myriam Maumy-Bertrand
 - Franck Picard
 - Olivier François
+
+Et sur les ressources disponioble ici : 
+
 - http://math.agrocampus-ouest.fr (janvier 2020)
 - https://delladata.fr/introduction-puissance-statistique (décembre 2020)
 - https://andrewlauactuary.com/2019/06/04/shiny-app-showing-statistical-power (juin 2019)
+- R markdown https://pkgs.rstudio.com/rmarkdown/articles/rmarkdown.html
 
 ---
 
