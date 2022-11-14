@@ -24,7 +24,7 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 ## Les plateformes
 
 1. __CODALAB__ Les TP seront organisés autour de plusieurs data challenges sur la plateforme codalab, je vous invite à vous connecter ici au plus tôt et créer vos compotes pour gagner du temps : 
-  https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910
+  https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce
   
 2. __GITHUB__ Le cours est dés maintenant disponible sur github, il évoluera au fil des sessions, le dépot sera régulièrement mis à jour  
   https://github.com/fchuffar/linear_models
