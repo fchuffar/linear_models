@@ -51,7 +51,7 @@ https://github.com/fchuffar/linear_models
   - Régression linéaire multiple (séance 2, Florent Chuffart)
   - ANOVA (séance 3, Florent Chuffart) 
   - *data challenge expred3.0* (séance 4, Magali Richard)
-      - codalab : https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910
+      - codalab : https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce
       - fin de séance, 1 compte rendu par équipe : https://github.com/fchuffar/starting_kit_expred3.0
 
      
