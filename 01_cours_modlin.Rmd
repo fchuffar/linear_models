@@ -436,6 +436,26 @@ legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 
 ### Travaux pratiques
 
+**Jeu de données `anscombe`**
+
+```{r echo=TRUE, results="verbatim"}
+data(anscombe)
+print(anscombe)
+layout(matrix(1:4,2), respect=TRUE)
+plot(anscombe$x1, anscombe$y1)
+plot(anscombe$x2, anscombe$y2)
+plot(anscombe$x3, anscombe$y3)
+plot(anscombe$x4, anscombe$y4)
+```
+
+- Calculer les modèles de regression linéaire `m1 : y1~x1`, `m2 : y2~x2`, `m3 : y3~x3`, `m4 : y4~x4`.
+- Tracer les nuages de points et les droites de regression correspondantes.
+- Calculer, comparer et commenter les coéficiants de chacun des modéles.
+- Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
+
+[correction_anscombe.R](./correction_anscombe.R)
+
+
 
 **Jeu de données `CO2`**
 
@@ -455,25 +475,6 @@ On s’intéresse uniquement aux plantes dont le `Type` est `Quebec`.
 - Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
 
 [correction_co2_linear_model.R](./correction_co2_linear_model.R)
-
-**Jeu de données `anscombe`**
-
-```{r echo=TRUE, results="verbatim"}
-data(anscombe)
-print(anscombe)
-layout(matrix(1:4,2), respect=TRUE)
-plot(anscombe$x1, anscombe$y1)
-plot(anscombe$x2, anscombe$y2)
-plot(anscombe$x3, anscombe$y3)
-plot(anscombe$x4, anscombe$y4)
-```
-
-- Calculer les modèles de regression linéaire `m1 : y1~x1`, `m2 : y2~x2`, `m3 : y3~x3`, `m4 : y4~x4`.
-- Tracer les nuages de points et les droites de regression correspondantes.
-- Calculer, comparer et commenter les coéficiants de chacun des modéles.
-- Calculer, comparer et commenter le pourcentage de variance expliquée de chaque modèle.
-
-[correction_anscombe.R](./correction_anscombe.R)
 
 
 
@@ -726,6 +727,8 @@ abline(m, col=2)
 
 [correction_cats_student.R](./correction_cats_student.R)
 
+[correction_tailleage_student.R](./correction_tailleage_student.R)
+
 
 
 
@@ -815,7 +818,7 @@ Ainsi :
 
 En raison des conditions d’application du test.
 
-En effet, sous l’hypothèse nulle $\mathcal{H}_0$ $\beta_1=0$, donc $SC_{reg}$ (l’écart entre la droite de régression et la moyenne globales des Y) doit être petite (proche de 0) et $SC_{res}$ procher $SC_tot$.
+En effet, sous l’hypothèse nulle $\mathcal{H}_0$ :  $\beta_1=0$, donc $SC_{reg}$ (l’écart entre la droite de régression et la moyenne globales des Y) doit être petite (proche de 0) et $SC_{res}$ procher $SC_{tot}$.
 Ainsi, la statistique de test $F_{obs} = \frac{CM_{reg}} {CM_{res}}$ ne doit pas trop s’écarter de 0.
 
 
@@ -934,6 +937,9 @@ legend("topleft",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
 abline(m, col=2)
 ```
 
+[correction_cats_fisher.R](./correction_cats_fisher.R)
+
+[correction_tailleage_student.R](./correction_tailleage_student.R)
 
 
 
@@ -1062,7 +1068,7 @@ Pour tester la normalité des résidus :
 
 Pour tester l’homoscedasticité : 
 
-- Test de Goldfeld-Quandt (quantiles)
+- Test de Goldfeld-Quandt (quantiles,`lmtest::gqtest`, $H_0$ : Homoscedasticity ; $H_1$ : Heteroscedasticity).
 - Test de Hartley (rapport des variances)
 - Test de Bartlett (ANOVA)
 
@@ -1282,7 +1288,7 @@ Etudier le modèle le modèle $pemax \sim weight$
 
 ```{r}
 layout(1, respect=TRUE)
-plot( d$weight, d$pemax, xlab="weight (kg)", ylab="maximum expiratory pressure", main="Hpemax ~ weight")
+plot( d$weight, d$pemax, xlab="weight (kg)", ylab="maximum expiratory pressure", main="pemax ~ weight")
 abline(m, col=2)
 ```
 

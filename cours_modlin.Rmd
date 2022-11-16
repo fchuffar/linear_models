@@ -41,7 +41,7 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
  - RStudio https://www.rstudio.com
  - git and github https://r-pkgs.org/git.html & https://privefl.github.io/R-presentation/rstudio-git.html#1 
 
-## Supports de ours 
+## Supports de cours 
 
 https://github.com/fchuffar/linear_models
 
