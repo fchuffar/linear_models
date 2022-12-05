@@ -428,6 +428,10 @@ Etudier les jeux de données suivants :
 6. Conclusion du test.
 
 
+**ISwR::lung**
+
+On s’intéresse à l’effet de la méthode sur la mesure du volume.
+
 ```{r, eval=TRUE, echo=TRUE, results="verbatim"}
 # Note sur les contrasts
 # https://www.dummies.com/programming/r/how-to-set-the-contrasts-for-your-data-with-r/
@@ -449,6 +453,9 @@ plot(volume~method+subject, d)
 
 
 
+**auto.noise**
+
+On s’intéresse à l’effet du type de pot sur le bruit.
 
 ```{r, eval=TRUE, echo=TRUE, results="verbatim"}
 library(lsmeans)
@@ -469,7 +476,9 @@ plot(noise~size+type, d)
 
 
 
+**faraway::rats**
 
+On s’intéresse à l’efficacité du treatment pour chaque type de poison.
 
 
 ```{r, eval=TRUE, echo=TRUE, results="verbatim"}

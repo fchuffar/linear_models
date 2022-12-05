@@ -271,6 +271,7 @@ On calcule :
                                
 \begin{eqnarray}
 log\mathcal{L}_{\mathcal{M}, Y,X} &=& log(\mathbb{P}_\mathcal{M}(Y|X)) \\
+                                  &=& \sum^n_{i=1} log(\prod^n_{i=1} \mathbb{P}_\mathcal{M}(Y_i|X_i))\\
                                   &=& \sum^n_{i=1} log(\mathbb{P}_\mathcal{M}(Y_i|X_i))\\
 \end{eqnarray}
 
@@ -357,7 +358,7 @@ La mesure du pourcentage de la variation totale expliquée par le modèle se fai
 $$ R^2 = \frac{SC_{reg}}{SC_{tot}}$$
 
 
-**Attention**, l’ajout de variables explicatives augmente systématiquement le pourcentage de variance expliquée. Le $R^2$ s’en trouve systématiquement augmenté san pour autant que le modèle qui en résulte soit pertinent. 
+**Attention**, l’ajout de variables explicatives augmente systématiquement le pourcentage de variance expliquée. Le $R^2$ s’en trouve systématiquement augmenté sans pour autant que le modèle qui en résulte soit pertinent. 
 
 
 **Exemple**
@@ -706,7 +707,7 @@ d = d[,-2]
 pairs(d, gap=0)
 ```
 
-2) Le ciode suivant réaliser l’analyse en composante principale du tableau de données. Commenter le graphique obtenu.
+2) Le code suivant réaliser l’analyse en composante principale du tableau de données. Commenter le graphique obtenu.
 
 ```{r echo=TRUE, eval=TRUE, fig.height=5}
 # mat = x[,-9]
@@ -751,17 +752,10 @@ m_step = step(m_lo, method="forward", scope=list(upper=m_up,lower=m_lo))
 
 m_step$anova
 summary(m_step)
-
-m_w = lm(pemax ~ weight, data=d)
-summary(m_w)
-m_wb = lm(pemax ~  weight + bmp, data=d)
-summary(m_wb)
-m_wbf = lm(pemax ~  weight + bmp + fev1 , data=d)
-summary(m_wbf)
-summary(m_w)
 ```
 
 
+[correction_cystfibr.R](./correction_cystfibr.R)
 
 
 

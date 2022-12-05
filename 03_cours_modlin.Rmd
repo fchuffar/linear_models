@@ -354,6 +354,8 @@ Ces informations sont résumées dans ce que le tableau de l’analyse de la var
 ```{r echo=TRUE, results="verbatim"}
 d = InsectSprays_sub
 m = lm(count~spray,d)
+shapiro.test(m$residuals)
+bartlett.test(count~spray,d)
 anova(m)
 ```
 
@@ -450,17 +452,14 @@ En pratique, pour répondre à ces questions on utilise le test de **Tuckey**.
   
 ```{r echo=TRUE, results="verbatim"}
 layout(matrix(1:2,1), respect=TRUE)
-
 d = InsectSprays_sub
 m = aov(count~spray,d)
 plot(TukeyHSD(m, conf.level=0.95), las=2)
 
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
 d = InsectSprays
 m = aov(count~spray,d)
 plot(TukeyHSD(m, conf.level=0.95), las=2)
-
-
-layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
 p = plot(d$spray, d$count, main="count~spray", xlab="spray", ylab="count", border="grey")
 points(jitter(as.numeric(d$spray)), d$count)
 ```
