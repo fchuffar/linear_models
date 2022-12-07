@@ -23,17 +23,11 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 
 ## Les plateformes
 
-
-
-1. __CODALAB__ Les TP seront organisés dès la première session autour de plusieurs data challenges sur la plateforme codalab, je vous invite à vous connecter ici maintenant pour gagner du temps
-  [https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce]
+1. __CODALAB__ Les TP seront organisés autour de plusieurs data challenges sur la plateforme codalab, je vous invite à vous connecter ici au plus tôt et créer vos compotes pour gagner du temps : 
+  https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce
+  
 2. __GITHUB__ Le cours est dés maintenant disponible sur github, il évoluera au fil des sessions, le dépot sera régulièrement mis à jour  
   https://github.com/fchuffar/linear_models
-
-
-3. __GOOGLEFORM__ Certaines évaluation de contrôle continu seront réalisées via des questionnaires Google.
-
-[Questionnaire Séance 1](https://forms.gle/tk5n2FZVba4iv28j7) : à rendre pour le dimanche 14
 
 
 ## Evaluations
@@ -47,30 +41,43 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
  - RStudio https://www.rstudio.com
  - git and github https://r-pkgs.org/git.html & https://privefl.github.io/R-presentation/rstudio-git.html#1 
 
-## Cours 
+## Supports de cours 
 
 https://github.com/fchuffar/linear_models
 
 ## Organisation prévisionnelle
 
-  - Régression linéaire simple (séance 1, Magali Richard)
-  - Régression linéaire multiple (séance 2, Florent Chuffart)
-  - ANOVA (séance 3, Florent Chuffart) 
-  - *data challenge 1* (séance 4, Magali Richard)
-      - codalab : https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910
+  - Régression linéaire simple 1 (séance 1, Magali Richard)
+  - Régression linéaire simple 2 (séance 2, Florent Chuffart)
+  - Régression linéaire multiple (séance 3, Florent Chuffart)
+  - *data challenge expred3.0* (séance 4, Magali Richard)
+      - codalab : https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce
       - fin de séance, 1 compte rendu par équipe : https://github.com/fchuffar/starting_kit_expred3.0
+  - ANOVA (séance 5, Florent Chuffart) 
 
      
-  - Introduction à la régression logistique (séance 5, Florent Chuffart) 
-  - GLM (séance 6, Magali Richard)
-   - *data challenge 2* (séance 7, Magali Richard)
-   - Regression de poisson (séance 8, Florent Chuffart)
+  - Introduction à la régression logistique (séance 6, Florent Chuffart) 
+  - *data challenge 2 histpred2.0* (séance 7, Magali Richard)
+      - https://competitions.codalab.org/competitions/25357?secret_key=3a54cc71-6bbf-4e30-bf98-e9ec502853bf
+       
+  - Introduction à la regression de poisson (séance 8, Florent Chuffart)
   
+  
+  
+## Publicité
+
+Le RIS est le Réseau Interdisciplinaire autour de la Statistique (Mission pour les Initiatives Transverses et Interdisciplinaires, CNRS).
+
+N’hésitez pas à rejoindre le RIS, vous serez tenus informés des actions de formation et des journées thématiques du réseau :
+ https://ris.cnrs.fr/rejoindre-le-reseau/
+
+
 ---
 
 
 
-
+```{r child = "00_cours_modlin.Rmd", eval=TRUE}
+```
 
 ```{r child = "01_cours_modlin.Rmd", eval=TRUE}
 ```
