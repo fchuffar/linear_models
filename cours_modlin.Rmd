@@ -1,6 +1,5 @@
 ---
-title: "Modèles linéaires et GLM"
-subtitle: "M1 SSD"
+title: "Modèles linéaires"
 author: "Florent Chuffart & Magali Richard"
 date: "`r Sys.Date()`"
 output: 
@@ -9,6 +8,7 @@ output:
     toc_float: true
     toc_depth: 3
     number_sections: true
+urlcolor: blue
 ---
 
 
@@ -21,58 +21,45 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 
 
 
-## Les plateformes
-
-1. __CODALAB__ Les TP seront organisés autour de plusieurs data challenges sur la plateforme codalab, je vous invite à vous connecter ici au plus tôt et créer vos compotes pour gagner du temps : 
-  https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce
-  
-2. __GITHUB__ Le cours est dés maintenant disponible sur github, il évoluera au fil des sessions, le dépot sera régulièrement mis à jour  
-  https://github.com/fchuffar/linear_models
-
-
-## Evaluations
-
- - Individuelle via un questionnaire à certaines séances.
- - En équipe lors d’un *data challenge* séance 4 et séance 7.
-
 ## Pré-requis
  
  - R https://cran.r-project.org 
  - RStudio https://www.rstudio.com
- - git and github https://r-pkgs.org/git.html & https://privefl.github.io/R-presentation/rstudio-git.html#1 
+ - git and github https://r-pkgs.org/git.html & https://privefl.github.io/R-presentation/rstudio-git.html
 
-## Supports de cours 
 
-https://github.com/fchuffar/linear_models
+## Les plateformes
+
+1. __GitHub__ Le cours est dés maintenant disponible sur GitHub (https://github.com/fchuffar/linear_models), il évoluera au fil des sessions, le dépot sera régulièrement mis à jour.
+
+
+2. __CodaLab__ Un TP sera organisé lors de la quatrième session. Il prendra la forme d’un *data challenge*. Je vous invite à vous connecter sur [codalab](https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce) au plus tôt afin de gagner du temps.
+ 
+ 
+3. __Google Forms__ Un [formulaire en ligne](https://forms.gle/8Pp5S3Ze7jrRQcNe6) évaluant votre progression vous sera régulièrement proposé.
+  
 
 ## Organisation prévisionnelle
 
-  - Régression linéaire simple 1 (séance 1, Magali Richard)
-  - Régression linéaire simple 2 (séance 2, Florent Chuffart)
-  - Régression linéaire multiple (séance 3, Florent Chuffart)
-  - *data challenge expred3.0* (séance 4, Magali Richard)
-      - codalab : https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce
-      - fin de séance, 1 compte rendu par équipe : https://github.com/fchuffar/starting_kit_expred3.0
-  - ANOVA (séance 5, Florent Chuffart) 
+  - Séance 1 : Rappels info/algo 
+  - Séance 2 : Régression linéaire simple
+  - Séance 3 : Régression linéaire multiple 
+  - Séance 4 : ANOVA 
+  - Séance 5 : TP 
+    ([Gene Expression Prediction Challenge 3.0 (expred3.0)](https://competitions.codalab.org/competitions/28931?secret_key=156ec53c-3ae2-4788-ac69-1eb11c467910) - 
+    [Compte rendu de TP pré-rempli](https://github.com/fchuffar/starting_kit_expred3.0))
 
-     
-  - Introduction à la régression logistique (séance 6, Florent Chuffart) 
-  - *data challenge 2 histpred2.0* (séance 7, Magali Richard)
-      - https://competitions.codalab.org/competitions/25357?secret_key=3a54cc71-6bbf-4e30-bf98-e9ec502853bf
-       
-  - Introduction à la regression de poisson (séance 8, Florent Chuffart)
-  
-  
-  
 ## Publicité
 
 Le RIS est le Réseau Interdisciplinaire autour de la Statistique (Mission pour les Initiatives Transverses et Interdisciplinaires, CNRS).
 
 N’hésitez pas à rejoindre le RIS, vous serez tenus informés des actions de formation et des journées thématiques du réseau :
  https://ris.cnrs.fr/rejoindre-le-reseau/
-
-
+ 
+ 
 ---
+
+
 
 
 
@@ -82,9 +69,10 @@ N’hésitez pas à rejoindre le RIS, vous serez tenus informés des actions de 
 ```{r child = "01_cours_modlin.Rmd", eval=TRUE}
 ```
 
+
 ```{r child = "02_cours_modlin.Rmd", eval=TRUE}
 ```
-```{r child = "02.1_cours_modlin.Rmd", eval=TRUE}
+```{r var_select, child = "02.1_cours_modlin.Rmd", eval=TRUE}
 ```
 
 ```{r child = "03_cours_modlin.Rmd", eval=TRUE}
@@ -96,16 +84,39 @@ N’hésitez pas à rejoindre le RIS, vous serez tenus informés des actions de 
 
 ---
 
-# Notes
+# Références et notes
 
-Ce cours s’inspire des références suivantes :
+François Rebaudo, (2021).
+*R pour les scientifiques*, **Dunod**, France.
+
+Daudin Jean-Jacques, (2015).
+*Le modèle linéaire et ses extensions*, **ellipse**, France.
+http://moulon.inra.fr/modelstat/supports/ModeleLineaireEt_Extensions-compressed.pdf
+
+Cornillon, P.-A. et Matzner-Løber, E. (2011). *Régression avec R*, **Springer**, France.
+
+Cornillon, P.-A. et Matzner-Løber, E. (2007). *Régression. Théorie et applications*, **Springer**, France.
+
+McCullagh, P. et Nelder, J.A. (1989). *Generalized Linear Models. Second Edition. Monographs on Statistics and Applied Probability* 37. **Chapman and Hall**.
+
+Madsen H. and Thyregord, P (2011). *Introduction to General and Generalized Linear Models*, **CRC Press**, Taylor and Francis Group, Boca Raton, Florida, USA.
+
+Weisberg, S (2005). *Applied linear regression*. Vol. 528. **John Wiley & Sons**.
+
+
+
+Ce cours s’appuie également sur les échanges avec les personnes suivantes : 
 
 - Frédéric Bertrand & Myriam Maumy-Bertrand
 - Franck Picard
 - Olivier François
+
+Et sur les ressources disponioble ici : 
+
 - http://math.agrocampus-ouest.fr (janvier 2020)
 - https://delladata.fr/introduction-puissance-statistique (décembre 2020)
 - https://andrewlauactuary.com/2019/06/04/shiny-app-showing-statistical-power (juin 2019)
+- R markdown https://pkgs.rstudio.com/rmarkdown/articles/rmarkdown.html
 
 ---
 
