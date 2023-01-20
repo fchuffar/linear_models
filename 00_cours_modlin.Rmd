@@ -4,7 +4,7 @@ L’objectif de cette section est de définir un ensemble d’**outils informati
 
 ## Les logiciels R et Posit (ex-RStudio)
 
-R (1993) est un **logiciel** libre  sous licecnce [GPL](https://en.wikipedia.org/wiki/Free_software#Definition_and_the_Four_Essential_Freedoms_of_Free_Software).
+R (1993) est un **logiciel** libre  sous licence [GPL](https://en.wikipedia.org/wiki/Free_software#Definition_and_the_Four_Essential_Freedoms_of_Free_Software).
 Son développement est assuré par sa comunauté d’utilisateur en général et par le [CRAN](https://cran.r-project.org) (1997) en particulier.
 
 Pragmatiquement, R est une calculatrice plutôt complète.
@@ -362,6 +362,12 @@ Le package R présente plusieurs avantages :
 
 Ainsi le package R peut servir de cadre formel à une analyse ou au développement d’un modèle.
 
+voir 
+
+[PROcessus de Publications REproductibles avec R : la démarche PROPRE](https://rdes_dreal.gitlab.io/propre/processus-de-publications-reproductibles-de-quoi-sagit-il-exactement.html) - [Vidéos](https://www.canal-u.tv/chaines/ined/processus-de-publications-reproductibles-avec-r-la-demarche-propre)
+
+[Valérie Orozco](https://www.ined.fr/fr/actualites/rencontres-scientifiques/les-lundis/la-science-reproductible/)
+
 **exemple**
 
 Le package [fonctionr](https://github.com/fchuffar/fonctionr).
@@ -388,9 +394,9 @@ points(d$x, pred, col=2)
 
 **exercice**
 
-- Réaliser un clone ou fork du package `fonctionr` que vous renommerez `monanalyse` et dont vous serez l’auteur (fichier DESCRIPTION)
+- Réalisez un clone ou fork du package `fonctionr` que vous renommerez `modlin` et dont vous serez l’auteur (fichier DESCRIPTION)
 - Créer une fonction du package `plot_model` qui prends en paramètre `x` et `y` deux vecteurs de `numeric` et affiche la régression `y~x` (fichier R/tools.R)
-- Insérer dans la vignette existante du package un paragraphe en `markdown` qui fait un appel à la fonction `plot_model` (fichir vignettes/make_a_coffee.Rmd)
-- Vérifier (`devtools::check()`) votre package et construisez le. 
+- Dupliquez la vignette existante du package (fichier vignettes/make_a_coffee.Rmd) en une vignette `exercice1.Rmd` ; y insérez un paragraphe en `markdown` qui fait un appel à la fonction `plot_model` 
+- Vérifiez (`devtools::check()`) votre package et construisez le (`devtools::build()`). 
 - Envoyez moi votre package ainsi obtenu.
 

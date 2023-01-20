@@ -349,7 +349,7 @@ plot(d$taille, d$poids, main="poids~taille")
 # E(Y) = b.X
 # E(Y) = b_0 + b_1.X
 # Y_i = b_0 + b_1.X_i + e_i
-m = lm(d$poids~d$taille)
+m = lm(poids~taille, d)
 m$coefficients
 abline(a=m$coef[[1]], b=m$coef[[2]], col=2) # /!\ y = b.x + a
 # residuals
