@@ -1,0 +1,24 @@
+## Pré-requis
+ 
+ - R https://cran.r-project.org 
+ - RStudio https://www.rstudio.com
+ - git and github https://r-pkgs.org/git.html
+
+
+## Les plateformes
+
+1. __GitHub__ Le cours est dés maintenant disponible sur GitHub (https://github.com/fchuffar/linear_models), il évoluera au fil des sessions, le dépot sera régulièrement mis à jour.
+
+
+2. __CodaLab__ Un TP sera organisé. Il prendra la forme d’un *data challenge*. [Point d’entrée unique pour le challenge](https://github.com/fchuffar/starting_kit_expred3.0).  
+ 
+  
+
+## Publicité
+
+Le RIS est le Réseau Interdisciplinaire autour de la Statistique (Mission pour les Initiatives Transverses et Interdisciplinaires, CNRS).
+
+N’hésitez pas à rejoindre le RIS, vous serez tenus informés des actions de formation et des journées thématiques du réseau :
+ https://ris.cnrs.fr/rejoindre-le-reseau/
+ 
+ 

@@ -90,24 +90,11 @@ N’hésitez pas à rejoindre le RIS, vous serez tenus informés des actions de 
 ```{r child = "03_cours_modlin.Rmd", eval=TRUE}
 ```
 
-```{r child = "04_cours_modlin.Rmd", eval=TRUE}
+```{r child = "04_cours_modlin.Rmd", eval=FALSE}
 ```
 
-
----
-
-# Notes
-
-Ce cours s’inspire des références suivantes :
-
-- Frédéric Bertrand & Myriam Maumy-Bertrand
-- Franck Picard
-- Olivier François
-- http://math.agrocampus-ouest.fr (janvier 2020)
-- https://delladata.fr/introduction-puissance-statistique (décembre 2020)
-- https://andrewlauactuary.com/2019/06/04/shiny-app-showing-statistical-power (juin 2019)
-
----
+```{r child = "0Bib_cours_modlin.Rmd", eval=TRUE}
+```
 
 ```{r, results="verbatim"}
 sessionInfo()

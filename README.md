@@ -28,4 +28,5 @@ To compile the html document load the following R instruction.
 
 ```
 rmarkdown::render("cours_modlin.Rmd")
+quarto::quarto_render("cours_modlin.Rmd") 
 ```

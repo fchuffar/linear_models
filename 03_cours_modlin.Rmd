@@ -1,4 +1,4 @@
-# ANOVA à un facteur
+# ANOVA
 
 L’objectif de cette section est : 
 
@@ -41,6 +41,121 @@ On note :
   
   - $\beta$ un vecteur de taille $p$ (le nombre de niveaux du facteur $X$) correspondant à la moyenne des observations pour chaque niveau du facteur moins la moyenne générale.
   - $I_X$ la *matrice d’incidence* (tableau disjonctif ?) de taille $n$ x $p$, ne comportant que des 0 et des 1 et permettant d’associer chaque observation à son niveau de facteur $X$.   
+
+**Exemple `multcomp::recovery`**
+
+
+```{r echo=TRUE, results="verbatim"}
+sub_recovery = multcomp::recovery[multcomp::recovery$blanket%in%c("b1", "b2"),]
+sub_recovery$blanket = as.factor(as.character(sub_recovery$blanket))
+sub_recovery
+```
+
+
+```{r echo=TRUE, results="verbatim"}
+options(contrasts=c("contr.sum", "contr.poly"))
+d = sub_recovery
+m = lm(minutes~blanket, d)
+summary(m)
+```
+
+```{r}
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+p = plot(d$blanket, d$minutes, main="minutes~blanket", xlab="blanket", ylab="minutes", border="grey")
+set.seed(1)
+blk = jitter(as.numeric(d$blanket))
+points(blk, d$minutes)
+
+y_i = sapply(levels(d$blanket), function(s) {
+ mean(d[d$blanket==s,]$minutes)
+})
+plot(blk, d$minutes, main="minutes~blanket", las=2, type="p", xaxt="n", xlab="blanket", ylab="minutes")
+suppressWarnings(arrows(blk, d$minutes, blk, rep(y_i, each=table(d$blanket)[1]), col=adjustcolor(4, alpha.f=0.5), length=0.05))
+points(y_i, pch=5, col=2)
+suppressWarnings(arrows(1:6, mean(y_i), 1:6, y_i, col=adjustcolor(2, alpha.f=0.9), length=0.05))
+abline(h=mean(y_i), lty=2)
+
+axis(1, 1:length(levels(d$blanket)), labels=levels(d$blanket))
+legend("topright", c("Y_i", "beta_i", "epsilon_i", "mu"), pch=c(1,5,5,NA), col=c(1,2,4,1), lty=c(0,0,0,2), border=0)
+```
+
+```{r echo=TRUE, results="verbatim"}
+options(contrasts=c("contr.treatment", "contr.poly"))
+d = sub_recovery
+m = lm(minutes~blanket, d)
+summary(m)
+```
+
+
+```{r}
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+p = plot(d$blanket, d$minutes, main="minutes~blanket", xlab="blanket", ylab="minutes", border="grey")
+set.seed(1)
+blk = jitter(as.numeric(d$blanket))
+points(blk, d$minutes)
+
+y_i = sapply(levels(d$blanket), function(s) {
+ mean(d[d$blanket==s,]$minutes)
+})
+plot(blk, d$minutes, main="minutes~blanket", las=2, type="p", xaxt="n", xlab="blanket", ylab="minutes")
+suppressWarnings(arrows(blk, d$minutes, blk, rep(y_i, each=table(d$blanket)[1]), col=adjustcolor(4, alpha.f=0.5), length=0.05))
+abline(h=m$coefficient[[1]], col=2, lty=2)
+abline(h=m$coefficient[[1]]+m$coefficient[[2]], col=3, lty=2)
+axis(1, 1:length(levels(d$blanket)), labels=levels(d$blanket))
+legend("topright", c("m$coef[1]", "m$coef[1]+m$coef[2]"), col=c(2,3), lty=2, border=0)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r echo=TRUE, results="verbatim"}
+d = sub_recovery
+d$blanketnum = c(0,0,0,1,1,1)
+m = lm(minutes~blanketnum, d)
+summary(m)
+```
+
+```{r}
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+p = plot(d$blanket, d$minutes, main="minutes~blanket", xlab="blanket", ylab="minutes", border="grey")
+set.seed(1)
+blk = jitter(as.numeric(d$blanket))
+points(blk, d$minutes)
+
+plot(d$blanketnum, d$minutes, main="minutes ~ blanketnum")
+arrows(d$blanketnum, d$minutes, d$blanketnum, d$minutes-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
+abline(m, col=2)
+legend("topright",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+```
+
+
+
+**Notes** : `lm` sur ce jeu de données revient à faire un `t.test` sur ces même données en considérant que la variance des deux groupe est identique.
+
+```{r echo=TRUE, results="verbatim"}
+d = sub_recovery
+t.test(d$minutes[1:3], d$minutes[4:6], var.equal=TRUE)
+```
+
+**Notes** : Une alternative au test paramétrique est une test non paramétrique (sur les rangs), *e.g.* Mann-Whitney U test (*aka* Wilcoxon Rank Sum test) ou Kruskal-Wallis H Tests.
+
+```{r echo=TRUE, results="verbatim"}
+d = sub_recovery
+wilcox.test(d$minutes[1:3], d$minutes[4:6], exact=FALSE)
+kruskal.test(minutes~blanket, d)
+```
+
 
 **Exemple *InsectSprays* **
 
@@ -383,46 +498,10 @@ legend("topright",c("F_obs", "c_alpha", "p-value", "5%"), col=c(4,2, 4, 2), lty=
 
 
 
-*Remarque* : on peut aussi écrire ce test à l’aide d’une table disjonctif : 
-
-```{r echo=TRUE, results="verbatim"}
-d$A = 0
-d$B = 0
-d$C = 0
-d$D = 0
-d$E = 0
-d$F = 0
-for (i in 1:nrow(d)) {
-  d[i,as.character(d[i,"spray"])] = 1
-}
-d
-m0 = lm(count~A+B+C+D+E+F,d)
-summary(m0)
-m00 = lm(count~A+B+C+D+E,d)
-summary(m00)
-```
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## Pour aller plus loin
 
 
 
@@ -482,6 +561,98 @@ Une autre méthode utilisée quand le nombre de tests multiples à réalisé est
 
 
 
+### Tableau disjonctif
+
+*Remarque* : on peut aussi écrire ce test à l’aide d’un tableau disjonctif : 
+
+```{r echo=TRUE, results="verbatim"}
+d$A = 0
+d$B = 0
+d$C = 0
+d$D = 0
+d$E = 0
+d$F = 0
+for (i in 1:nrow(d)) {
+  d[i,as.character(d[i,"spray"])] = 1
+}
+d
+m0 = lm(count~A+B+C+D+E+F,d)
+summary(m0)
+m00 = lm(count~A+B+C+D+E,d)
+summary(m00)
+```
+
+
+
+
+
+
+
+### Paired t.test
+
+Le test T apparié peut-être vu comme une ANOVA à deux facteurs : 
+
+
+```{r echo=TRUE, results="verbatim"}
+d = sleep
+t.test(sleep$extra[1:10], sleep$extra[11:20], var.equal=TRUE)
+m = lm(extra~group, d)
+summary(m)
+
+t.test(sleep$extra[1:10], sleep$extra[11:20], var.equal=TRUE, paired=TRUE)
+m = lm(extra~group+ID, d)
+summary(m)
+```
+
+
+
+
+
+
+
+
+
+### Terme d'interaction
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+sleepstudy = lme4::sleepstudy
+sleepstudy = sleepstudy[sleepstudy$Days>1,]
+d = sleepstudy
+head(d)
+dim(d)
+table(d$Subject, d$Days)
+layout(1, respect=TRUE)
+plot(Reaction~Days, d, pch=16, col=d$Subject)
+
+m0 = lm(Reaction~Days, d)
+m1 = lm(Reaction~Days+Subject, d)
+m2 = lm(Reaction~Days*Subject, d)
+
+layout(1, respect=TRUE)
+
+m0 = lm(Reaction~Days, d)
+summary(m0)
+plot(Reaction~Days, d, pch=16, col=d$Subject)
+abline(m0)
+
+m1 = lm(Reaction~Days+Subject, d)
+summary(m1)
+plot(Reaction~Days, d, pch=16, col=d$Subject)
+abline(a=m1$coef[1]             , b=m1$coef[2], col=1)
+n = length(levels(d$Subject))
+for (i in 2:n) {
+  abline(a=m1$coef[1] + m1$coef[i+1], b=m1$coef[2], col=i)  
+}
+
+m2 = lm(Reaction~Days*Subject, d)
+summary(m2)
+plot(Reaction~Days, d, pch=16, col=d$Subject)
+abline(a=m2$coef[1]             , b=m2$coef[2]              , col=1)
+n = length(levels(d$Subject))
+for (i in 2:n) {
+  abline(a=m2$coef[1] + m2$coef[i+1], b=m2$coef[2] + m2$coef[n+i] , col=i)
+}
+```
 
 
 
@@ -523,22 +694,42 @@ Une autre méthode utilisée quand le nombre de tests multiples à réalisé est
 
 
 
-## Exercices
 
 
-**faraway::coagulation**
 
-Etudier le modèle le modèle $coag \sim diet$ : 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Exercices
+
+
+
+Etudier les jeux de données suivants : 
 
 
 1. Ecriture analytique du modèle ;
 2. Formulation des hypothèses $\mathcal{H}_0$ et $\mathcal{H}_1$ ;
-3. Statistique de test utilisée et conditions d’application ; 
+3. Statistique de test utilisée et **conditions d’application** ; 
 4. Valeur de la statistique de test ; 
 5. P-valeur associée ; 
-6. Conclusion du test ; 
+6. Conclusion du test.
 7. Tests de comparaisons multiples à l’aide de la méthode de votre choix.
 
+
+
+**faraway::coagulation**
 
 ```{r echo=TRUE, results="verbatim"}
 d = faraway::coagulation
@@ -557,7 +748,105 @@ points(jitter(as.numeric(d$diet)), d$coag)
 
 
 
+
+
+
+
+
+**ISwR::lung**
+
+On s’intéresse à l’effet de la méthode sur la mesure du volume.
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+# Note sur les contrasts
+# https://www.dummies.com/programming/r/how-to-set-the-contrasts-for-your-data-with-r/
+# X = levels(rats$poison)
+# contr.treatment(X)
+# contr.sum(X)
+options(contrasts=c("contr.sum", "contr.poly")) # indique que, dans le cas équilibré, les estimations des effets alpha de chaque groupe doivent être de somme nulle
+# options(contrasts=c("contr.treatment", "contr.poly"))
+
+d = ISwR::lung
+head(d)
+dim(d)
+table(d$method, d$subject)
+layout(matrix(1:2,1), respect=TRUE)
+plot(volume~method+subject, d)
+
+```
+
+[correction_anova_lung.R](./correction_anova_lung.R)
+
+
+
+**auto.noise**
+
+On s’intéresse à l’effet du type de pot sur le bruit.
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+library(lsmeans)
+d = auto.noise
+head(d)
+dim(d)
+table(d$size, d$type)
+layout(matrix(1:2,1), respect=TRUE)
+plot(noise~size+type, d)
+
+```
+
+
+[correction_anova_auto.noise.R](./correction_anova_auto.noise.R)
+
+
+
+
+
+
+**faraway::rats**
+
+On s’intéresse à l’efficacité du treatment pour chaque type de poison.
+
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+d = faraway::rats
+head(d)
+dim(d)
+table(d$poison, d$treat)
+layout(matrix(1:2,1), respect=TRUE)
+plot(time~poison+treat, d)
+```
+
+
+
+[correction_anova_rats.R](./correction_anova_rats.R)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 **Autres jeux de données** 
+
+
+
+
 
 ```{r echo=TRUE, results="verbatim"}
 d = multcomp::recovery
@@ -583,6 +872,171 @@ layout(matrix(1:2,1), respect=TRUE)
 plot(d$Postwt, d$Prewt)
 plot(delta~Treat, d)
 ```
+
+
+
+
+
+
+
+
+
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+Penicillin = lme4::Penicillin
+head(Penicillin)
+dim(Penicillin)
+table(Penicillin$plate, Penicillin$sample)
+```
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+cake = lme4::cake
+head(cake)
+dim(cake)
+table(cake$temperature, cake$recipe)
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r, eval=FALSE}
+boxplot(diameter~plate+sample,Penicillin, las=2)
+m = lm(diameter~plate+sample,Penicillin)
+shapiro.test(m$residuals)
+anova(m)
+summary(m)
+```
+
+```{r, eval=FALSE}
+m = lm (yield~variety+fungicide, varfung)
+anova(m)
+m = lm (yield~fungicide+variety, varfung)
+anova(m)
+
+d = state_us
+m = lm(Life.Exp ~ Murder + HS.Grad, d)
+anova(m)
+m = lm(Life.Exp ~ HS.Grad + Murder, d)
+anova(m)
+
+
+
+
+
+
+Y~A+B
+
+
+
+# equirépété
+df = data.frame(
+  A=c(0, 0, 1, 1, 2, 2, 0, 1, 2),
+  B=c(0, 1, 0, 1, 0, 1, 2, 2, 2)
+)
+table(df$A, df$B)
+plot(df$A, df$B)
+df
+
+df$Y = 6*df$A + 3*df$B + rnorm(nrow(df))
+df 
+
+m = lm(Y~A+B, df)
+anova(m)
+m = lm(Y~B+A, df)
+anova(m)
+
+
+# factors
+df$A = as.factor(df$A)
+df$B = as.factor(df$B)
+
+
+m = lm(Y~A+B, df)
+anova(m)
+m = lm(Y~B+A, df)
+anova(m)
+
+
+
+# pas equirépété (correlation entre A et B)
+df = data.frame(
+  A=c(0, 0, 1, 1, 2, 1, 2),
+  B=c(0, 1, 0, 1, 1, 2, 2)
+)
+table(df$A, df$B)
+plot(df$A, df$B, col=2)
+df
+
+df$Y = 6*df$A + 3*df$B + rnorm(nrow(df))
+df 
+
+m = lm(Y~A+B, df)
+anova(m)
+m = lm(Y~B+A, df)
+anova(m)
+
+
+
+
+
+
+
+
+
+
+
+
+# pas equilibré equirépété (correlation entre A et B)
+df = data.frame(
+  A=c(0, 1, 2, 0, 2),
+  B=c(0, 1, 0, 2, 2)
+)
+table(df$A, df$B)
+plot(df$A, df$B, col=2, pch=16, cex=3)
+df
+
+df$Y = 6*df$A + 3*df$B + rnorm(nrow(df))
+df 
+
+m = lm(Y~A+B, df)
+anova(m)
+m = lm(Y~B+A, df)
+anova(m)
+
+
+
+
+
+replicat
+df = rbind(df, df, df, df, df, df, df, df)
+set.seed(1)
+df$Y = 6*df$A+rnorm(nrow(df))+3*df$B*rnorm(nrow(df))
+
+# factors
+df$A = as.factor(df$A)
+df$B = as.factor(df$B)
+
+
+m = lm(Y~A+B, df)
+anova(m)
+m = lm(Y~B+A, df)
+anova(m)
+```
+
+
+
+
+
+
+
+
 
 
 

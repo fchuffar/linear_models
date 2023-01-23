@@ -485,7 +485,8 @@ Intégrer ici les exercices de la fiche TP8.pdf
 
 
 ```{r eval=FALSE}
-warpbreaks = data(warpbreaks)
+library(datasets)
+data(warpbreaks)
 head(warpbreaks)
 dim(warpbreaks)
 table(warpbreaks$wool,warpbreaks$tension)

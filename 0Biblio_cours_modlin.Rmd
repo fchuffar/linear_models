@@ -1,0 +1,36 @@
+# Références et notes
+
+François Rebaudo, (2021).
+*R pour les scientifiques*, **Dunod**, France.
+
+Daudin Jean-Jacques, (2015).
+*Le modèle linéaire et ses extensions*, **ellipse**, France.
+http://moulon.inra.fr/modelstat/supports/ModeleLineaireEt_Extensions-compressed.pdf
+
+Cornillon, P.-A. et Matzner-Løber, E. (2011). *Régression avec R*, **Springer**, France.
+
+Cornillon, P.-A. et Matzner-Løber, E. (2007). *Régression. Théorie et applications*, **Springer**, France.
+
+McCullagh, P. et Nelder, J.A. (1989). *Generalized Linear Models. Second Edition. Monographs on Statistics and Applied Probability* 37. **Chapman and Hall**.
+
+Madsen H. and Thyregord, P (2011). *Introduction to General and Generalized Linear Models*, **CRC Press**, Taylor and Francis Group, Boca Raton, Florida, USA.
+
+Weisberg, S (2005). *Applied linear regression*. Vol. 528. **John Wiley & Sons**.
+
+
+
+Ce cours s’appuie également sur les échanges avec les personnes suivantes : 
+
+- Frédéric Bertrand & Myriam Maumy-Bertrand
+- Franck Picard
+- Olivier François
+
+Et sur les ressources disponible ici : 
+
+- http://math.agrocampus-ouest.fr (janvier 2020)
+- https://delladata.fr/introduction-puissance-statistique (décembre 2020)
+- https://andrewlauactuary.com/2019/06/04/shiny-app-showing-statistical-power (juin 2019)
+- R markdown https://pkgs.rstudio.com/rmarkdown/articles/rmarkdown.html
+
+- Note sur les contrasts https://www.dummies.com/programming/r/how-to-set-the-contrasts-for-your-data-with-r/
+- Ressources concernant git et RStudio https://privefl.github.io/R-presentation/rstudio-git.html
