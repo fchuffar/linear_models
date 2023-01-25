@@ -42,6 +42,39 @@ On note :
   - $\beta$ un vecteur de taille $p$ (le nombre de niveaux du facteur $X$) correspondant à la moyenne des observations pour chaque niveau du facteur moins la moyenne générale.
   - $I_X$ la *matrice d’incidence* (tableau disjonctif ?) de taille $n$ x $p$, ne comportant que des 0 et des 1 et permettant d’associer chaque observation à son niveau de facteur $X$.   
 
+
+
+```
+B = (b_grp1, b_grp2)
+
+I = 
+     grp1 grp2
+A       1   0
+B       1   0
+C       1   0
+D       0   1
+E       0   1
+F       0   1
+
+I * B = 
+              b_grp1
+              b_grp2
+        1   0         =   b_grp1
+        1   0             b_grp1
+        1   0             b_grp1
+        0   1             b_grp2
+        0   1             b_grp2
+        0   1             b_grp2
+
+Y_A = mu +  b_grp1 + e_A
+Y_B = mu +  b_grp1 + e_B
+Y_C = mu +  b_grp1 + e_C
+Y_D = mu +  b_grp2 + e_D
+Y_E = mu +  b_grp2 + e_E
+Y_F = mu +  b_grp2 + e_F
+```
+
+
 **Exemple `multcomp::recovery`**
 
 
@@ -80,7 +113,6 @@ legend("topright", c("Y_i", "beta_i", "epsilon_i", "mu"), pch=c(1,5,5,NA), col=c
 ```
 
 ```{r echo=TRUE, results="verbatim"}
-options(contrasts=c("contr.treatment", "contr.poly"))
 d = sub_recovery
 m = lm(minutes~blanket, d)
 summary(m)
@@ -472,6 +504,7 @@ m = lm(count~spray,d)
 shapiro.test(m$residuals)
 bartlett.test(count~spray,d)
 anova(m)
+summary(m)
 ```
 
 ```{r}
@@ -560,12 +593,33 @@ Une autre méthode utilisée quand le nombre de tests multiples à réalisé est
 
 
 
+### Paired t.test
+
+Le test T apparié peut-être vu comme une ANOVA à deux facteurs : 
+
+
+```{r echo=TRUE, results="verbatim"}
+d = sleep
+boxplot(extra~group, d)
+t.test(sleep$extra[1:10], sleep$extra[11:20], var.equal=TRUE)
+m = lm(extra~group, d)
+summary(m)
+
+t.test(sleep$extra[1:10], sleep$extra[11:20], var.equal=TRUE, paired=TRUE)
+matplot(t(cbind(sleep$extra[1:10], sleep$extra[11:20])))
+matlines(t(cbind(sleep$extra[1:10], sleep$extra[11:20])))
+m = lm(extra~group+ID, d)
+summary(m)
+```
+
+
 
 ### Tableau disjonctif
 
 *Remarque* : on peut aussi écrire ce test à l’aide d’un tableau disjonctif : 
 
 ```{r echo=TRUE, results="verbatim"}
+d = InsectSprays_sub
 d$A = 0
 d$B = 0
 d$C = 0
@@ -580,6 +634,9 @@ m0 = lm(count~A+B+C+D+E+F,d)
 summary(m0)
 m00 = lm(count~A+B+C+D+E,d)
 summary(m00)
+anova(m00)
+m = lm(count~spray,d)
+anova(m)
 ```
 
 
@@ -587,22 +644,6 @@ summary(m00)
 
 
 
-
-### Paired t.test
-
-Le test T apparié peut-être vu comme une ANOVA à deux facteurs : 
-
-
-```{r echo=TRUE, results="verbatim"}
-d = sleep
-t.test(sleep$extra[1:10], sleep$extra[11:20], var.equal=TRUE)
-m = lm(extra~group, d)
-summary(m)
-
-t.test(sleep$extra[1:10], sleep$extra[11:20], var.equal=TRUE, paired=TRUE)
-m = lm(extra~group+ID, d)
-summary(m)
-```
 
 
 
@@ -615,6 +656,7 @@ summary(m)
 ### Terme d'interaction
 
 ```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+options(contrasts=c("contr.treatment", "contr.poly"))
 sleepstudy = lme4::sleepstudy
 sleepstudy = sleepstudy[sleepstudy$Days>1,]
 d = sleepstudy
@@ -652,6 +694,54 @@ n = length(levels(d$Subject))
 for (i in 2:n) {
   abline(a=m2$coef[1] + m2$coef[i+1], b=m2$coef[2] + m2$coef[n+i] , col=i)
 }
+
+
+```
+
+**Souris, Regime et exercice**
+
+```{r}
+d = rbind(
+  c(1,    1,   15) ,
+  c(1,    1,   10) ,
+  c(0,    1,   25) ,
+  c(0,    1,   20) ,
+  c(1,    0,   20) ,
+  c(1,    0,   15) ,
+  c(0,    0,   30) ,
+  c(0,    0,   25)
+)
+
+layout(1)
+colnames(d) = c("R", "E" , "P")
+d = data.frame(d)
+boxplot(P~R+E, d)
+m = lm(P~R+E, d)
+summary(m)
+m = lm(P~R*E, d)
+summary(m)
+
+d = rbind(
+  c(1,    1,   10) ,
+  c(1,    1,   5) ,
+  c(0,    1,   25) ,
+  c(0,    1,   20) ,
+  c(1,    0,   20) ,
+  c(1,    0,   15) ,
+  c(0,    0,   30) ,
+  c(0,    0,   25)
+)
+
+
+layout(1)
+colnames(d) = c("R", "E" , "P")
+d = data.frame(d)
+boxplot(P~R+E, d)
+m = lm(P~R+E, d)
+summary(m)
+m = lm(P~R*E, d)
+summary(m)
+
 ```
 
 

@@ -51,7 +51,7 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 ```{r child = "04_cours_modlin.Rmd", eval=FALSE}
 ```
 
-```{r child = "0Biblio  _cours_modlin.Rmd", eval=TRUE}
+```{r child = "0Biblio_cours_modlin.Rmd", eval=TRUE}
 ```
 
 ```{r, results="verbatim"}
