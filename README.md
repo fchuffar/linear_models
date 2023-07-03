@@ -8,7 +8,6 @@ It needs some R packages:
 
 ```
 pkgs= c(
-  "car",
   "rmarkdown",
   "MASS",
   "ISwR",
