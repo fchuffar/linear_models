@@ -24,6 +24,12 @@ pkgs= c(
 install.packages(pkgs)
 ```
 
+or 
+
+```
+conda install -c conda-forge -c r r-rmarkdown r-iswr r-catdata  r-plotrix r-lmtest r-faraway  r-lsmeans r-memoise r-mass  r-lattice  r-car  r-multcomp 
+```
+
 To compile the html document load the following R instruction.
 
 ```

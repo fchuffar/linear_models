@@ -2,7 +2,7 @@
 
 L’objectif de cette section est de définir un ensemble d’**outils informatiques** et de **notions d’algorithmique** vous permettant d’appréhender la suite du cours dédiée aux **statistiques**.
 
-## Les logiciels R et Posit (ex-RStudio)
+## Les logiciels R et RStudio
 
 R (1993) est un **logiciel** libre  sous licence [GPL](https://en.wikipedia.org/wiki/Free_software#Definition_and_the_Four_Essential_Freedoms_of_Free_Software).
 Son développement est assuré par sa comunauté d’utilisateur en général et par le [CRAN](https://cran.r-project.org) (1997) en particulier.
@@ -11,7 +11,7 @@ Pragmatiquement, R est une calculatrice plutôt complète.
 
 Le script R permet de rejouer un série d’intructions (traçabilité, reproductibilité).
 
-Posit est un environnement de travail dédié à R regroupant entre autre :
+RStudio est un environnement de travail dédié à R regroupant entre autre :
 
   - la console R (qui va executer les instructions) ; 
   - un éditeur de texte dédié à l’écriture de scripts R.
@@ -24,8 +24,8 @@ getwd()
 
 **Astuce**, pour être certain de vous trouver dans le bon répertoire : 
 
-- fermer Posit ; 
-- ouvrir votre script R depuis votre gestionnaire de fichiers avec Posit.
+- fermer RStudio ; 
+- ouvrir votre script R depuis votre gestionnaire de fichiers avec RStudio.
 
 Vou spouvez aussi changer le répertoire de est le spécifiant dans cette commande : 
 
@@ -57,7 +57,7 @@ La programmation lettrée est paradigme de programmation préconisée par Donald
 
 1. Télécharger en compilez le cours :  [Modèles linéaires](https://github.com/fchuffar/linear_models).
   
-Depuis Posit : 
+Depuis RStudio : 
 
 - aller à *File* > *New Project...* ;
 - selectionner *Version control* > *Git* ;
@@ -71,7 +71,7 @@ Depuis un navigateur web :
 - aller à l’adresse *https://github.com/fchuffar/linear_models* ;
 - cliquer sur *Code* > *Download zip* ;
 - enregistrer et **Décompresser** l’archive `.zip` sur votre machine ;
-- configurer le repertoire de travail de Posit en cliquant sur *Session* > *Set Working Directory* > *Choose directory...*    ;
+- configurer le repertoire de travail de RStudio en cliquant sur *Session* > *Set Working Directory* > *Choose directory...*    ;
 - dans la console R de Rstudio, vérifier votre répertoire de travail en tapant `getwd()` ;
 - dans la console R de Rstudio, lancer la compilation avec la commande `rmarkdown::render("cours_modlin.Rmd")` .
 
@@ -108,7 +108,7 @@ Depuis un navigateur web :
 ## Le language R
 
 **R est aussi un langage de programation** dédié aux statistiques. 
-A ce titre, peut-ondire que R est un DSL (*domain-specific language*) ? 
+A ce titre, peut-on dire que R est un DSL (*Domain-Specific Language*) ? 
 D’autres langages tels que Java, C ou encore python sont des langages dit *géneralistes*. 
 
 
@@ -355,27 +355,30 @@ Le grand nombre de packages disponibles pour R, ainsi que la facilité de leur i
 
 Le package R présente plusieurs avantages : 
 
+- il embarque des métadonnées (fichier `DESCRIPTION` incluant titre, auteur, licence, ...)
 - il organise l’espace de travail (`R`, `vignettes`, `data`).  
 - il permet de verifier la qualité du code et de la documentation (`check()/build()` `roxygen` `rmarkdown`).
 - il propose un mecanisme de test (`testthat`).
-- il permet de partager facilement son code.
+- il permet de partager facilement son code (CRAN, bioconductor, github, ...).
 
-Ainsi le package R peut servir de cadre formel à une analyse ou au développement d’un modèle.
+Ainsi le package R peut servir de cadre formel pour l’analyse ou le développement d’un modèle.
 
-voir 
+voir :
 
-[PROcessus de Publications REproductibles avec R : la démarche PROPRE](https://rdes_dreal.gitlab.io/propre/processus-de-publications-reproductibles-de-quoi-sagit-il-exactement.html) - [Vidéos](https://www.canal-u.tv/chaines/ined/processus-de-publications-reproductibles-avec-r-la-demarche-propre)
+Valérie Orozco, *Comment améliorer nos pratiques pour aller vers une recherche (plus) reproductible ?*, 2021, **Assenbléé générale du RIS** [Vidéos](https://www.canal-u.tv/chaines/ris/reproductibilitevalerieorozco)
 
-[Valérie Orozco](https://www.ined.fr/fr/actualites/rencontres-scientifiques/les-lundis/la-science-reproductible/)
+Juliette Engelaere-Lefebvre, *PROcessus de Publications REproductibles avec R : la démarche PROPRE*, 2022, **Séminaire RUSS** [Vidéos](https://www.canal-u.tv/chaines/ined/processus-de-publications-reproductibles-avec-r-la-demarche-propre)
+
+
 
 **exemple**
 
-Le package [fonctionr](https://github.com/fchuffar/fonctionr).
+Le package [protopackage](https://github.com/fchuffar/protopackage).
 
 
 
 
-### Lexique de fonctions
+## Lexique de fonctions
 
 Voici les quelques fonctions que nous utiliserons dans ce cours : 
 
@@ -394,7 +397,7 @@ points(d$x, pred, col=2)
 
 **exercice**
 
-- Réalisez un clone ou fork du package `fonctionr` que vous renommerez `modlin` et dont vous serez l’auteur (fichier DESCRIPTION)
+- Réalisez un clone ou fork du package `protopackage` que vous renommerez `modlin` et dont vous serez l’auteur (fichier DESCRIPTION)
 - Créer une fonction du package `plot_model` qui prends en paramètre `x` et `y` deux vecteurs de `numeric` et affiche la régression `y~x` (fichier R/tools.R)
 - Dupliquez la vignette existante du package (fichier vignettes/make_a_coffee.Rmd) en une vignette `exercice1.Rmd` ; y insérez un paragraphe en `markdown` qui fait un appel à la fonction `plot_model` 
 - Vérifiez (`devtools::check()`) votre package et construisez le (`devtools::build()`). 
