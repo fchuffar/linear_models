@@ -48,19 +48,18 @@ https://github.com/fchuffar/linear_models
 ## Organisation prévisionnelle
 
   - Régression linéaire simple 1 (séance 1, Magali Richard)
-  - Régression linéaire simple 2 (séance 2, Florent Chuffart)
-  - Régression linéaire multiple (séance 3, Florent Chuffart)
-  - *data challenge expred3.0* (séance 4, Magali Richard)
-      - codalab : https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce
-      - fin de séance, 1 compte rendu par équipe : https://github.com/fchuffar/starting_kit_expred3.0
-  - ANOVA (séance 5, Florent Chuffart) 
+  - Régression linéaire multiple (séance 2, Florent Chuffart)
+  - *data challenge expred3.0* (séance 3, Magali Richard)
+      - codalab : https://www.codabench.org/competitions/1692/?secret_key=439a40e9-9de7-4336-918f-ac983d5dd22c
+      - fin de séance, 1 compte rendu par équipe : https://github.com/fchuffar/starting_kit_epiclock1.0
+  - ANOVA (séance 4, Florent Chuffart) 
 
      
-  - Introduction à la régression logistique (séance 6, Florent Chuffart) 
-  - *data challenge 2 histpred2.0* (séance 7, Magali Richard)
+  - Introduction à la régression logistique (séance 5, Florent Chuffart) 
+  - *data challenge 2 histpred2.0* (séance 6, Magali Richard)
       - https://competitions.codalab.org/competitions/25357?secret_key=3a54cc71-6bbf-4e30-bf98-e9ec502853bf
        
-  - Introduction à la regression de poisson (séance 8, Florent Chuffart)
+  - Introduction à la regression de poisson (séance 7, Florent Chuffart)
   
   
   

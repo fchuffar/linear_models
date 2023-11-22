@@ -322,7 +322,7 @@ Et comme nous avons :
                    \sum{(x_i-\overline{x}_n)^2}   & = & \sum{x_i^2} -  n(\overline{x}_n)^2
 \end{eqnarray}
 
-Nous obtenons : $$\widehat\beta_1 = \frac{\sum{(x_i-\overline{x}_n)(Y_i-\overline{Y}_n)}}{\sum{(x_i-\overline{x}_n)^2}}$$
+Nous obtenons : $$\widehat\beta_1 = \frac{\sum{(x_i-\overline{x}_n)(Y_i-\overline{Y}_n)}}{\sum{(x_i-\overline{x}_n)^2}}=\frac{cov(x,Y)}{var(x)}$$
 
 Dans la pratique, nous calculons $\widehat\beta_1$ puis $\widehat\beta_0$.
 
