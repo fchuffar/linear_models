@@ -1,0 +1,530 @@
+# Regression logistique
+
+## Le cas d'une covariable qualitative
+
+On cherche une relation entre une **variable binaire** $Y$ (observée, à expliquer) et un ensemble de variables explicatives $X$ (quantitatives ou qualitatives). 
+
+$$Y \sim X$$
+
+
+On distingue : 
+
+  - les modèles explicatifs
+  - les modèles predictifs
+
+Exemples de variables binaires à expliquer / prédir : 
+  
+  - Le sexe en fonction du poids (*e.g.* : `MASS::cats`)
+  - La suvernue d’une maladie coronarienne en fonction d’HTA et cholestérol
+  - La suvernue d’un cancer en fonction d’expositions chimiques
+  - La pulsion d’achat d’un bien en fonction de variables sociodémographiques
+  - Le risque d’accoucher d’un bébé de faible poids (<2500g) en fonction de l’âge de la mère, du poids, du tabagisme.
+  - le sexe en fonction de l’expression des gènes (challenge *sexpred*)
+  - l’histologie en fonction de l’expression des gènes (challenge *histpred*)
+  - la survie à 24 mois en fonction de l’expression des gènes (challenge *virpred*)
+
+---
+  
+On pose $Y$ la variable binaire à expliquer, $X$ la variable explicative.
+
+La variable binaire $Y$ peut être codée par 0 ou 1 et **on veut modéliser : ** 
+
+$$\mathbb{E}(Y|X) = \mathbb{P}(Y=1|X=x) = \pi (x)$$
+
+On appelle $\pi(x)$, le prédicteur de $Y=1$ en fonction de la valeur $x$ prise par $X$.
+
+
+
+
+
+
+### Mesures d'intérêt
+
+On définit les **Odds** :
+
+$$Odds(X = x) = \frac{\pi(x)}{1-\pi(x)}$$
+
+Ce qui correspond à la cote d’un événement **pour une population donnée** ($X=x$), *i.e.*,  
+la probabilité que l’événement se produise par rapport à la probabilité qu’il ne se produise pas, *e.g.*, le rapport malades/non-malades chez les fumeurs.
+
+
+
+
+On définit les **odds ratio** :
+
+$$OR_{u/v} = \frac{odd(X = u)}{odd(X=v)}$$
+
+$OR$ compare les cotes de deux populations, *e.g.*, les rapports malades/non-malades des fumeurs et des non fumeurs.
+
+
+On définit le **risque relatif** :
+
+$$ RR_{u/v} = \frac{\pi(X = u)}{\pi(X=v)} = \frac{P(Y=1|X=u)}{P(Y=1|X=v)} $$
+
+$RR$ estime le risque de voir se réaliser l’évènement pour une population relativenent à une autre, *e.g.* le risque d’être malades pour les fumeurs relativement aux non fumeurs.
+
+Note : le risque relatif est plus facilement interprétrable que l’*odds ratio* et si $p$ est petit alors $\frac{p}{1-p} \simeq p$ et l’*odds ratio* est proche du risque relatif.
+
+
+**Interprétation**, $OR$ et $RR$ donnent la même indication sur la relation entre $Y$ et $X$ :
+
+1) Si $RR_{u/v}$ (ou $OR_{u/v}$) $>1$ alors il y a plus de risque de $Y=1$ si $X=u$ que si $X=v$
+2) Si $RR_{u/v}$ (ou $OR_{u/v}$) $<1$ alors il y a moins de risque de $Y=1$ si $X=u$ que si $X=v$
+3) Si $RR_{u/v}$ (ou $OR_{u/v}$) $=1$ alors $Y$ n’est pas influencée par $X=u$ vs. $X=v$ (i.e. Y indépendant des catégories $u$ et $v$ de $X$)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Exemple *les cancers pédiatriques*
+
+On s’intéresse au rôle de différents facteurs (statut tabagique et alcoolique des mères) dans la survenue de cancers pédiatriques (chez l’enfant).
+
+On dispose du tableau de  données suivantes : 
+
+
+```{r childhood_cancer}
+# tabac = matrix(c(1128, 289, 487, 133), 2)
+# tabac = matrix(c( 272,  76,  88,  47), 2)
+# tabac = matrix(c( 856, 213, 399,  86), 2)
+childhood_cancer = data.frame(do.call( rbind, list(
+  matrix(rep(c("healthy", "nosmok", "drinker"), 272), byrow=TRUE, ncol=3),
+  matrix(rep(c("healthy", "smoker", "drinker"),  76), byrow=TRUE, ncol=3),
+  matrix(rep(c("sick"   , "nosmok", "drinker"),  88), byrow=TRUE, ncol=3),
+  matrix(rep(c("sick"   , "smoker", "drinker"),  47), byrow=TRUE, ncol=3),
+  matrix(rep(c("healthy", "nosmok", "nodrink"), 856), byrow=TRUE, ncol=3),
+  matrix(rep(c("healthy", "smoker", "nodrink"), 213), byrow=TRUE, ncol=3),
+  matrix(rep(c("sick"   , "nosmok", "nodrink"), 399), byrow=TRUE, ncol=3),
+  matrix(rep(c("sick"   , "smoker", "nodrink"),  86), byrow=TRUE, ncol=3)
+)))
+set.seed(1)
+childhood_cancer = childhood_cancer[sample(1:nrow(childhood_cancer)),]
+colnames(childhood_cancer) = c("cancer", "tabac", "alcool")
+rownames(childhood_cancer) = NULL
+
+childhood_cancer$cancer = factor(childhood_cancer$cancer)
+childhood_cancer$tabac = factor(childhood_cancer$tabac)
+childhood_cancer$alcool = factor(childhood_cancer$alcool)
+d = childhood_cancer
+```
+
+```{r echo=TRUE, results="verbatim"}
+head(d)
+dim(d)
+```
+
+Ce premier tableau de contingence présente la repartition de cancers de l’enfant selon le statut tabagique des mères : 
+
+
+
+```{r results="verbatim"}
+table(d$tabac, d$cancer)
+```
+
+
+
+
+On étudie le modèle $Y \sim X_1$ avec : 
+
+  - la variable expliquée $Y$ est *la survenu d’un cancer chez l’enfant*, elle prend ses valeurs dans *healthy*, *sick* ; 
+  - la variable explicative $X_1$ *le statut tabagique*, elle prend ses valeurs dans *nosmok* et *smoker*.
+
+
+Les probabilités conditionnelles de Y sachant $X_1$ sont les suivantes : 
+
+
+\begin{eqnarray}
+\mathbb{P}(Y=\text{sick}|X_1) &=& \pi (X_1) \\
+
+\mathbb{P}(Y=\text{sick}|X_1=\text{smoker})
+  &=& \pi_\text{smoker} \\
+  &=& \frac{133}{133+289} \simeq 0.33\\
+
+\mathbb{P}(Y=\text{sick}|X_1=\text{nosmok})
+  &=& \pi_\text{nosmok} \\
+  &=& \frac{487}{1128+487} \simeq 0.33\\
+\end{eqnarray}
+
+
+Les ORs associés à $X_1$ sont les suivant : 
+
+\begin{eqnarray}
+Odds(\text{smoker})
+&=& \frac{\pi_\text{smoker}}{1-\pi_\text{smoker}} \\
+&=& \frac{\frac{133}{133+289}}{1-\frac{133}{133+289}} \\
+&=& \frac{\frac{133}{133+289}}{\frac{289}{133+289}} \\
+&=& \frac{133}{289} \simeq \frac{1}{2}\\
+\end{eqnarray}
+
+
+\begin{eqnarray}
+Odds(\text{nosmok})
+  &=& \frac{\pi_\text{nosmok}}{1-\pi_\text{nosmok}} \\
+  &=& \frac{487}{1128} \simeq \frac{1}{2}\\
+\end{eqnarray}
+
+
+\begin{eqnarray}
+OR_{\text{smoker}/\text{nosmok}}
+  &=& \frac{Odds(\text{smoker})}{Odds(\text{nosmok})}\\
+  &=& \frac{133}{289} \frac{1128}{487} =  1.07 \simeq 1\\
+\end{eqnarray}
+
+
+
+Les RRs associés à $X_1$ sont les suivant : 
+
+
+$$RR_{\text{smoker}/\text{nosmok}}  = \frac{\pi_\text{smoker}}{\pi_\text{nosmok}} \simeq  1$$
+
+
+Conclusion, on n’observe pas de risque particulier de cancers pédiatriques chez les enfants de femmes fumeuses.
+
+
+
+Représentation graphique : 
+
+```{r}
+layout(matrix(1:2, 1), respect=TRUE)
+plot(d$tabac, d$cancer, main="cancer~tabac", xlab="tabac", ylab="cancer")
+plot(jitter(as.numeric(d$tabac))-1, jitter(as.numeric(d$cancer))-1, main="cancer~tabac", xlab="tabac", ylab="cancer")
+# \mathbb{P}(Y=1|X) = logitinv(a + b.x)
+m = glm(d$cancer~d$tabac, family = binomial(logit))
+m$coefficients
+logitinv = function(x) 1/(1 + exp(-x))
+x = seq(0, 1, length.out=30)
+lines(x, logitinv(m$coefficients[[1]] + m$coefficients[[2]]*x), col=1, lwd=2)
+legend("bottomright", "Y=Pi(X)", col=1, lty=1, cex=0.6)
+```
+
+
+**Significativité**, A partir du tableau de contingence on teste si il y a un enrichissement particilier dans une sous population. Notons que la somme des difƒérences entre les effectifs théoriques (sous $H_0$) et les effectifs observés au carré chacun divisés par les effectifs théoriques suit une loi du chi2. Ce qui donne : 
+
+```{r  chi2_childhood_cancer, echo=TRUE, results="verbatim"}
+a=1128; b=487; c=289; d=133
+# a=272; b=88; c=76; d=47
+
+# tableau initial
+a
+b
+c
+d
+
+# pop totale
+tot = (a+b+c+d)
+
+# effectifs marginaux
+(a+c)
+(b+d)
+(a+b)
+(c+d)
+
+# proportions marginales
+(a+c) / tot
+(b+d) / tot
+(a+b) / tot
+(c+d) / tot
+
+# effectifs théoriques
+a_th = tot * ((a+c) / tot) * ((a+b) / tot)
+b_th = tot * ((b+d) / tot) * ((a+b) / tot)
+c_th = tot * ((a+c) / tot) * ((c+d) / tot)
+d_th = tot * ((b+d) / tot) * ((c+d) / tot)
+
+a_th
+b_th
+c_th
+d_th
+
+# stat du chi2
+t = (a_th - a)^2 / a_th +
+(b_th - b)^2 / b_th +
+(c_th - c)^2 / c_th +
+(d_th - d)^2 / d_th 
+t
+
+1-pchisq(t,1)
+pchisq(t,1, lower.tail=FALSE)
+
+chisq.test(matrix(c(a,b,c,d),2,2, byrow=TRUE), correct=FALSE)
+```
+
+
+
+
+**Exercice** 
+
+Ce second tableau de contingence présente la repartition de cancers de l’enfant selon le statut tabagique chez des mères **ayant bu de l’alcool pendant la grossesse** : 
+
+```{r results="verbatim"}
+d = childhood_cancer
+d2 = d[d$alcool%in%"drinker",]
+table(d2$tabac, d2$cancer)
+```
+
+Réalisez la même étude sur ces données.
+
+[correction_canped1.R ](./correction_canped1.R)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Variable de Bernoulli
+
+Considérons un premier modèle $\mathcal{M}_1$ dans lequel $\pi(x)=p$ est une constante, indépendante de $X$ : 
+
+$$\mathbb{E}(Y|X) = \mathbb{P}(Y=1|X) = \mathbb{P}(Y=1) = p$$
+
+$Y$ est donc une variable aléatoire qui suit la loi de Bernoulli de paramètre $p$.
+
+$Y$ est telle que :
+ 
+$$\left  \lbrace
+\begin{array}{l}
+\mathbb{P}(Y=1)=p   \\
+\mathbb{P}(Y=0)=1-p 
+\end{array}
+\right.$$
+ 
+ 
+
+résumé par :
+
+$$\mathbb{P}(Y=k)=p^k(1-p)^{1-k}, k \in \{0,1\}$$ 
+
+**Note** : 
+
+  - $p$ est estimé par la proportion de 1 dans les observations. 
+  - ce premier modèle correspond au **modèle nul**, il modèlise parfaitement le cas ou $Y$ ne dépend pas de $X$.
+
+
+---
+
+Considérons $X$ une variable explicative **qualitative** et un second modèle $\mathcal{M}_2$ dans lequel $\pi(x)$ est la proportion de 1 dans la sous population $X=x$ : 
+
+$$\mathbb{E}(Y|X) = \mathbb{P}(Y=1|X=x) = \pi(x) $$
+
+$Y$ est donc une variable aléatoire qui suit la loi de Bernoulli de paramètre $\pi(x)$.
+
+$$\mathbb{P}(Y=k|X=x)=\pi(x)^k(1-\pi(x))^{1-k}, k \in \{0,1\}$$ 
+
+
+
+
+
+
+
+
+
+
+### Vraisemblance
+
+**Définition** : Probabilité d’observer les évènements $y_i$ en considérant le modèle $\mathcal{M}$
+
+**Important** : la vraisemblance dépend
+
+  - des observations $(x_i, y_i)$
+  - du modèle $\mathcal{M}$
+
+  $$\mathcal{L}_{\mathcal{M},(x_i, y_i)} = \prod_{i \in I} \mathbb{P} (y_i|x_i, \mathcal{M})$$
+
+
+**Contribution des observations** : 
+
+Pour l’observation $i$, la contribution à la vraisemblance est donc (Bernoulli) : 
+
+$$l(x_i, y_i) = \mathbb{P}(y_i = 1|x_i)^{y_i} (1-\mathbb{P}(y_i=1|x_i))^{1-y_i} = \pi(x_i)^{y_i}(1-\pi(x_i))^{1-y_i} $$
+
+si $y_i = 1$ : 
+\begin{eqnarray}
+l(x_i, 1) &=& \mathbb{P}(y_i = 1|x_i)^1 (1-\mathbb{P}(y_i=1|x_i))^0 &=& \pi(x_i)^1 (1-\pi(x_i))^0 \\
+&=& \mathbb{P}(y_i = 1|x_i) 1 &=& \pi(x_i) 1 \\
+&=& \mathbb{P}(y_i = 1|x_i) &=& \pi(x_i) \\
+\end{eqnarray}
+
+si $y_i = 0$ : 
+\begin{eqnarray}
+l(x_i, 0) &=& \mathbb{P}(y_i = 1|x_i)^0 (1-\mathbb{P}(y_i=1|x_i))^1 &=& \pi(x_i)^0(1-\pi(x_i))^1 \\
+&=& 1 (1-\mathbb{P}(y_i=1|x_i)) &=& 1 (1-\pi(x_i)) \\ 
+&=& 1-\mathbb{P}(y_i=1|x_i) &=& 1-\pi(x_i) \\ 
+\end{eqnarray}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Test du rapport de vraisemblance
+
+L’objet du test est de **comparer 2 modèles emboités**.
+
+$\mathcal{M}_1$ est un modèle emboité dans $\mathcal{M}_2$, *i.e.*, toutes les variables de $\mathcal{M}_1$ sont dans $\mathcal{M}_2$.
+$\mathcal{M}_2$ comprend 1 variables explicatives supplémentaires par rapport à $\mathcal{M}_1$. 
+Soit $\mathcal{L}_1$ la valeur de vraisemblance de $\mathcal{M}_1$ et $\mathcal{L}_2$ la valeur de vraisemblance de $\mathcal{M}_2$. 
+
+**Hypothèses**
+
+$$\left  \lbrace
+\begin{array}{l}
+H_0 : \text{La variable explicative supplémentaire de $\mathcal{M}_2$  ne contribue pas significativement à expliquer $Y$ }\\
+H_1 : \text{La variable explicative supplémentaire de $\mathcal{M}_2$  contribue significativement à expliquer $Y$}
+\end{array}
+\right.$$
+
+
+
+
+**Statistique de test**
+
+Sous H_0 : 
+
+$$\mathcal{T} = -2(log(\mathcal{L}_1) - log(\mathcal{L}_2)) \sim \mathcal{X}^2_1$$
+
+**Conclusion**
+
+On rejette $H_0$ au seuil $\alpha$ si $T>z^1_{1-\alpha}$ avec $z^1_{1-\alpha}$ le quantile de niveau $(1-\alpha)$ de la loi de $\mathcal{X}^2$ à $1$ ddl.
+
+
+
+**Remarques**
+
+  - $D_1= - 2 log(\mathcal{L}_1)$ est appelé la déviance pour $\mathcal{M}_1$.
+  - Il faut que ces modèles soient appliquées aux même observations, attention aux valeurs manquantes
+  
+
+
+
+**Exercice**
+
+1. Calculer la vraisemblance du modéle nul pour le premier jeu de données des cancers pédiatriques.
+2. Calculer la vraisemblance du modéle tenant compet du statut tabac des mères pour le premier jeu de données des cancers pédiatriques.
+3. Réaliser le test de rapport ce vraisemblance à partir des deux valeurs précédemment calculées.
+4. Calculer la vraisemblance du modéle nul pour le second jeu de données des cancers pédiatriques.
+5. Calculer la vraisemblance du modéle tenant compet du statut tabac des mères pour le second jeu de données des cancers pédiatriques.
+6. Réaliser le test de rapport ce vraisemblance à partir des deux valeurs précédemment calculées.
+
+
+
+```{r, echo=TRUE, results="verbatim"}
+a=1128; b=487; c=289; d=133
+# a=272; b=88; c=76; d=47
+
+# M1
+p = (b+d) / (a+c+b+d)  
+p
+l1 = p^(b+d) *  (1-p)^(a+c)
+l1
+# log(a*b) = log(a) + log(b)
+# log(a^2) = log(a*a) = log(a) + log(a) = 2*log(a)
+ll1 = (b+d) * log(p) + (a+c) * log(1-p)
+ll1 
+log(l1)
+  
+# M2
+p_nos = b / (a + b)
+p_nos
+p_smo = d / (c + d)
+p_smo
+l2 = p_smo^d * (1-p_smo)^c * p_nos^b * (1-p_nos)^a
+l2
+ll2 = d*log(p_smo) + c*log(1-p_smo) + b*log(p_nos) + a*log(1- p_nos) 
+ll2
+log(l2)
+
+# Test
+T = -2 * (ll1 - ll2)
+T
+```
+
+
+
+```{r, echo = TRUE, results = "verbatim"}
+d = childhood_cancer
+d2 = d[d$alcool%in%"drinker",]
+
+# Autre maniére de faire le test de rapport de vraisemblance
+m1 = glm(d$cancer~1, family = binomial(logit))
+m2 = glm(d$cancer~d$tabac, family = binomial(logit))
+anova(m1, m2, test="Chisq")
+
+# Ecriture des modèles avec la fonction glm
+m = glm(d$cancer~d$tabac, family = binomial(logit))
+summary(m)
+
+m = glm(d2$cancer~d2$tabac, family = binomial(logit))
+summary(m)
+
+m = glm(d$cancer~d$tabac + d$alcool, family = binomial(logit))
+summary(m)
+
+m = glm(d$cancer~d$tabac * d$alcool, family = binomial(logit))
+summary(m)
+```
+
+
+
+
+
+

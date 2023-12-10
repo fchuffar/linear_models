@@ -1,0 +1,200 @@
+## Tests statistiques
+
+Il existe 2 approches :
+
+1. Test de Wald
+2. Test du rapport de vraisemblance (pour modèles emboités)
+
+
+
+
+### Test de Wald 
+
+
+
+Soit $\mathcal{M}_1$ un modèle comprenant $n$ variables explicatives.
+
+$$logit(\mathbb{P}(Y=1|X) = \beta_0 + \beta_1 X_1 + ... + \beta_k X_k + ... + \beta_n X_n$$
+
+L’objet du test est d’évaluer la  **significativité du paramêtre $\beta_k$**
+
+Le test est fonde sur la normalité asymptotique des coefficients [Ricco Rakotomalala 11.2020](http://eric.univ-lyon2.fr/~ricco/cours/slides/regression_logistique.pdf)
+
+**Hypothèses**
+
+$$\left  \lbrace
+\begin{array}{l}
+H_0 : \beta_k = 0 \\
+H_1 : \beta_{k} \neq 0 
+\end{array}
+\right.$$
+
+**Statistiques de test**
+
+Sous H_0 : 
+ 
+$$\mathcal{T} = \frac{\widehat\beta^2}{\widehat\Sigma} \sim \mathcal{X}^2_p$$
+
+
+avec $p$ le nombre de niveaux du facteur k testé moins 1 ; 
+
+mais aussi :
+
+$$\mathcal{U} = \frac{\widehat\beta}{\sqrt{\widehat\Sigma}} \sim \mathcal{N}(0,1)$$
+
+(z-score).
+
+
+**Conclusion**
+
+
+
+On rejette $H_0$ au seuil $\alpha$ 
+
+  - si $\mathcal{T}>z^p_{1-\alpha}$ avec $z^p_{1-\alpha}$ le quantile de niveau $(1-\alpha)$ de la loi de $\mathcal{X}^2$ à $p$ ddl.
+
+  - ou si $| \mathcal{U} | > u_{1-\alpha/2}$ le quantile de niveau $(1-\alpha/2)$ de la loi de $\mathcal{N}(0,1)$  
+
+
+  
+**Exemple**
+
+
+```{r echo=TRUE, results="verbatim"}
+d = MASS::cats
+m1 = glm(Sex~Bwt, d, family = binomial(logit))
+m1$coefficients
+summary(m1)$coefficient
+z = summary(m1)$coefficient[2,3]
+t = z^2
+1-pchisq(t,1)
+2*(1-pnorm(z))
+
+m2 = glm(Sex~Bwt+Hwt, d, family = binomial(logit))
+m2$coefficients
+summary(m2)$coefficient
+```
+
+```{r}
+layout(matrix(1:2,1), respect=TRUE)
+x = seq(0.1, 36, length.out=50)
+plot(x, dchisq(x, 1), type="l", main=paste0("T, t=", signif(t,3), ", pval=", signif(1-pchisq(t,1),3)))
+abline(v=t, lty=2, col="grey")
+x = seq(-6,6, length.out=50)
+plot(x, dnorm(x), type="l", main=paste0("U, z=", signif(z,3), ", pval=", signif(2*(1-pnorm(z)),3)))
+abline(v=c(-z,z), lty=2, col="grey")
+```
+
+```{r, eval=FALSE}
+d = MASS::cats
+m1 = glm(Sex~Bwt, d, family = binomial(logit))
+m1$coefficients
+summary(m1)$coefficient
+
+# log(P/(1-P)) = B X
+# P/(1-P) = e ^ B X avec 1-P = Q
+# (1-Q)/Q = e^B X
+# 1/Q - 1 = e^B X
+# log(P/(1-P)) = B X
+
+# log(odds) = B X
+
+
+x = seq(1, 4, length.out=50)
+plot(x, (m1$coefficient[1] + x*m1$coefficient[2]))
+plot(x, exp((m1$coefficient[1] + x*m1$coefficient[2])))
+
+
+# log(P) - log(1-P) = B.X
+
+B = m1$coefficients[2]
+B*d$Bwt
+
+plot(B*d$Bwt)
+y = as.numeric(d$Sex) - 1
+log(y) - log(1-y)
+
+#Wald test for Bwt effect
+summary(m1)$coefficient[2,4]
+#Wald test for Hwt effect
+summary(m1)$coefficient[3,4]
+library(aod)
+varEst = summary(m1)$cov.unscaled
+Est = summary(m1)$coefficient[,1]
+Est
+#wald test for age
+wald.test(Sigma = varEst, b = Est , Terms = 4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Test du rapport de vraisemblance
+
+L’objet du test est de **comparer 2 modèles emboités**.
+
+Soit $\mathcal{M}_1$ un modèle emboité dans $\mathcal{M}_2$, *i.e.*, toutes les variables de $\mathcal{M}_1$ sont dans $\mathcal{M}_2$.
+$\mathcal{M}_2$ comprend $p$ variables explicatives supplémentaires par rapport à $\mathcal{M}_1$. 
+Soit $\mathcal{L}_1$ la valeur de vraisemblance de $\mathcal{M}_1$ et $\mathcal{L}_2$ la valeur de vraisemblance de $\mathcal{M}_2$. 
+
+**Hypothèses**
+
+$$\left  \lbrace
+\begin{array}{l}
+H_0 : \beta_{n-p+1} = \beta_{...} = \beta_{n} = 0 \\
+H_1 : \exists k \in \{n-p+1, ..., n \} \text{ tel que } \beta_{k} \neq 0 
+\end{array}
+\right.$$
+
+**Statistique de test**
+
+Sous H_0 : 
+
+$$\mathcal{T} = -2(log(\mathcal{L}_1) - log(\mathcal{L}_2)) \sim \mathcal{X}^2_p$$
+
+**Conclusion**
+
+On rejette $H_0$ au seuil $\alpha$ si $T>z^p_{1-\alpha}$ avec $z^p_{1-\alpha}$ le quantile de niveau $(1-\alpha)$ de la loi de $\mathcal{X}^2$ à $p$ ddl.
+
+
+
+**Remarques**
+
+  - $D_1= - 2 log(\mathcal{L}_1)$ est appelé la déviance pour $\mathcal{M}_1$.
+  - Il faut que ces modèles soient appliquées aux même observations, attention aux valeurs manquantes
+  - Rejeter $H_0$ veut dire que les $p$ variables explicatives au model $\mathcal{M}_1$ contribuent de manière significatif à expliquer des données.
+  
+**Exemple**
+
+$$\left  \lbrace
+\begin{array}{l}
+H_0 : \beta_{Hwt} = 0 \\
+H_1 : \beta_{Hwt} \neq 0 
+\end{array}
+\right.$$
+
+```{r echo=TRUE, results="verbatim"}
+anova(m1, m2, test="Chisq")
+```
+
+
+
+
+
+
+

@@ -1,0 +1,386 @@
+# Introduction à la régression de Poisson
+
+On cherche une relation entre une variable **dénombrée** $y$ (observée, à expliquer, à prédire) et un ensemble de variables explicatives $X$ (quantitatives ou qualitatives). 
+
+$$y \sim X$$
+
+Exemples de variables dénombrées à expliquer / prédir : 
+  
+  - Les données de comptage
+  - le nombre d’observations d’un événement dans une unité d’échantillonnage définie.
+  - le nombre de paquets transitant dans une unité de routage par unité de temps. 
+
+## Propriétés des données de comptage
+  
+On pose $y$ la variable dénombrée à expliquer, $X$ la variable explicative.
+
+$y$ prends ses valeurs dans les nombres discrets $\geq$ 0; on peut avoir 0, 1, 2, . . . observations, mais pas -1 ou 1.5.
+
+La distribution de $y$ est assymétrique pour des petites valeurs de comptage.
+
+La variance de $y$ augmente avec sa moyenne.
+
+Modélisation par une loi de Poisson.
+
+## La Loi de Poisson
+
+$y$ représente le nombre d’observations d’un événement dans une unité d’échantillonnage définie.
+
+Hypothèse, les observations sont indépendantes.
+
+$y$ suit une loi de poisson de paramètre $\lambda$ le nombre moyen d’observations d’un événement dans une unité d’échantillonnage définie.
+
+événement
+$$\mathbb{P}(y | \lambda) = \frac{\lambda^y}{y!} e ^{-\lambda}$$
+
+
+
+```{r echo="TRUE", results="verbatim"}
+layout(matrix(1:2, 1), respect=TRUE)
+y = seq(0, 10, length.out=100)
+l=0
+l=1
+plot(y, l^y/factorial(y) * exp(-l), type="l", col=1, ylab="P(y|l)", xlab="y")
+l=3
+lines(y, l^y/factorial(y) * exp(-l), type="l", col=2)
+l=8
+lines(y, l^y/factorial(y) * exp(-l), type="l", col=4)
+y = seq(0, 25, length.out=100)
+lines(0:10, dpois(0:10, l), type="l", lty=3, col=1)
+legend("topright", c("l=1", "l=3", "l=8"), col=c(1, 2, 4), lty=1, cex=0.6)
+```
+
+## Exemple de données de comptage
+
+### `socks_sim`
+
+`socks_sim` est un simulateur de chaussettes que l’on lance dans des boites.
+
+Plus pragmatiquement : 
+
+  - on tire aléatoirement des valeurs dans l’intervalle $[0, 1]$ (chausettes) ;
+  - on les affecte aux éléments d’une partition homogène de l’intervalle $[0, 1]$ (boites) ; 
+  - on s’intéresse à $y$ le nombre de chaussettes dénombrées dans chaque boite.
+
+```{r echo="TRUE", results="verbatim", fig.height=3}
+socks_sim = function(n_socks=100, n_boxes=10, box_bounds, cofact) {
+  if (missing(box_bounds)) {
+    box_bounds = seq(0,1,length.out=n_boxes+1)  
+  } else {
+    n_boxes = length(box_bounds) - 1
+  }
+  set.seed(1)
+  socks = runif(n_socks)
+  y = table(cut(socks, breaks=box_bounds, include.lowest=TRUE))
+  lambda = n_socks / n_boxes
+  d = data.frame(y=y)
+  colnames(d) = c("box", "y")
+  if (!missing(cofact)) {
+    d[[names(cofact)[[1]]]] = cofact[[1]]
+  }
+  return(list(socks=socks, box_bounds=box_bounds, d=d))
+}
+
+sim_null = sim = socks_sim()
+
+plot_sim = function(sim, DETAILS=0) {
+  if (!DETAILS<0) {
+    layout(matrix(1:3, 1), respect=TRUE)
+    plot(sim$socks, 1:length(sim$socks), yaxt="n", xlab="", ylab="", las=2)
+    abline(v=sim$box_bounds)
+    legend("topright", c("socks", "box bounds"), pch=c(1,NA), lty=c(0,1))
+    y = sim$d$y
+    names(y) = sim$d$box
+    barplot(y, las=2, ylab="#socks")
+  }
+  if (!DETAILS>0) {
+    lambda = length(sim$socks) / length(sim$box_bounds[-1])
+    x = floor(lambda-3*sqrt(lambda)):ceiling(lambda+3*sqrt(lambda))
+    plot(x, dnorm(x, lambda, sqrt(lambda)), type="l", xlab="y", lty=3, col=4, main=paste0("lambda=", lambda))
+    lines(density(sim$d$y), main=paste0("lambda=", lambda), lwd=3, col="grey")
+    lines(x, dpois(x, lambda), type="l", xlab="y", lty=2, col=2)
+    legend("topright", c("sim", "dpois", "dnorm"), col=c("grey", "red", "blue"), lty=1:3, lwd=c(3, 1, 1))    
+  }
+}
+
+plot_sim(sim_null)
+```
+
+
+### Influence de lambda
+
+Si on augmente le nombre d’observations, on estime mieux la distributioin de $y$.
+
+$y$ suit une loi de Poisson de paramètre $\lambda$ la moyenne du nombre de chausettes par boite.
+
+Si $\lambda$ est suffisament grand la distribution de $y$ peut-être estimée par une loi normale de paramètre $\mu=\lambda$ et $\sigma = \sqrt\lambda$
+
+Si $\lambda$ est petit, la distribution de $y$ devient assymétrique ($\in \mathbb{R}^+$) et son estimation par une loi normale devient problématique.
+
+
+```{r echo=TRUE, fig.height=3}
+layout(matrix(1:3, 1), respect=TRUE)
+plot_sim(socks_sim(n_socks=10000 , n_boxes=1000), -1)
+plot_sim(socks_sim(n_socks=100000, n_boxes=1000), -1)
+plot_sim(socks_sim(n_socks=2000  , n_boxes=1000), -1)
+```
+
+### Introduction d'un cofacteur qualitatif
+
+On introduit deux types de boites : les petites (*S*) et les grandes (*L*).
+
+On s’interroge sur l’effet du type de la boite sur le nombre de chausettes qu’elle contient, toutes choses étant égales pat ailleurs. 
+
+$$y \sim box\_type$$
+
+```{r echo=TRUE, fig.height=3}
+box_bounds = c(seq(0,0.15,length.out=6), seq(0.15,1,length.out=6)[-1])
+cofact = list(box_type=rep(c("S", "L"), each=5))
+sim_sl = socks_sim(box_bounds=box_bounds, cofact=cofact)
+plot_sim(sim_sl, 1)
+boxplot(y~box_type, sim_sl$d, ylab="y", main="y~box_type")
+```
+
+**Test de Student**
+
+
+Intuitivement, on peut tenter de faire un test de Student sur le modèle $y \sim box\_type$, 
+
+mais on précise plus haut que *la variance de $y$ augmente avec sa moyenne*, on risque donc de ne pas vérifier l’hypothèse d’homoscedasticité.
+
+```{r echo="TRUE", results="verbatim"}
+sim_sl$d
+m = lm(y~box_type, sim_sl$d)
+summary(m)
+shapiro.test(m$residuals)
+bartlett.test(y~box_type, sim_sl$d)
+wilcox.test(y~box_type, sim_sl$d)
+```
+
+**Test du rapport de vraisemblance**
+
+
+Les modèles $\mathcal{M}_1 = y \sim 1$ et $\mathcal{M}_2 = y \sim \text{box_type}$ sont emboités, comme vu pour le modèle de regression logistique, on peut tester le rapport de vraisemblance. On tiendra compte ici du fait que $y$ suit une loi de Poisson.
+
+Soit $\mathcal{L}_1$ la valeur de vraisemblance de $\mathcal{M}_1$ et $\mathcal{L}_2$ la valeur de vraisemblance de $\mathcal{M}_2$.
+
+*Hypothèses*
+
+$$\left  \lbrace
+\begin{array}{l}
+H_0 : \text{La variable $box\_type$ de $\mathcal{M}_2$ ne contribue pas significativement à expliquer $y$ }\\
+H_1 : \text{La variable $box\_type$ de $\mathcal{M}_2$ contribue significativement à expliquer $y$}
+\end{array}
+\right.$$
+
+
+*Statistique de test*
+
+Sous H_0 : 
+
+$$\mathcal{T} = -2(log(\mathcal{L}_1) - log(\mathcal{L}_2)) \sim \mathcal{X}^2_1$$
+
+*Conclusion*
+
+On rejette $H_0$ au seuil $\alpha$ si $T>z^1_{1-\alpha}$ avec $z^1_{1-\alpha}$ le quantile de niveau $(1-\alpha)$ de la loi de $\mathcal{X}^2$ à $1$ ddl : 
+la variable $box\_type$ de $\mathcal{M}_2$ contribue significativement à expliquer $y$.
+
+
+```{r echo="TRUE", results="verbatim"}
+# M1
+lambda = mean(sim_sl$d$y)
+lambda
+l1 = prod(dpois(sim_sl$d$y,lambda))
+l1
+ll1 = sum(log(dpois(sim_sl$d$y,lambda)))
+ll1 
+log(l1)
+  
+# M2
+lambda_S = mean(sim_sl$d$y[1:5])
+lambda_S
+lambda_L = mean(sim_sl$d$y[6:10])
+lambda_L
+l2 = prod(dpois(sim_sl$d$y[1:5],lambda_S)) * prod(dpois(sim_sl$d$y[6:10],lambda_L))
+l2
+ll2 = sum(log(dpois(sim_sl$d$y[1:5],lambda_S))) + sum(log(dpois(sim_sl$d$y[6:10],lambda_L)))
+ll2 
+log(l2)
+
+# Test
+T = -2 * (ll1 - ll2)
+1- pchisq(T,1)
+pchisq(T, 1, lower.tail=FALSE)
+
+m1 = glm(y ~ 1, sim_sl$d, family=poisson(link="log"))
+m2 = glm(y ~ box_type, sim_sl$d, family=poisson(link="log"))
+anova(m1, m2, test="Chisq")
+anova(m1, m2, test="Chisq")[2,5]
+```
+
+
+
+
+
+### Introduction d'un cofacteur quantitatif
+
+On fait varier la taille des boites de manière aléatoire.
+
+On s’interroge sur l’effet de la taille de la boite sur le nombre de chausettes qu’elle contient, toutes choses étant égales par ailleurs. 
+
+$$y \sim box\_size$$
+
+```{r echo=TRUE, fig.height=3}
+set.seed(1)
+box_bounds = c(0, sort(runif(9)), 1)
+cofact=list(box_size=box_bounds[-1] - box_bounds[-length(box_bounds)])
+sim_size = socks_sim(box_bounds=box_bounds, cofact=cofact)
+plot_sim(sim_size, 1)
+plot(y~box_size, sim_size$d, ylab="y", main="y~box_size")
+```
+
+
+
+
+**Regression linéaire**
+
+On est tenté de de modéliser $y \sim ~ box\_size$ par un modèle de regression linéaire, mais la encore la variance de $y$ qui augmente avec sa moyenne.
+
+De plus, un tel modèle prédira des nombres de chausettes négatifs pour les boites suffisamment petite.
+
+```{r echo="TRUE", results="verbatim"}
+layout(1, respect=TRUE)
+m = lm(y~box_size, sim_size$d)
+summary(m)
+plot(y~box_size, sim_size$d, ylab="y", main="y~box_size")
+abline(m, col=2)
+predict(m, data.frame(box_size=0.1))
+predict(m, data.frame(box_size=0.001))
+predict(m, data.frame(box_size=0))
+```
+
+
+## Regression de Poisson
+
+La regression de Poisson est un modèle linéaire généralisé où la réponse $y$ suit une distribution de Poisson : 
+
+$$y \sim \text{Pois}(\lambda)$$
+
+
+La fonction de lien est le logarithme ainsi :
+
+$$log(y)= \beta x = \beta_0 + \beta_1 x$$
+
+$$y= e^{\beta x} = e^{\beta_0} * e^{\beta_1 x}$$
+
+
+Pourquoi le log ? Parce-qu’il à de bonnes **proriétés** : 
+
+\begin{eqnarray}
+\text{log: } ]0,+\infty[ &\rightarrow& \mathbb{R}   &\qquad& \lim_{y\to0} log(y) &=& -\infty  \hspace{12cm}\\
+                   y &\rightarrow& log(y)     &\qquad& \lim_{y\to+\infty} log(y) &=& +\infty  \hspace{12cm}\\
+\end{eqnarray}
+
+\begin{eqnarray}
+\hspace{8cm} \text{log$^{-1}$: } \mathbb{R} &\rightarrow& ]0,+\infty[            &\qquad& \lim_{x\to-\infty} log^{-1}(x) &=& 0\\
+\hspace{8cm}                                x &\rightarrow& log^{-1}(x)=exp(x)=e^x=y &\qquad& \lim_{x\to+\infty} log^{-1}(x) &=& +\infty\\
+\end{eqnarray}
+
+```{r}
+layout(matrix(1:2, 1), respect=TRUE)
+lambda = 0:100/10
+plot(lambda, log(lambda), main="log", type="l")
+x = seq(-4, 4,  length.out=100)
+plot(x, exp(x), main="log^-1 = exp", type="l")
+lines(x, exp(1 + x), col=2, lty=2)
+lines(x, exp(x * 2), col=4, lty=2)
+legend("topleft", c("exp(x)", "exp(1 + x)", "exp(x * 2)"), col=c(1,2,4), lty=c(1,2,2))
+```
+
+
+
+
+
+
+
+
+
+### Le cas de notre variable quantitatif `box_size`
+
+
+
+
+
+
+```{r echo="TRUE", results="verbatim"}
+m_size = glm(y ~ log(box_size), sim_size$d, family=poisson(link="log"))
+summary(m_size)
+exp(m_size$coefficients[[1]])
+exp(m_size$coefficients[[2]])
+exp(m_size$coefficients[[1]]) * exp(m_size$coefficients[[2]]*log(0.1))
+predict(m_size, data.frame(box_size=0.1), type="response")
+predict(m_size, data.frame(box_size=0.001), type="response")
+predict(m_size, data.frame(box_size=0), type="response")
+
+layout(matrix(1:2, 1), respect=TRUE)
+ypred = predict(m_size, data.frame(box_size=sim_size$d$box_size), type="response")
+plot(sim_size$d$box_size, sim_size$d$y, xlab="box_size", ylab="y")
+points(sim_size$d$box_size, ypred, col=2)
+legend("topleft", c("y_obs", "y_pred"), col=1:2, pch=1)
+
+plot(sim_size$d$box_size, sim_size$d$y, xlab="box_size", ylab="y", log="x")
+points(sim_size$d$box_size, ypred, col=2)
+legend("topleft", c("y_obs", "y_pred"), col=1:2, pch=1)
+
+```
+
+
+
+### Le cas des modèles précédemment vus
+
+
+```{r echo="TRUE", results="verbatim"}
+m_null = glm(y ~ 1, sim_null$d, family=poisson(link="log"))
+summary(m_null)
+exp(m_null$coefficients[[1]])
+
+m_sl = glm(y ~ box_type, sim_sl$d, family=poisson(link="log"))
+summary(m_sl)
+exp(m_sl$coefficients[[1]])
+exp(m_sl$coefficients[[2]])
+exp(m_sl$coefficients[[1]]) * exp(m_sl$coefficients[[2]])
+exp(m_sl$coefficients[[1]]) / exp(m_sl$coefficients[[2]])
+lambda_L
+lambda_S
+```
+
+
+
+## TP `InsectSprays`
+
+Les données *InsectSprays* décrivent 72 parcelles agricoles par le nombre d’insectes qu’elles contiennent (variable à expliquer, *count*) et le type d’insecticide auquel elles ont été exposées (variable explicative, *spray*).
+
+
+```{r results="verbatim", echo=TRUE}
+data("InsectSprays")
+d = InsectSprays
+head(d)
+dim(d)
+table(d$spray)
+layout(matrix(1:2, 1, byrow=TRUE), respect=TRUE)
+p = plot(d$spray, d$count, main="count~spray", xlab="spray", ylab="count", border="grey")
+points(jitter(as.numeric(d$spray)), d$count)
+```
+
+0. La variance est-elle homogène à travers chacun des groupes d’observations (par spray) ?
+
+1. Réaliser un modéle quantifiant l’impacte de la covariable `spray` sur la quantité d’insectes dénombrée par parcelle (`count`).
+
+2. Interpréter les résultats du modèle.
+ 
+3. Caculer les effets de chacun des sprays à partir du modèle, 
+
+4. Reporter ces effets sur le graphique initial.
+
+
+[correction_insectspray_glm.html](./correction_insectspray_glm.html)

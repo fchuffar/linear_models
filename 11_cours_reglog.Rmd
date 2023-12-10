@@ -1,0 +1,261 @@
+## Le cas d'une covariable quantitative
+
+
+On considère dans cette section une relation entre une variable binaire $Y$  et une variables explicatives $X$ quantitatives et on cherche à modéliser :
+
+$$Y \sim X$$
+
+
+$$\mathbb{E}(Y|X) = \mathbb{P}(Y=1|X=x) = \pi (x)$$
+
+
+
+```{r}
+d = MASS::cats
+layout(1, respect=TRUE)
+s = as.numeric(d$Sex) - 1
+plot(d$Bwt, jitter(s, factor=.1), main="Sex~Bwt", xlab="Bwt", ylab="Sex", ylim=c(-.1,1.1))
+d$Sex
+
+```
+
+
+### Modèles linéaires (rappel) 
+
+$Y$ est expliquée (modélisée) par  les variables explicatives $X= (X_1,X_2,...,X_p)$.
+
+Si $p=1$, c’est une fonction affine de X.
+
+$Y$ est quantitative, $X$ peut être quantitative (regression lineaire) ou qualitative (ANOVA).
+ 
+Modèle est noté : 
+
+$$\mathbb{E}(Y)  = \beta X = \beta_0 + \beta_1X_1 + ... + \beta_pX_p$$
+
+avec $\beta=(\beta_0, \beta_1, ..., \beta_p)$ estimé par les moindres carrées :
+
+$$\beta = argmin(\sum_{i=1}^{n} {(y_i - \beta_0 - \beta_1x_{1,i} - ... - \beta_px_{p,i})^2})$$ 
+
+La valeur ajustée pour l’individu $i$ est noté :
+$\widehat y_i  = \beta X_i = \beta_0 + \beta_1 X_{1,i} + ... + \beta_pX_{p,i}$, 
+ainsi : 
+
+$$\beta = argmin(\sum_{i=1}^{n} {(y_i - \widehat y_i)^2})$$ 
+
+
+Les résidus sont notés  $e_i = y_i -\widehat{y}_i$, soit : 
+
+$$\beta = argmin(\sum_{i=1}^{n} {e_i^2})$$ 
+
+
+Le pourcentage de variance (somme des carrés de la régression sur somme des carrés totaux) expliquée est noté :
+$$R^2 = \frac{\sum_{i}{(\widehat{y}_i -\overline{y}_i)^2 }}{\sum_{i=1}^{n}{(y_i -\overline{y}_i)^2}} = \frac{\sum_{i}{(y_i -\overline{y}_i)^2 - e_i^2}}{\sum_{i=1}^{n}{(y_i -\overline{y}_i)^2}}$$
+
+
+
+
+
+```{r message=FALSE, warning=FALSE}
+d = MASS::cats
+m = lm(Bwt~Hwt, d)
+layout(matrix(1:2, 1), respect=TRUE)
+plot(
+  m$model$Hwt, m$model$Bwt,
+  ylab="Body weight (Bwt)", xlab="Heart weight (Hwt)",
+  main="Regression lineaire (Bwt~Hwt)"
+)
+abline(m, col=2)
+arrows(d$Hwt, d$Bwt, d$Hwt, d$Bwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
+
+i = which(d$Hwt==17.2)
+points(m$model[i,]$Hwt, m$model[i,]$Bwt,  pch=16)
+points(m$model[i,]$Hwt, d[i,]$Bwt-m$residuals[i],  pch=16)
+arrows(d[i,]$Hwt, d[i,]$Bwt, d[i,]$Hwt, d[i,]$Bwt-m$residuals[i], col=4, lwd=2, length=0.1)
+text(m$model[i,]$Hwt, m$model[i,]$Bwt, "yi", pos=1, cex=1.3)
+text(m$model[i,]$Hwt, d[i,]$Bwt-m$residuals[i]/2,  "ei", pos=4, cex=1.3)
+text(m$model[i,]$Hwt, d[i,]$Bwt-m$residuals[i],  "^yi", pos=3, cex=1.3)
+legend("bottomright",c("regression line", "residuals"), col=c(2,4), lty=1, cex=.8)
+
+
+boxplot(Bwt~Sex, d, main="ANOVA (Bwt~Sex)", xlab="Sex", ylab="Bwt", outline=FALSE, ylim=range(d$Bwt))
+m = lm(Bwt~Sex, d)
+m$coefficients
+abline(h=m$coefficients[[1]] + m$coefficients[[2]], col=2)
+abline(h=m$coefficients[[1]], col=2, lty=2)
+
+x = jitter(as.numeric(d$Sex), 1.5)
+points(x, d$Bwt)
+arrows(x, d$Bwt, x, d$Bwt-m$residuals, col=adjustcolor(4, alpha.f=0.5), length=0.1)
+legend("topleft",c("b_0", "b_0+b_1", "residuals"), col=c(2,2,4), lty=c(2,1,1), cex=.8)
+
+# t.test
+# 1 null hypothesis
+# H_0: p_h==_f
+# H_1: p_h!=p_f
+# 2 risk
+# alpha = 5%
+# 3 test hypothesis
+# residuals~N?
+shapiro.test(d[d$Sex=="F",]$Bwt)
+shapiro.test(d[d$Sex=="M",]$Bwt)
+# -> OK
+# 4 t.test
+t.test(d[d$Sex=="F",]$Bwt, d[d$Sex=="M",]$Bwt)
+anova(m)
+# 5 conclusion
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Tentative avec la regression linéaire
+
+
+Considérons un second modèle dans lequel $\pi(x) = \beta_0 + \beta_1 x$ :
+
+$$\mathbb{P}(Y=1|x)=\pi (x) = \beta_0 + \beta_1 x$$
+
+Problème $\pi(x)$ prends des valeurs négatives et des valeurs supérieur à 1
+
+```{r}
+d = MASS::cats
+
+layout(1, respect=TRUE)
+s = as.numeric(d$Sex) - 1
+plot(d$Bwt, s, main="Regression linéaire (Sex~Bwt)", xlab="Bwt", ylab="Sex", ylim=c(0,1.5))
+m = lm(s~d$Bwt)
+abline(m, col=2, lwd=2)
+# abline(h=0.5, col="grey", lwd=2)
+arrows(d$Bwt, s, d$Bwt, s-m$residuals, col=adjustcolor(4, alpha.f=0.2), length=0.1, lwd=2)
+legend("bottomright",c("regression line", "residuals"), col=c(2,4), lty=1, cex=0.6)
+```
+
+
+### La fonction logit
+
+On introduit donc la fonction *logit*
+
+
+
+
+
+
+\begin{eqnarray}
+\text{logit: } ]0,1[ &\rightarrow& \mathbb{R}                  &\qquad& \lim_{x\to0} logit(x) &=& -\infty  \hspace{12cm}\\
+                   x &\rightarrow& logit(x)=log(\frac{x}{1-x}) &\qquad& \lim_{x\to1} logit(x) &=& +\infty  \hspace{12cm}\\
+\end{eqnarray}
+
+
+
+
+
+\begin{eqnarray}
+\hspace{12cm} \text{logit$^{-1}$: } \mathbb{R} &\rightarrow& ]0,1[                            &\qquad& \lim_{x\to-\infty} logit^{-1}(x) &=& 0\\
+\hspace{12cm}                                x &\rightarrow& logit^{-1}(x)=\frac{1}{1+e^{-x}} &\qquad& \lim_{x\to+\infty} logit^{-1}(x) &=& 1\\
+\end{eqnarray}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+layout(matrix(1:2, 1), respect=TRUE)
+x = 0:100/100
+plot(x, log(x/(1-x)), main="logit", type="l")
+x = seq(-4, 4,  length.out=100)
+plot(x, 1 / (1+exp(-x)), main="logit^-1", type="l")
+```
+
+Et on considére le modèle logistique dans lequel $\pi(x) = logit^{-1}(\beta_0 + \beta_1 x)$ :
+
+$$\mathbb{P}(Y=1|x) = \pi(x) = logit^{-1}(\beta_0 + \beta_1 x)$$ 
+
+
+```{r}
+layout(1, respect=TRUE)
+plot(d$Bwt, s, main="Sex~Bwt", xlab="Bwt", ylab="Sex")
+m = glm(d$Sex~d$Bwt, family = binomial(logit))
+m$coefficients
+logitinv = function(x) 1/(1 + exp(-x))
+x = seq(min(d$Bwt), max(d$Bwt), length.out=30)
+lines(x, logitinv(m$coefficients[[1]] + m$coefficients[[2]]*x), col=2, lwd=2)
+py1x = function(t,m) {
+  x = m$coefficients[[1]] + m$coefficients[[2]]*t #x définit par le fit du modèle en fonction de t la valeur du Bwt
+  1/(1 + exp(-x)) #logit de x
+}
+arrows(d$Bwt, s, d$Bwt, py1x(d$Bwt,m), col=adjustcolor(4, alpha.f=0.2), length=0.05, lwd=3)
+legend("bottomright", c(expression(paste("P(Y=1|x)=", pi, "(x)=", logit^-1, "(", beta , "x)")), expression("1 - P(Y=y_i|X=x_i)")), col=c(2,4), lty=1, cex=0.6)
+```
+
+
+On **généralise** aisement le modèle logistique pour des variables explicatives **multivariées** $X=(X_1,...,X_p))$, $X_i$ pouvant être **qualitatives** ou **quantitaves**, $\beta=(\beta_0, \beta_1, ..., \beta_p)$ : 
+
+
+$$\mathbb{P}(Y=1|X) = \pi(X) = logit^{-1}(\beta X)$$ 
+
+
+
+
+La regression logistique est un modéle linéaire géneralisé (*glm*) qui utilise la fonction *logit* comme fontion de lien.
+
+
+```{r echo=TRUE, results="verbatim"}
+m = glm(d$Sex~d$Bwt, family = binomial(logit))
+m$coefficient
+summary(m)
+#deviance residuals represent the contributions of individual samples to the deviance, analogous to the conventional residuals. If the median deviance residual is close to zero, this means that our model is not biased in one direction (i.e. the out come is neither over- nor underestimated).
+#Null deviance: A low null deviance implies that the data can be modeled well merely using the intercept. If the null deviance is low, you should consider using few features for modeling the data.
+#Residual deviance: A low residual deviance implies that the model you have trained is appropriate. Congratulations!
+#The Akaike information criterion (AIC) is an information-theoretic measure that describes the quality of a model
+#The information about Fisher scoring iterations is just verbose output of iterative weighted least squares. A high number of iterations may be a cause for concern indicating that the algorithm is not converging properly.
+```
+
+
+
+
+### Mesures d'intérêt
+
+Les **Odds** :
+
+$$Odds(X) = \frac{\pi(X)}{1-\pi(X)}$$
+
+\begin{eqnarray}
+\mathbb{P}(Y=1|X) &=& \pi(X) &=& logit^{-1}(\beta X) \\
+logit(\mathbb{P}(Y=1|X)) &=& logit(\pi(X)) &=& \beta X \\
+&&log(\frac{\pi(x)}{1-\pi(x)}) &=& \beta X \\
+&&log(Odds(X)) &=& \beta X \\
+&&Odds(X) &=& e^{\beta X}
+
+\end{eqnarray}
+
+
+Les **odds ratio** :
+
+$$OR_{u/v} = \frac{odd(X = u)}{odd(X=v)} = e^{\beta (u-v)}$$  

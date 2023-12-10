@@ -1,0 +1,197 @@
+## Adéquation du modèle
+
+Comment mesurer si le modèle construit **prédit de façon efficace** les données observées ?
+
+Comment mesurer l’**adéquation** du modèle **aux données** ?
+
+Comment quantifier l’*écart global* entre les valeurs prédites et les valeurs observées (*i.e.*, mesures globales) ?
+
+Comment évaluer la *contribution* de chaque observation au modèle (*i.e.*, détection des outliers) ?
+
+
+3 outils : 
+
+- Pseudo-$R^2$ de McFadden
+- Test de Hosmer-Lemeshow (calibration du modèle)
+- Courbe **ROC** et critère **AUC** (pouvoir discriminant du modèle)
+
+
+### Pseudo-$R^2$ de McFadden
+
+Pour les modèles linèaires on définissait le $R^2$ comme le pourcentage de variance expliquée par le modèle.
+
+C’est a dire 1 moins le rapport entre la variance résiduelle du modèle considéré et le variance du pire modèle, *i.e.* la variance du modèle nul, *i.e* la variance totale.
+
+Dans le cadre du modèle de regression logistique McFadden définit son Pseudo-$R^2$ comme 1 moins le rapport entre moins la log vraisenblance du modèle considéré et moins le log vraisenblance du pire modèle.
+
+
+$$R^2 = \frac{log(\mathcal{L}_{null}) - log(\mathcal{L}_{\mathcal{M}})}{log(\mathcal{L}_{null})}$$
+
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+d = MASS::cats
+m0 = glm(Sex~1, d, family = binomial(logit))
+m1 = glm(Sex~Bwt, d, family = binomial(logit))
+m0
+m1
+1 - (-logLik(m1) / -logLik(m0))
+1 - (m1$deviance / m0$deviance)
+
+m2 = glm(Sex~Bwt+Hwt, d, family = binomial(logit))
+1 - (m2$deviance / m0$deviance)
+```
+
+
+
+
+### Test de Hosmer-Lemeshow
+
+**Principe**
+
+1. Pour chaque observation $i$, on calcule la probabilité de la prediction $\widehat{\mathbb{P}}(Y=1|x_i) = \widehat{\pi}(x_i)$.
+
+2. On regroupe les observations par quantiles de distribution de la valeur prédite, *i.e.*, en $K$ groupes $G_k, k\in \{1, ..., K\}$ de taille égale et de valeurs croissantes de $\widehat{\pi}(x_i)$. Souvent, on prend souvent $K=10$.
+
+3. Pour chaque groupe d’observations $G_k$ , on compare le nombre d’observations pour lesquels $Y=1$ (noté $n_{1k}$), à la somme les $\mathbb{P}(Y=1)$ pour ces même observations (notée $\widehat{n}_{1k}$). De même on calcul $n_{0k}$ le nombre d’observations du groupe $k$ pour lesquels $Y=0$ et $\widehat{n}_{0k}$ la somme les $\mathbb{P}(Y=0)$ pour ces observations.
+
+**Hypotèses**
+
+$$H_0 : {\widehat{n}_{jk} = n_{jk}}, \forall j,k$$	
+$$H_1 : \exists (j,k), \widehat{n}_{jk} \neq n_{jk} $$
+
+
+L’écart entre  les $n_{jk}$ et $\widehat{n}_{jk}$ suit une loi du $\mathcal{X}^2_{K-2}$.
+
+Si la p-valeur du test de Hosmer-Lemeslow est > 0.05, on conserve $H_0$, les valeurs prédites et observées concordent bien, le modèle est bon. 
+
+
+**Exemple**
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+m = glm(Sex~Bwt+Hwt, d, family = binomial(logit))
+test = ResourceSelection::hoslem.test (as.numeric(d$Sex)-1, m$fitted.values)
+test$observed  
+test$expected 
+test
+```
+```{r}
+layout(1, respect=TRUE)
+plot (test$expected[,1], type="b", col="grey", ylim=c(min(test[[7]]), max(test[[7]])), xlab="K quantiles", ylab="effectifs", main="hoslem.test")
+lines(test$expected[,2], type="b", col="grey")
+arrows(1:10, test$observed[,1], 1:10, test$expected[,1], col=adjustcolor(4, alpha.f=0.5), length=0.05, lwd=3)
+arrows(1:10, test$observed[,2], 1:10, test$expected[,2], col=adjustcolor(4, alpha.f=0.5), length=0.05, lwd=3)
+points(test$observed[,1], col="red")
+points(test$observed[,2], col="red")
+legend("topleft", pch=1, col=c("grey", "red"), c("expected", "observed"))
+```
+
+
+
+### Courbe ROC et AUC
+
+
+La courbe ROC (receiver operating characteristic) est un graphique représentant le **pouvoir discriminant** d’un modèle, *i.e* la capacité pour un modèle à correctement classer les observations.
+
+**Principe**
+
+1. Pour chaque observation $i$, on calcule la probabilité prédite $\widehat{P}(Y=1|x_i) = \widehat{\pi}(x_i)$.
+
+2. On définit pour un seuil $s \in [0,1]$ choisi :
+
+$$ \widehat{Y}_i = \Bigg\{
+\begin{align}
+1 && \text{si} && \widehat{\pi}(x_i) \geq s \\ 
+0 && \text{sinon}
+\end{align}
+$$
+
+
+et on calcule la **proportion de bien classés** correspond à :
+
+
+$$ \frac{\# \{\widehat{Y}_i = 1| Y_i = 1\} + \# \{\widehat{Y}_i = 0| Y_i = 0\}}{n} $$
+
+
+
+
+la **Sensibilité** correspond à la proportion de bien classées parmi les observations pour lesquelles $Y=1$,
+
+$$ sensibilité = \frac{\# \{\widehat{Y}_i = 1, Y_i = 1\}}{\# \{Y_i = 1\}} $$
+
+
+La **Spécificité** correspond à la proportion de bien classées parmi les oservations pour lesquelles $Y=0$, 
+
+$$spécificité =  \frac{\# \{\widehat{Y}_i = 0, Y_i = 0\}}{\# \{Y_i = 0\}} $$
+
+3. On fait varier le seuil $s \in [0,1]$.
+
+4. On trace les couples (*spécificité*, *sensibilité*) obtenus.
+
+**Remarques** : 
+
+  - On cherche à **maximiser sensibilité et/ou spécificité** en adaptant le seuil $s$ choisi.
+  - Les valeurs de $s$ sont prises dans $\widehat{\pi}(x_i) \cup \{0,1\}$ avec $i \in \{1, ..., n\}$.
+  - Dans le pire des cas la courbe ROC se confond avec la diagonal et le modèle n’est ni sensible ni spécifique.
+  
+
+**Exemple**
+
+```{r, eval=TRUE, echo=TRUE, results="verbatim"}
+layout(1, respect=TRUE)
+m = glm(Sex~Bwt, d, family = binomial(logit))
+xy = t(sapply(sort(unique(c(0,1,m$fitted.values))), function(thresh) {
+  pred = (m$fitted.values >= thresh) + 0
+  specificity = sum(pred==0 & d$Sex=="F") / sum(d$Sex=="F")
+  sensitivity = sum(pred==1 & d$Sex=="M") / sum(d$Sex=="M")
+  return(c(specificity=specificity, sensitivity=sensitivity, thresh=thresh))
+}))
+plot(xy, xlim=c(1,0), type="b", main="ROC curve for Sex~Bwt")
+abline(1,-1, col="grey")
+text(xy[,1], xy[,2], signif(xy[,3],3), pos=4)
+```
+
+**AUC** signifie *aera under the curve*, *i.e*, l’aire sous la courbe ROC.
+En effet, plus cette aire est importante, plus le modèle peut-être à la fois sensible et spécifique. 
+Ainsi, l’AUC devient un critère permettant de rendre compte des capacités prédictives d’un modèle.
+
+**Principe**
+
+AUC           | Discrimination
+------------- | -------------
+0.5           | Nulle
+0.7 - 0.8     | Acceptable
+0.8 - 0.9     | Excellente
+> 0.9         | Exceptionnelle
+
+Plus l’aire sous la courbe augmente, plus le modèle est capable de bien classer les observations:
+
+- Si $AUC = 0.5$ alors le modèle classe de manière complètement aléatoire les observations
+
+- Si $AUC > 0.9$ le modèle est très bon, voire trop bon, il faut évaluer s’il y a sur apprentissage.
+ 
+
+**Exemple**
+
+```{r warning=FALSE, message=FALSE }
+layout(1, respect=TRUE)
+m0 = glm(s~1, family = binomial(logit))
+m1 = glm(s~d$Bwt, family = binomial(logit))
+m2 = glm(s~d$Hwt, family = binomial(logit))
+m3 = glm(s~d$Hwt+d$Bwt, family = binomial(logit))
+ROC0 = pROC::roc(response=s, m0$fitted.values)
+ROC1 = pROC::roc(response=s, m1$fitted.values)
+ROC2 = pROC::roc(response=s, m2$fitted.values)
+ROC3 = pROC::roc(response=s, m3$fitted.values)
+plot( ROC0, col=1)
+lines(ROC1, col=2)
+lines(ROC2, col=3)
+lines(ROC3, col=4)
+legend("bottomright", lty=1, c(
+  paste0("s~1"      , ", AUC=", signif(ROC0$auc, 3)) , 
+  paste0("s~Bwt"    , ", AUC=", signif(ROC1$auc, 3)) , 
+  paste0("s~Hwt"    , ", AUC=", signif(ROC2$auc, 3)) , 
+  paste0("s~Hwt+Bwt", ", AUC=", signif(ROC3$auc, 3))
+), col=1:4)
+```
+
+
