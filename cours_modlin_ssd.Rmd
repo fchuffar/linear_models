@@ -23,8 +23,8 @@ knitr::opts_chunk$set(collapse=TRUE, comment = "#>", fig.width=9, fig.height=6, 
 
 ## Les plateformes
 
-1. __CODALAB__ Les TP seront organisés autour de plusieurs data challenges sur la plateforme codalab, je vous invite à vous connecter ici au plus tôt et créer vos compotes pour gagner du temps : 
-  https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce
+1. __CODALAB__ Les TP seront organisés autour de plusieurs data challenges sur la plateforme codabench, je vous invite à vous connecter ici au plus tôt et créer vos compotes pour gagner du temps : 
+  https://www.codabench.org
   
 2. __GITHUB__ Le cours est dés maintenant disponible sur github, il évoluera au fil des sessions, le dépot sera régulièrement mis à jour  
   https://github.com/fchuffar/linear_models
@@ -48,18 +48,18 @@ https://github.com/fchuffar/linear_models
 ## Organisation prévisionnelle
 
   - Régression linéaire simple 1 (séance 1, Magali Richard)
-  - Régression linéaire simple 2 (séance 2, Florent Chuffart)
-  - Régression linéaire multiple (séance 3, Florent Chuffart)
-  - *data challenge expred3.0* (séance 4, Magali Richard)
-      - codalab : https://codalab.lisn.upsaclay.fr/competitions/8696?secret_key=3f32bbfc-9942-4e60-b241-bd10300d1bce
-      - fin de séance, 1 compte rendu par équipe : https://github.com/fchuffar/starting_kit_expred3.0
-  - ANOVA (séance 5, Florent Chuffart) 
+  - Régression linéaire multiple (séance 2, Florent Chuffart)
+  - Data challenge *epiclock1.0* (séance 3, Magali Richard)
+      - https://www.codabench.org/competitions/1692/?secret_key=439a40e9-9de7-4336-918f-ac983d5dd22c
+      - https://github.com/fchuffar/starting_kit_epiclock1.0
+  - ANOVA (séance 4, Florent Chuffart) 
+  - Correction data challenge : *boostrap* et *stacking* (séance 5, Florent Chuffart) 
 
      
   - Introduction à la régression logistique (séance 6, Florent Chuffart) 
-  - *data challenge 2 histpred2.0* (séance 7, Magali Richard)
-      - https://competitions.codalab.org/competitions/25357?secret_key=3a54cc71-6bbf-4e30-bf98-e9ec502853bf
-       
+  - Data Challenge *epismoke1.0* (séance 7, Magali Richard)
+      - https://codabench.org
+      - https://github.com/fchuffar/starting_kit_epismoke1.0      
   - Introduction à la regression de poisson (séance 8, Florent Chuffart)
   
   
@@ -93,7 +93,35 @@ N’hésitez pas à rejoindre le RIS, vous serez tenus informés des actions de 
 ```{r child = "04_cours_modlin.Rmd", eval=FALSE}
 ```
 
-```{r child = "0Bib_cours_modlin.Rmd", eval=TRUE}
+
+
+
+
+```{r child = '10_cours_reglog.Rmd', eval=TRUE}
+```
+
+```{r child = '11_cours_reglog.Rmd', eval=TRUE}
+```
+
+```{r child='12_cours_reglog.Rmd', eval=TRUE}
+```
+
+```{r child = '13_cours_reglog.Rmd', eval=TRUE}
+```
+
+
+
+
+
+
+```{r child = '20_cours_regpoi.Rmd', eval=TRUE}
+```
+
+
+
+
+
+```{r child = "0Biblio_cours_modlin.Rmd", eval=TRUE}
 ```
 
 ```{r, results="verbatim"}

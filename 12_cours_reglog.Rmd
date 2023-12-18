@@ -73,6 +73,11 @@ t = z^2
 m2 = glm(Sex~Bwt+Hwt, d, family = binomial(logit))
 m2$coefficients
 summary(m2)$coefficient
+
+m3 = glm(Sex~Hwt+Bwt, d, family = binomial(logit))
+m3$coefficients
+summary(m3)$coefficient
+
 ```
 
 ```{r}

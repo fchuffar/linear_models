@@ -1,11 +1,9 @@
 # Regression logistique
 
-## Le cas d'une covariable qualitative
 
 On cherche une relation entre une **variable binaire** $Y$ (observée, à expliquer) et un ensemble de variables explicatives $X$ (quantitatives ou qualitatives). 
 
 $$Y \sim X$$
-
 
 On distingue : 
 
@@ -19,9 +17,6 @@ Exemples de variables binaires à expliquer / prédir :
   - La suvernue d’un cancer en fonction d’expositions chimiques
   - La pulsion d’achat d’un bien en fonction de variables sociodémographiques
   - Le risque d’accoucher d’un bébé de faible poids (<2500g) en fonction de l’âge de la mère, du poids, du tabagisme.
-  - le sexe en fonction de l’expression des gènes (challenge *sexpred*)
-  - l’histologie en fonction de l’expression des gènes (challenge *histpred*)
-  - la survie à 24 mois en fonction de l’expression des gènes (challenge *virpred*)
 
 ---
   
@@ -38,7 +33,7 @@ On appelle $\pi(x)$, le prédicteur de $Y=1$ en fonction de la valeur $x$ prise 
 
 
 
-### Mesures d'intérêt
+**Mesures d’intérêt**
 
 On définit les **Odds** :
 
@@ -78,34 +73,7 @@ Note : le risque relatif est plus facilement interprétrable que l’*odds ratio
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Exemple *les cancers pédiatriques*
+## Le cas d'une covariable qualitative (`childhood_cancer`)
 
 On s’intéresse au rôle de différents facteurs (statut tabagique et alcoolique des mères) dans la survenue de cancers pédiatriques (chez l’enfant).
 
@@ -496,6 +464,9 @@ log(l2)
 # Test
 T = -2 * (ll1 - ll2)
 T
+
+# pval
+pchisq(T,1, lower.tail=FALSE)
 ```
 
 
@@ -512,6 +483,10 @@ anova(m1, m2, test="Chisq")
 # Ecriture des modèles avec la fonction glm
 m = glm(d$cancer~d$tabac, family = binomial(logit))
 summary(m)
+
+m1 = glm(d2$cancer~1, family = binomial(logit))
+m2 = glm(d2$cancer~d2$tabac, family = binomial(logit))
+anova(m1, m2, test="Chisq")
 
 m = glm(d2$cancer~d2$tabac, family = binomial(logit))
 summary(m)
