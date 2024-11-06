@@ -20,7 +20,7 @@ pkgs= c(
   "multcomp",
   "lsmeans",
   "memoise",
-  "RessourceSelection",
+  "ResourceSelection",
   "pROC"
 )
 install.packages(pkgs)
