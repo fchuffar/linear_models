@@ -19,7 +19,9 @@ pkgs= c(
   "faraway",
   "multcomp",
   "lsmeans",
-  "memoise"
+  "memoise",
+  "RessourceSelection",
+  "pROC"
 )
 install.packages(pkgs)
 ```
